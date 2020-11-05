@@ -22,8 +22,6 @@
 #include "terminal.hxx"
 
 #define CTRL_KEY(k) ((k) & 0x1f)
-
-namespace Terminal {
 enum editorKey {
   BACKSPACE = 127,
   ARROW_LEFT = 1000,
@@ -36,6 +34,8 @@ enum editorKey {
   PAGE_UP,
   PAGE_DOWN
 };
+
+namespace Terminal {
 
 void die(const char *s);
 void disableRawMode();
