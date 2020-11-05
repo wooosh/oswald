@@ -1,6 +1,7 @@
 #pragma once
 
 #include "row.hxx"
+#include <vector>
 
 extern struct editorConfig {
   int cx, cy;
@@ -9,8 +10,7 @@ extern struct editorConfig {
   int coloff;
   int screenrows;
   int screencols;
-  int numrows;
-  erow *row;
+  std::vector<erow> row;
   int dirty;
   char *filename;
   char statusmsg[80];

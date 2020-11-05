@@ -18,19 +18,18 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <string>
+
 typedef struct erow {
-  int size;
-  int rsize;
-  char *chars;
-  char *render;
+  std::string raw;
+  std::string render;
 
   int editorRowCxToRx(int cx);
   int editorRowRxToCx(int rx);
   void editorUpdateRow();
-  void editorFreeRow();
-  void editorRowInsertChar(int at, int c);
-  void editorRowAppendString(char *s, size_t len);
+  void editorRowInsertChar(size_t at, char c);
+  void editorRowAppendString(std::string s);
   void editorRowDelChar(int at);
 } erow;
 void editorDelRow(int at);
-void editorInsertRow(int at, char *s, size_t len);
+void editorInsertRow(int at, std::string s);

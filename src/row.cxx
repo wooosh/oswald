@@ -26,7 +26,7 @@ int erow::editorRowCxToRx(int cx) {
   int rx = 0;
   int j;
   for (j = 0; j < cx; j++) {
-    if (this->chars[j] == '\t')
+    if (this->raw[j] == '\t')
       rx += (KILO_TAB_STOP - 1) - (rx % KILO_TAB_STOP);
     rx++;
   }
@@ -36,8 +36,8 @@ int erow::editorRowCxToRx(int cx) {
 int erow::editorRowRxToCx(int rx) {
   int cur_rx = 0;
   int cx;
-  for (cx = 0; cx < this->size; cx++) {
-    if (this->chars[cx] == '\t')
+  for (cx = 0; cx < this->raw.length(); cx++) {
+    if (this->raw[cx] == '\t')
       cur_rx += (KILO_TAB_STOP - 1) - (cur_rx % KILO_TAB_STOP);
     cur_rx++;
 
@@ -49,80 +49,54 @@ int erow::editorRowRxToCx(int rx) {
 void erow::editorUpdateRow() {
   int tabs = 0;
   int j;
-  for (j = 0; j < this->size; j++)
-    if (this->chars[j] == '\t') tabs++;
+  for (j = 0; j < this->raw.length(); j++)
+    if (this->raw[j] == '\t') tabs++;
 
-  free(this->render);
-  this->render = (char*) malloc(this->size + tabs*(KILO_TAB_STOP - 1) + 1);
+  this->render.clear();
 
-  int idx = 0;
-  for (j = 0; j < this->size; j++) {
-    if (this->chars[j] == '\t') {
-      this->render[idx++] = ' ';
-      while (idx % KILO_TAB_STOP != 0) this->render[idx++] = ' ';
+  for (j = 0; j < this->raw.length(); j++) {
+    if (this->raw[j] == '\t') {
+      this->render += ' ';
+      while (this->render.length() % KILO_TAB_STOP != 0) this->render += ' ';
     } else {
-      this->render[idx++] = this->chars[j];
+      this->render += this->raw[j];
     }
   }
-  this->render[idx] = '\0';
-  this->rsize = idx;
 }
 
-void editorInsertRow(int at, char *s, size_t len) {
-  if (at < 0 || at > E.numrows) return;
+void editorInsertRow(int at, std::string s) {
+  if (at < 0 || at > E.row.size()) return;
 
-  E.row = (erow*) realloc(E.row, sizeof(erow) * (E.numrows + 1));
-  memmove(&E.row[at + 1], &E.row[at], sizeof(erow) * (E.numrows - at));
+  E.row.insert(E.row.begin() + at, (erow){});
 
-  E.row[at].size = len;
-  E.row[at].chars = (char*) malloc(len + 1);
-  memcpy(E.row[at].chars, s, len);
-  E.row[at].chars[len] = '\0';
-
-  E.row[at].rsize = 0;
-  E.row[at].render = NULL;
+  E.row[at].raw = s;
   E.row[at].editorUpdateRow();
 
-  E.numrows++;
   E.dirty++;
-}
-
-void erow::editorFreeRow() {
-  free(this->render);
-  free(this->chars);
 }
 
 void editorDelRow(int at) {
-  if (at < 0 || at >= E.numrows) return;
-  E.row[at].editorFreeRow();
-  memmove(&E.row[at], &E.row[at + 1], sizeof(erow) * (E.numrows - at - 1));
-  E.numrows--;
+  if (at < 0 || at >= E.row.size()) return;
+  E.row.erase(E.row.begin() + at);
   E.dirty++;
 }
 
-void erow::editorRowInsertChar(int at, int c) {
-  if (at < 0 || at > this->size) at = this->size;
-  this->chars = (char*) realloc(this->chars, this->size + 2);
-  memmove(&this->chars[at + 1], &this->chars[at], this->size - at + 1);
-  this->size++;
-  this->chars[at] = c;
+void erow::editorRowInsertChar(size_t at, char c) {
+  if (at < 0 || at > this->raw.length()) at = this->raw.length();
+  this->raw.insert(this->raw.begin() + at, c);
   this->editorUpdateRow();
   E.dirty++;
 }
 
-void erow::editorRowAppendString(char *s, size_t len) {
-  this->chars = (char*) realloc(this->chars, this->size + len + 1);
-  memcpy(&this->chars[this->size], s, len);
-  this->size += len;
-  this->chars[this->size] = '\0';
+void erow::editorRowAppendString(std::string s) {
+  this->raw += s;
   this->editorUpdateRow();
   E.dirty++;
 }
 
 void erow::editorRowDelChar(int at) {
-  if (at < 0 || at >= this->size) return;
-  memmove(&this->chars[at], &this->chars[at + 1], this->size - at);
-  this->size--;
+  if (at < 0 || at >= this->raw.length()) return;
+  this->raw.erase(at);
   this->editorUpdateRow();
   E.dirty++;
 }

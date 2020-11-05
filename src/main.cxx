@@ -38,8 +38,8 @@ char *editorPrompt(char *prompt, void (*callback)(char *, int));
 /*** editor operations ***/
 
 void editorInsertChar(int c) {
-  if (E.cy == E.numrows) {
-    editorInsertRow(E.numrows, "", 0);
+  if (E.cy == E.row.size()) {
+    editorInsertRow(E.row.size(), "");
   }
   E.row[E.cy].editorRowInsertChar(E.cx, c);
   E.cx++;
@@ -47,13 +47,13 @@ void editorInsertChar(int c) {
 
 void editorInsertNewline() {
   if (E.cx == 0) {
-    editorInsertRow(E.cy, "", 0);
+    editorInsertRow(E.cy, "");
   } else {
+    // we need to split the current row into two
     erow *row = &E.row[E.cy];
-    editorInsertRow(E.cy + 1, &row->chars[E.cx], row->size - E.cx);
+    editorInsertRow(E.cy + 1, row->raw.substr(E.cx, row->raw.length() - E.cx));
     row = &E.row[E.cy];
-    row->size = E.cx;
-    row->chars[row->size] = '\0';
+    row->raw.erase(row->raw.begin() + E.cx, row->raw.end());
     row->editorUpdateRow();
   }
   E.cy++;
@@ -61,7 +61,7 @@ void editorInsertNewline() {
 }
 
 void editorDelChar() {
-  if (E.cy == E.numrows) return;
+  if (E.cy == E.row.size()) return;
   if (E.cx == 0 && E.cy == 0) return;
 
   erow *row = &E.row[E.cy];
@@ -69,8 +69,8 @@ void editorDelChar() {
     row->editorRowDelChar(E.cx - 1);
     E.cx--;
   } else {
-    E.cx = E.row[E.cy - 1].size;
-    E.row[E.cy - 1].editorRowAppendString(row->chars, row->size);
+    E.cx = E.row[E.cy - 1].raw.length();
+    E.row[E.cy - 1].editorRowAppendString(row->raw);
     editorDelRow(E.cy);
     E.cy--;
   }
@@ -79,25 +79,32 @@ void editorDelChar() {
 /*** file i/o ***/
 
 char *editorRowsToString(int *buflen) {
+  // @Todo: fix
+  exit(1);
+  /*
   int totlen = 0;
   int j;
-  for (j = 0; j < E.numrows; j++)
-    totlen += E.row[j].size + 1;
+  for (j = 0; j < E.row.size(); j++)
+    totlen += E.row[j].raw.length() + 1;
   *buflen = totlen;
 
   char *buf = (char*) malloc(totlen);
   char *p = buf;
-  for (j = 0; j < E.numrows; j++) {
-    memcpy(p, E.row[j].chars, E.row[j].size);
+  for (j = 0; j < E.row.size(); j++) {
+    memcpy(p, E.row[j].raw, E.row[j].size);
     p += E.row[j].size;
     *p = '\n';
     p++;
   }
 
   return buf;
+  */
 }
 
 void editorOpen(char *filename) {
+  // @Todo: fix
+  exit(1);
+  /*
   free(E.filename);
   E.filename = strdup(filename);
 
@@ -111,11 +118,12 @@ void editorOpen(char *filename) {
     while (linelen > 0 && (line[linelen - 1] == '\n' ||
                            line[linelen - 1] == '\r'))
       linelen--;
-    editorInsertRow(E.numrows, line, linelen);
+    editorInsertRow(E.row.size(), line, linelen);
   }
   free(line);
   fclose(fp);
   E.dirty = 0;
+  */
 }
 
 void editorSave() {
@@ -151,6 +159,9 @@ void editorSave() {
 /*** find ***/
 
 void editorFindCallback(char *query, int key) {
+  // @Todo: fix this
+  exit(1);
+  /*
   static int last_match = -1;
   static int direction = 1;
 
@@ -170,10 +181,10 @@ void editorFindCallback(char *query, int key) {
   if (last_match == -1) direction = 1;
   int current = last_match;
   int i;
-  for (i = 0; i < E.numrows; i++) {
+  for (i = 0; i < E.row.size(); i++) {
     current += direction;
-    if (current == -1) current = E.numrows - 1;
-    else if (current == E.numrows) current = 0;
+    if (current == -1) current = E.row.size() - 1;
+    else if (current == E.row.size()) current = 0;
 
     erow *row = &E.row[current];
     char *match = strstr(row->render, query);
@@ -181,10 +192,10 @@ void editorFindCallback(char *query, int key) {
       last_match = current;
       E.cy = current;
       E.cx = row->editorRowRxToCx(match - row->render);
-      E.rowoff = E.numrows;
+      E.rowoff = E.row.size();
       break;
     }
-  }
+  }*/
 }
 
 void editorFind() {
@@ -255,7 +266,7 @@ char *editorPrompt(char *prompt, void (*callback)(char *, int)) {
 }
 
 void editorMoveCursor(int key) {
-  erow *row = (E.cy >= E.numrows) ? NULL : &E.row[E.cy];
+  erow *row = (E.cy >= E.row.size()) ? NULL : &E.row[E.cy];
 
   switch (key) {
     case ARROW_LEFT:
@@ -263,13 +274,13 @@ void editorMoveCursor(int key) {
         E.cx--;
       } else if (E.cy > 0) {
         E.cy--;
-        E.cx = E.row[E.cy].size;
+        E.cx = E.row[E.cy].raw.length();
       }
       break;
     case ARROW_RIGHT:
-      if (row && E.cx < row->size) {
+      if (row && E.cx < row->raw.length()) {
         E.cx++;
-      } else if (row && E.cx == row->size) {
+      } else if (row && E.cx == row->raw.length()) {
         E.cy++;
         E.cx = 0;
       }
@@ -280,14 +291,14 @@ void editorMoveCursor(int key) {
       }
       break;
     case ARROW_DOWN:
-      if (E.cy < E.numrows) {
+      if (E.cy < E.row.size()) {
         E.cy++;
       }
       break;
   }
 
-  row = (E.cy >= E.numrows) ? NULL : &E.row[E.cy];
-  int rowlen = row ? row->size : 0;
+  row = (E.cy >= E.row.size()) ? NULL : &E.row[E.cy];
+  int rowlen = row ? row->raw.length() : 0;
   if (E.cx > rowlen) {
     E.cx = rowlen;
   }
@@ -324,8 +335,8 @@ void editorProcessKeypress() {
       break;
 
     case END_KEY:
-      if (E.cy < E.numrows)
-        E.cx = E.row[E.cy].size;
+      if (E.cy < E.row.size())
+        E.cx = E.row[E.cy].raw.length();
       break;
 
     case CTRL_KEY('f'):
@@ -346,7 +357,7 @@ void editorProcessKeypress() {
           E.cy = E.rowoff;
         } else if (c == PAGE_DOWN) {
           E.cy = E.rowoff + E.screenrows - 1;
-          if (E.cy > E.numrows) E.cy = E.numrows;
+          if (E.cy > E.row.size()) E.cy = E.row.size();
         }
 
         int times = E.screenrows;
@@ -382,8 +393,6 @@ void initEditor() {
   E.rx = 0;
   E.rowoff = 0;
   E.coloff = 0;
-  E.numrows = 0;
-  E.row = NULL;
   E.dirty = 0;
   E.filename = NULL;
   E.statusmsg[0] = '\0';

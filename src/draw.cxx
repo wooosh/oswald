@@ -16,7 +16,7 @@
 
 void editorScroll() {
   E.rx = 0;
-  if (E.cy < E.numrows) {
+  if (E.cy < E.row.size()) {
     E.rx = E.row[E.cy].editorRowCxToRx(E.cx);
   }
 
@@ -38,8 +38,8 @@ void editorDrawRows(std::string& buf) {
   int y;
   for (y = 0; y < E.screenrows; y++) {
     int filerow = y + E.rowoff;
-    if (filerow >= E.numrows) {
-      if (E.numrows == 0 && y == E.screenrows / 3) {
+    if (filerow >= E.row.size()) {
+      if (E.row.size() == 0 && y == E.screenrows / 3) {
         char welcome[80];
         int welcomelen = snprintf(welcome, sizeof(welcome),
           "Kilo editor -- version %s", KILO_VERSION);
@@ -55,11 +55,11 @@ void editorDrawRows(std::string& buf) {
         buf += "~";
       }
     } else {
-      int len = E.row[filerow].rsize - E.coloff;
-      if (len < 0) len = 0;
-      if (len > E.screencols) len = E.screencols;
-      std::string sliceBuf(E.row[filerow].render);
-      buf += sliceBuf.substr(E.coloff, len);
+      int len = E.row[filerow].render.length() - E.coloff;
+      if (len > 0) {;
+        if (len > E.screencols) len = E.screencols;
+        buf += E.row[filerow].render.substr(E.coloff, len);
+      }
       //abAppend(ab, &E.row[filerow].render[E.coloff], len);
     }
 
@@ -72,10 +72,10 @@ void editorDrawStatusBar(std::string& buf) {
   buf += "\x1b[7m";
   char status[80], rstatus[80];
   int len = snprintf(status, sizeof(status), "%.20s - %d lines %s",
-    E.filename ? E.filename : "[No Name]", E.numrows,
+    E.filename ? E.filename : "[No Name]", E.row.size(),
     E.dirty ? "(modified)" : "");
   int rlen = snprintf(rstatus, sizeof(rstatus), "%d/%d",
-    E.cy + 1, E.numrows);
+    E.cy + 1, E.row.size());
   if (len > E.screencols) len = E.screencols;
   buf += status;
   while (len < E.screencols) {
