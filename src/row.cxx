@@ -7,8 +7,8 @@
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <stdio.h>
 #include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
@@ -17,8 +17,8 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "row.hxx"
 #include "main.hxx"
+#include "row.hxx"
 
 #define KILO_TAB_STOP 8
 
@@ -41,7 +41,8 @@ int erow::editorRowRxToCx(int rx) {
       cur_rx += (KILO_TAB_STOP - 1) - (cur_rx % KILO_TAB_STOP);
     cur_rx++;
 
-    if (cur_rx > rx) return cx;
+    if (cur_rx > rx)
+      return cx;
   }
   return cx;
 }
@@ -50,14 +51,16 @@ void erow::editorUpdateRow() {
   int tabs = 0;
   int j;
   for (j = 0; j < this->raw.length(); j++)
-    if (this->raw[j] == '\t') tabs++;
+    if (this->raw[j] == '\t')
+      tabs++;
 
   this->render.clear();
 
   for (j = 0; j < this->raw.length(); j++) {
     if (this->raw[j] == '\t') {
       this->render += ' ';
-      while (this->render.length() % KILO_TAB_STOP != 0) this->render += ' ';
+      while (this->render.length() % KILO_TAB_STOP != 0)
+        this->render += ' ';
     } else {
       this->render += this->raw[j];
     }
@@ -65,7 +68,8 @@ void erow::editorUpdateRow() {
 }
 
 void editorInsertRow(int at, std::string s) {
-  if (at < 0 || at > E.row.size()) return;
+  if (at < 0 || at > E.row.size())
+    return;
 
   E.row.insert(E.row.begin() + at, (erow){});
 
@@ -76,13 +80,15 @@ void editorInsertRow(int at, std::string s) {
 }
 
 void editorDelRow(int at) {
-  if (at < 0 || at >= E.row.size()) return;
+  if (at < 0 || at >= E.row.size())
+    return;
   E.row.erase(E.row.begin() + at);
   E.dirty++;
 }
 
 void erow::editorRowInsertChar(size_t at, char c) {
-  if (at < 0 || at > this->raw.length()) at = this->raw.length();
+  if (at < 0 || at > this->raw.length())
+    at = this->raw.length();
   this->raw.insert(this->raw.begin() + at, c);
   this->editorUpdateRow();
   E.dirty++;
@@ -95,7 +101,8 @@ void erow::editorRowAppendString(std::string s) {
 }
 
 void erow::editorRowDelChar(int at) {
-  if (at < 0 || at >= this->raw.length()) return;
+  if (at < 0 || at >= this->raw.length())
+    return;
   this->raw.erase(at);
   this->editorUpdateRow();
   E.dirty++;

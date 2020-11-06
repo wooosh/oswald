@@ -7,8 +7,8 @@
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <stdio.h>
 #include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
@@ -61,8 +61,10 @@ void editorInsertNewline() {
 }
 
 void editorDelChar() {
-  if (E.cy == E.row.size()) return;
-  if (E.cx == 0 && E.cy == 0) return;
+  if (E.cy == E.row.size())
+    return;
+  if (E.cx == 0 && E.cy == 0)
+    return;
 
   erow *row = &E.row[E.cy];
   if (E.cx > 0) {
@@ -204,8 +206,8 @@ void editorFind() {
   int saved_coloff = E.coloff;
   int saved_rowoff = E.rowoff;
 
-  char *query = editorPrompt("Search: %s (Use ESC/Arrows/Enter)",
-                             editorFindCallback);
+  char *query =
+      editorPrompt("Search: %s (Use ESC/Arrows/Enter)", editorFindCallback);
 
   if (query) {
     free(query);
@@ -229,7 +231,7 @@ void editorSetStatusMessage(const char *fmt, ...) {
 
 char *editorPrompt(char *prompt, void (*callback)(char *, int)) {
   size_t bufsize = 128;
-  char *buf = (char*) malloc(bufsize);
+  char *buf = (char *)malloc(bufsize);
 
   size_t buflen = 0;
   buf[0] = '\0';
@@ -240,28 +242,32 @@ char *editorPrompt(char *prompt, void (*callback)(char *, int)) {
 
     int c = Terminal::readKey();
     if (c == DEL_KEY || c == CTRL_KEY('h') || c == BACKSPACE) {
-      if (buflen != 0) buf[--buflen] = '\0';
+      if (buflen != 0)
+        buf[--buflen] = '\0';
     } else if (c == '\x1b') {
       editorSetStatusMessage("");
-      if (callback) callback(buf, c);
+      if (callback)
+        callback(buf, c);
       free(buf);
       return NULL;
     } else if (c == '\r') {
       if (buflen != 0) {
         editorSetStatusMessage("");
-        if (callback) callback(buf, c);
+        if (callback)
+          callback(buf, c);
         return buf;
       }
     } else if (!iscntrl(c) && c < 128) {
       if (buflen == bufsize - 1) {
         bufsize *= 2;
-        buf = (char*) realloc(buf, bufsize);
+        buf = (char *)realloc(buf, bufsize);
       }
       buf[buflen++] = c;
       buf[buflen] = '\0';
     }
 
-    if (callback) callback(buf, c);
+    if (callback)
+      callback(buf, c);
   }
 }
 
@@ -269,32 +275,32 @@ void editorMoveCursor(int key) {
   erow *row = (E.cy >= E.row.size()) ? NULL : &E.row[E.cy];
 
   switch (key) {
-    case ARROW_LEFT:
-      if (E.cx != 0) {
-        E.cx--;
-      } else if (E.cy > 0) {
-        E.cy--;
-        E.cx = E.row[E.cy].raw.length();
-      }
-      break;
-    case ARROW_RIGHT:
-      if (row && E.cx < row->raw.length()) {
-        E.cx++;
-      } else if (row && E.cx == row->raw.length()) {
-        E.cy++;
-        E.cx = 0;
-      }
-      break;
-    case ARROW_UP:
-      if (E.cy != 0) {
-        E.cy--;
-      }
-      break;
-    case ARROW_DOWN:
-      if (E.cy < E.row.size()) {
-        E.cy++;
-      }
-      break;
+  case ARROW_LEFT:
+    if (E.cx != 0) {
+      E.cx--;
+    } else if (E.cy > 0) {
+      E.cy--;
+      E.cx = E.row[E.cy].raw.length();
+    }
+    break;
+  case ARROW_RIGHT:
+    if (row && E.cx < row->raw.length()) {
+      E.cx++;
+    } else if (row && E.cx == row->raw.length()) {
+      E.cy++;
+      E.cx = 0;
+    }
+    break;
+  case ARROW_UP:
+    if (E.cy != 0) {
+      E.cy--;
+    }
+    break;
+  case ARROW_DOWN:
+    if (E.cy < E.row.size()) {
+      E.cy++;
+    }
+    break;
   }
 
   row = (E.cy >= E.row.size()) ? NULL : &E.row[E.cy];
@@ -310,76 +316,77 @@ void editorProcessKeypress() {
   int c = Terminal::readKey();
 
   switch (c) {
-    case '\r':
-      editorInsertNewline();
-      break;
+  case '\r':
+    editorInsertNewline();
+    break;
 
-    case CTRL_KEY('q'):
-      if (E.dirty && quit_times > 0) {
-        editorSetStatusMessage("WARNING!!! File has unsaved changes. "
-          "Press Ctrl-Q %d more times to quit.", quit_times);
-        quit_times--;
-        return;
-      }
-      write(STDOUT_FILENO, "\x1b[2J", 4);
-      write(STDOUT_FILENO, "\x1b[H", 3);
-      exit(0);
-      break;
+  case CTRL_KEY('q'):
+    if (E.dirty && quit_times > 0) {
+      editorSetStatusMessage("WARNING!!! File has unsaved changes. "
+                             "Press Ctrl-Q %d more times to quit.",
+                             quit_times);
+      quit_times--;
+      return;
+    }
+    write(STDOUT_FILENO, "\x1b[2J", 4);
+    write(STDOUT_FILENO, "\x1b[H", 3);
+    exit(0);
+    break;
 
-    case CTRL_KEY('s'):
-      editorSave();
-      break;
+  case CTRL_KEY('s'):
+    editorSave();
+    break;
 
-    case HOME_KEY:
-      E.cx = 0;
-      break;
+  case HOME_KEY:
+    E.cx = 0;
+    break;
 
-    case END_KEY:
-      if (E.cy < E.row.size())
-        E.cx = E.row[E.cy].raw.length();
-      break;
+  case END_KEY:
+    if (E.cy < E.row.size())
+      E.cx = E.row[E.cy].raw.length();
+    break;
 
-    case CTRL_KEY('f'):
-      editorFind();
-      break;
+  case CTRL_KEY('f'):
+    editorFind();
+    break;
 
-    case BACKSPACE:
-    case CTRL_KEY('h'):
-    case DEL_KEY:
-      if (c == DEL_KEY) editorMoveCursor(ARROW_RIGHT);
-      editorDelChar();
-      break;
+  case BACKSPACE:
+  case CTRL_KEY('h'):
+  case DEL_KEY:
+    if (c == DEL_KEY)
+      editorMoveCursor(ARROW_RIGHT);
+    editorDelChar();
+    break;
 
-    case PAGE_UP:
-    case PAGE_DOWN:
-      {
-        if (c == PAGE_UP) {
-          E.cy = E.rowoff;
-        } else if (c == PAGE_DOWN) {
-          E.cy = E.rowoff + E.screenrows - 1;
-          if (E.cy > E.row.size()) E.cy = E.row.size();
-        }
+  case PAGE_UP:
+  case PAGE_DOWN: {
+    if (c == PAGE_UP) {
+      E.cy = E.rowoff;
+    } else if (c == PAGE_DOWN) {
+      E.cy = E.rowoff + E.screenrows - 1;
+      if (E.cy > E.row.size())
+        E.cy = E.row.size();
+    }
 
-        int times = E.screenrows;
-        while (times--)
-          editorMoveCursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
-      }
-      break;
+    int times = E.screenrows;
+    while (times--)
+      editorMoveCursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
+  } break;
 
-    case ARROW_UP:
-    case ARROW_DOWN:
-    case ARROW_LEFT:
-    case ARROW_RIGHT:
-      editorMoveCursor(c);
-      break;
+  case ARROW_UP:
+  case ARROW_DOWN:
+  case ARROW_LEFT:
+  case ARROW_RIGHT:
+    editorMoveCursor(c);
+    break;
 
-    case CTRL_KEY('l'):
-    case '\x1b':
-      break;
+  case CTRL_KEY('l'):
+  case '\x1b':
+    break;
 
-    default:
-      editorInsertChar(c);
-      break;
+  default:
+    editorInsertChar(c);
+    break;
   }
 
   quit_times = KILO_QUIT_TIMES;
@@ -398,7 +405,8 @@ void initEditor() {
   E.statusmsg[0] = '\0';
   E.statusmsg_time = 0;
 
-  if (Terminal::getWindowSize(&E.screenrows, &E.screencols) == -1) Terminal::die("getWindowSize");
+  if (Terminal::getWindowSize(&E.screenrows, &E.screencols) == -1)
+    Terminal::die("getWindowSize");
   E.screenrows -= 2;
 }
 
@@ -409,8 +417,7 @@ int main(int argc, char *argv[]) {
     editorOpen(argv[1]);
   }
 
-  editorSetStatusMessage(
-    "HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find");
+  editorSetStatusMessage("HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find");
 
   while (1) {
     editorRefreshScreen();

@@ -8,8 +8,8 @@
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <stdio.h>
 #include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
@@ -21,7 +21,7 @@
 #include "main.hxx"
 #include "terminal.hxx"
 
-#define CTRL_KEY(k) ((k) & 0x1f)
+#define CTRL_KEY(k) ((k)&0x1f)
 enum editorKey {
   BACKSPACE = 127,
   ARROW_LEFT = 1000,
@@ -45,4 +45,4 @@ int getCursorPosition(int *rows, int *cols);
 
 // @Todo: rewrite to store window size in editor struct on window resize
 int getWindowSize(int *rows, int *cols);
-}
+} // namespace Terminal

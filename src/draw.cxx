@@ -34,7 +34,7 @@ void editorScroll() {
   }
 }
 
-void editorDrawRows(std::string& buf) {
+void editorDrawRows(std::string &buf) {
   int y;
   for (y = 0; y < E.screenrows; y++) {
     int filerow = y + E.rowoff;
@@ -42,25 +42,29 @@ void editorDrawRows(std::string& buf) {
       if (E.row.size() == 0 && y == E.screenrows / 3) {
         char welcome[80];
         int welcomelen = snprintf(welcome, sizeof(welcome),
-          "Kilo editor -- version %s", KILO_VERSION);
-        if (welcomelen > E.screencols) welcomelen = E.screencols;
+                                  "Kilo editor -- version %s", KILO_VERSION);
+        if (welcomelen > E.screencols)
+          welcomelen = E.screencols;
         int padding = (E.screencols - welcomelen) / 2;
         if (padding) {
           buf += "~";
           padding--;
         }
-        while (padding--) buf += " ";
+        while (padding--)
+          buf += " ";
         buf += welcome;
       } else {
         buf += "~";
       }
     } else {
       int len = E.row[filerow].render.length() - E.coloff;
-      if (len > 0) {;
-        if (len > E.screencols) len = E.screencols;
+      if (len > 0) {
+        ;
+        if (len > E.screencols)
+          len = E.screencols;
         buf += E.row[filerow].render.substr(E.coloff, len);
       }
-      //abAppend(ab, &E.row[filerow].render[E.coloff], len);
+      // abAppend(ab, &E.row[filerow].render[E.coloff], len);
     }
 
     buf += "\x1b[K";
@@ -68,19 +72,20 @@ void editorDrawRows(std::string& buf) {
   }
 }
 
-void editorDrawStatusBar(std::string& buf) {
+void editorDrawStatusBar(std::string &buf) {
   buf += "\x1b[7m";
   char status[80], rstatus[80];
   int len = snprintf(status, sizeof(status), "%.20s - %d lines %s",
-    E.filename ? E.filename : "[No Name]", E.row.size(),
-    E.dirty ? "(modified)" : "");
-  int rlen = snprintf(rstatus, sizeof(rstatus), "%d/%d",
-    E.cy + 1, E.row.size());
-  if (len > E.screencols) len = E.screencols;
+                     E.filename ? E.filename : "[No Name]", E.row.size(),
+                     E.dirty ? "(modified)" : "");
+  int rlen =
+      snprintf(rstatus, sizeof(rstatus), "%d/%d", E.cy + 1, E.row.size());
+  if (len > E.screencols)
+    len = E.screencols;
   buf += status;
   while (len < E.screencols) {
     if (E.screencols - len == rlen) {
-      buf +=  rstatus;
+      buf += rstatus;
       break;
     } else {
       buf += " ";
@@ -91,10 +96,11 @@ void editorDrawStatusBar(std::string& buf) {
   buf += "\r\n";
 }
 
-void editorDrawMessageBar(std::string& buf) {
+void editorDrawMessageBar(std::string &buf) {
   buf += "\x1b[K";
   int msglen = strlen(E.statusmsg);
-  if (msglen > E.screencols) msglen = E.screencols;
+  if (msglen > E.screencols)
+    msglen = E.screencols;
   if (msglen && time(NULL) - E.statusmsg_time < 5)
     buf += E.statusmsg;
 }
@@ -113,7 +119,7 @@ void editorRefreshScreen() {
 
   char buf2[32];
   snprintf(buf2, sizeof(buf2), "\x1b[%d;%dH", (E.cy - E.rowoff) + 1,
-                                            (E.rx - E.coloff) + 1);
+           (E.rx - E.coloff) + 1);
   buf += buf2;
   buf += "\x1b[?25h";
 
