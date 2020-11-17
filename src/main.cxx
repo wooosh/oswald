@@ -23,14 +23,11 @@
 // FEATURE: LSP
 // FEATURE: tests
 // FEATURE: save screen buffer
+// FEATURE: grep -r
 
 // TODO: https://en.cppreference.com/w/cpp/language/range-for
 // TODO: review comments
 // TODO: clean up defines
-#define KILO_VERSION "0.0.1"
-#define KILO_TAB_STOP 8
-#define KILO_QUIT_TIMES 3
-
 struct Editor E;
 
 // TODO: move status message into own file and namespace
@@ -42,19 +39,11 @@ void editorSetStatusMessage(const char *fmt, ...) {
   va_start(ap, fmt);
   vsnprintf(E.statusmsg, sizeof(E.statusmsg), fmt, ap);
   va_end(ap);
+  // TODO: fix mixed casing
   E.statusmsg_time = time(NULL);
 }
 
 void initEditor() {
-  E.cx = 0;
-  E.cy = 0;
-  E.rx = 0;
-  E.rowoff = 0;
-  E.coloff = 0;
-  E.dirty = 0;
-  E.filename = NULL;
-  E.statusmsg[0] = '\0';
-  E.statusmsg_time = 0;
   E.row.insert(E.row.begin(), (erow){});
   if (Terminal::getWindowSize(&E.screenrows, &E.screencols) == -1)
     Terminal::die("getWindowSize");

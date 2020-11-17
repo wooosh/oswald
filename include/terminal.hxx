@@ -18,7 +18,6 @@ enum editorKey {
 };
 
 namespace Terminal {
-
 void die(const char *s);
 void disableRawMode();
 void enableRawMode();

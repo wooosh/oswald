@@ -1,10 +1,10 @@
 #pragma once
-
 #include "row.hxx"
 
 #include <termios.h>
 #include <vector>
 
+// TODO: consider using namespaced globals instead of struct
 extern struct Editor {
   size_t cx, cy;
   size_t rx;
@@ -14,11 +14,10 @@ extern struct Editor {
   size_t screencols;
   std::vector<erow> row;
   bool dirty;
+  // TODO: change filename and statusmsg to string
   char *filename;
   char statusmsg[80];
   time_t statusmsg_time;
-  // TODO: make static variable in terminal.cpp
-  struct termios orig_termios;
 } E;
 
 void editorSetStatusMessage(const char *fmt, ...);
