@@ -1,5 +1,6 @@
-#include <termios.h>
+// TODO: organize all headers
 #include <sys/ioctl.h>
+#include <termios.h>
 
 #include "main.hxx"
 #include "terminal.hxx"

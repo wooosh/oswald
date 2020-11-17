@@ -1,12 +1,11 @@
 #pragma once
 #include <string>
 
-// TODO: should be moved to main
 typedef struct erow {
   std::string raw;
   std::string render;
 
-  int editorRowCxToRx(int cx);
-  int editorRowRxToCx(int rx);
+  size_t cxToRx(size_t cx);
+  size_t rxToCx(size_t rx);
   void updateRender();
 } erow;

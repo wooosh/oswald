@@ -1,11 +1,9 @@
-#include "main.hxx"
 #include "row.hxx"
+#include "main.hxx"
 
 #define KILO_TAB_STOP 8
 
-// TODO: remove editor prefix
-// TODO: should be moved to render
-int erow::editorRowCxToRx(int cx) {
+size_t erow::cxToRx(size_t cx) {
   int rx = 0;
   int j;
   for (j = 0; j < cx; j++) {
@@ -16,8 +14,7 @@ int erow::editorRowCxToRx(int cx) {
   return rx;
 }
 
-// TODO: should be moved to render
-int erow::editorRowRxToCx(int rx) {
+size_t erow::rxToCx(size_t rx) {
   int cur_rx = 0;
   int cx;
   for (cx = 0; cx < this->raw.length(); cx++) {
@@ -31,7 +28,6 @@ int erow::editorRowRxToCx(int rx) {
   return cx;
 }
 
-// TODO: should be moved to render
 void erow::updateRender() {
   int tabs = 0;
   int j;

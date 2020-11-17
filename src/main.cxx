@@ -1,23 +1,33 @@
-#include <unistd.h>
-#include <stdarg.h>
 #include <fcntl.h>
+#include <stdarg.h>
 #include <string.h>
+#include <unistd.h>
 
+#include "keypress.hxx"
 #include "main.hxx"
 #include "row.hxx"
 #include "terminal.hxx"
-#include "keypress.hxx"
 
-/*** defines ***/
+// FEATURE: config file
+// FEATURE: unicode support
+// FEATURE: portions
+// FEATURE: cursor column memory when moving cursor vertically
+// FEATURE: non-printable characters
+// FEATURE: selections
+// FEATURE: update ui on resize
+// FEATURE: LSP
+// FEATURE: keybind to build/debug using fifo
+// FEATURE: handle resizing
 
+// TODO: review comments
+// TODO: clean up defines
 #define KILO_VERSION "0.0.1"
 #define KILO_TAB_STOP 8
 #define KILO_QUIT_TIMES 3
 
 struct editorConfig E;
 
-/*** prototypes ***/
-
+// TODO: move status message into own file and namespace
 void editorSetStatusMessage(const char *fmt, ...);
 void editorRefreshScreen();
 
@@ -29,10 +39,6 @@ void editorSetStatusMessage(const char *fmt, ...) {
   E.statusmsg_time = time(NULL);
 }
 
-
-/*** init ***/
-
-// TODO: handle resizing
 void initEditor() {
   E.cx = 0;
   E.cy = 0;

@@ -1,8 +1,8 @@
-#include <unistd.h>
 #include <stdio.h>
+#include <unistd.h>
 
-#include "terminal.hxx"
 #include "cursor.hxx"
+#include "terminal.hxx"
 
 void editorProcessKeypress() {
   int c = Terminal::readKey();
@@ -17,17 +17,6 @@ void editorProcessKeypress() {
     write(STDOUT_FILENO, "\x1b[H", 3);
     exit(0);
     break;
-
-  /*
-  case HOME_KEY:
-    E.cx = 0;
-    break;
-
-  case END_KEY:
-    if (E.cy < E.row.size())
-      E.cx = E.row[E.cy].raw.length();
-    break;
-  */
 
   // TODO: support delete key
   case BACKSPACE:

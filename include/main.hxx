@@ -1,11 +1,12 @@
 #pragma once
 
 #include "row.hxx"
-#include <vector>
 #include <termios.h>
+#include <vector>
 
 // TODO: rename to something that isn't editorconfig
-// TODO: cx, cy invariants cx/cy >= 0 && cy <= numrows && cx <= current row length
+// TODO: cx, cy invariants cx/cy >= 0 && cy <= numrows && cx <= current row
+// length
 extern struct editorConfig {
   size_t cx, cy;
   size_t rx;

@@ -1,6 +1,6 @@
-#include <string>
 #include <cstring>
 #include <stdio.h>
+#include <string>
 #include <unistd.h>
 
 #include "main.hxx"
@@ -13,7 +13,7 @@
 void editorScroll() {
   E.rx = 0;
   if (E.cy < E.row.size()) {
-    E.rx = E.row[E.cy].editorRowCxToRx(E.cx);
+    E.rx = E.row[E.cy].cxToRx(E.cx);
   }
 
   if (E.cy < E.rowoff) {
@@ -30,6 +30,7 @@ void editorScroll() {
   }
 }
 
+// TODO: remove editor prefix
 void editorDrawRows(std::string &buf) {
   // TODO: remove welcome message
   for (size_t y = 0; y < E.screenrows; y++) {
@@ -38,7 +39,7 @@ void editorDrawRows(std::string &buf) {
       if (E.row.size() == 0 && y == E.screenrows / 3) {
         char welcome[80];
         size_t welcomelen = snprintf(welcome, sizeof(welcome),
-                                  "Kilo editor -- version %s", KILO_VERSION);
+                                     "Kilo editor -- version %s", KILO_VERSION);
         if (welcomelen > E.screencols)
           welcomelen = E.screencols;
         int padding = (E.screencols - welcomelen) / 2;
@@ -70,8 +71,8 @@ void editorDrawStatusBar(std::string &buf) {
   buf += "\x1b[7m";
   char status[80], rstatus[80];
   size_t len = snprintf(status, sizeof(status), "%.20s - %zu lines %s",
-                     E.filename ? E.filename : "[No Name]", E.row.size(),
-                     E.dirty ? "(modified)" : "");
+                        E.filename ? E.filename : "[No Name]", E.row.size(),
+                        E.dirty ? "(modified)" : "");
   size_t rlen =
       snprintf(rstatus, sizeof(rstatus), "%zu/%zu", E.cy + 1, E.row.size());
   if (len > E.screencols)

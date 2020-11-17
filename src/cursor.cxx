@@ -1,7 +1,6 @@
 #include "main.hxx"
 
 namespace Cursor {
-// TODO: cursor column memory when moving up rows
 static void clampCursorX() {
   // TODO: cleanup
   // set cursor x to not be outside the current row's text
@@ -14,40 +13,39 @@ static void clampCursorX() {
 
 void moveLeft() {
   if (E.cx != 0) {
-      E.cx--;
-    } else if (E.cy > 0) {
-      E.cy--;
-      E.cx = E.row[E.cy].raw.length();
-    }
-    // TODO: do we really need to clamp the cursor here
+    E.cx--;
+  } else if (E.cy > 0) {
+    E.cy--;
+    E.cx = E.row[E.cy].raw.length();
+  }
+  // TODO: do we really need to clamp the cursor here
   clampCursorX();
 }
 
 void moveRight() {
-  //erow *row = (E.cy >= E.row.size()) ? NULL : &E.row[E.cy];
   erow *row = &E.row[E.cy];
   if (E.cx < row->raw.length()) {
-      E.cx++;
-    } else if (E.cy + 1 < E.row.size()) {
-      E.cy++;
-      E.cx = 0;
-    }
-    // TODO: do we really need to clamp the cursor here
-    clampCursorX();
+    E.cx++;
+  } else if (E.cy + 1 < E.row.size()) {
+    E.cy++;
+    E.cx = 0;
+  }
+  // TODO: do we really need to clamp the cursor here
+  clampCursorX();
 }
 
 void moveUp() {
   if (E.cy != 0) {
-      E.cy--;
-    }
-    clampCursorX();
+    E.cy--;
+  }
+  clampCursorX();
 }
 
 void moveDown() {
   if (E.cy + 1 < E.row.size()) {
-      E.cy++;
-    }
-    clampCursorX();
+    E.cy++;
+  }
+  clampCursorX();
 }
 
 void deleteBackward() {
@@ -60,15 +58,15 @@ void deleteBackward() {
   // find out if deleting a character requires merging two lines
   if (E.cx > 0) {
     E.cx--;
-    row->raw.erase(row->raw.begin()+E.cx);
+    row->raw.erase(row->raw.begin() + E.cx);
     row->updateRender();
     E.dirty = true;
   } else {
     E.cx = E.row[E.cy - 1].raw.length();
-    
+
     E.row[E.cy - 1].raw += row->raw;
-    E.row[E.cy -1].updateRender();
-    
+    E.row[E.cy - 1].updateRender();
+
     E.row.erase(E.row.begin() + E.cy);
     E.cy--;
     E.dirty = true;
@@ -85,8 +83,8 @@ void insertNewline() {
     erow *row = &E.row[E.cy];
     E.row[E.cy + 1].raw = row->raw.substr(E.cx, row->raw.length() - E.cx);
     E.row[E.cy + 1].updateRender();
-    
-    row = &E.row[E.cy]; 
+
+    row = &E.row[E.cy];
     row->raw.erase(row->raw.begin() + E.cx, row->raw.end());
     row->updateRender();
   }
@@ -102,4 +100,4 @@ void insertChar(char c) {
   E.dirty = true;
   E.cx++;
 }
-}
+} // namespace Cursor

@@ -7,4 +7,4 @@ void moveDown();
 void insertChar(char c);
 void insertNewline();
 void deleteBackward();
-}
+} // namespace Cursor
