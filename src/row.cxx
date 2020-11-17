@@ -51,16 +51,3 @@ void erow::updateRender() {
     }
   }
 }
-
-// TODO: remove, deprecated
-void editorInsertRow(int at, std::string s) {
-  if (at < 0 || at > E.row.size())
-    return;
-
-  E.row.insert(E.row.begin() + at, (erow){});
-
-  E.row[at].raw = s;
-  E.row[at].updateRender();
-
-  E.dirty = true;
-}

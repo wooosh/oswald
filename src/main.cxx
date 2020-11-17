@@ -32,6 +32,7 @@ void editorSetStatusMessage(const char *fmt, ...) {
 
 /*** init ***/
 
+// TODO: handle resizing
 void initEditor() {
   E.cx = 0;
   E.cy = 0;
@@ -42,7 +43,7 @@ void initEditor() {
   E.filename = NULL;
   E.statusmsg[0] = '\0';
   E.statusmsg_time = 0;
-
+  E.row.insert(E.row.begin(), (erow){});
   if (Terminal::getWindowSize(&E.screenrows, &E.screencols) == -1)
     Terminal::die("getWindowSize");
   E.screenrows -= 2;

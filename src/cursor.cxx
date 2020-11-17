@@ -1,7 +1,7 @@
 #include "main.hxx"
 
 namespace Cursor {
-
+// TODO: cursor column memory when moving up rows
 static void clampCursorX() {
   // TODO: cleanup
   // set cursor x to not be outside the current row's text
@@ -24,10 +24,11 @@ void moveLeft() {
 }
 
 void moveRight() {
-  erow *row = (E.cy >= E.row.size()) ? NULL : &E.row[E.cy];
-  if (row && E.cx < row->raw.length()) {
+  //erow *row = (E.cy >= E.row.size()) ? NULL : &E.row[E.cy];
+  erow *row = &E.row[E.cy];
+  if (E.cx < row->raw.length()) {
       E.cx++;
-    } else if (row && E.cx == row->raw.length()) {
+    } else if (E.cy + 1 < E.row.size()) {
       E.cy++;
       E.cx = 0;
     }
@@ -43,7 +44,7 @@ void moveUp() {
 }
 
 void moveDown() {
-  if (E.cy < E.row.size()) {
+  if (E.cy + 1 < E.row.size()) {
       E.cy++;
     }
     clampCursorX();
@@ -76,24 +77,25 @@ void deleteBackward() {
 
 void insertNewline() {
   if (E.cx == 0) {
-    editorInsertRow(E.cy, "");
+    E.row.insert(E.row.begin() + E.cy, (erow){});
+    E.row[E.cy].updateRender();
   } else {
     // we need to split the current row into two
+    E.row.insert(E.row.begin() + E.cy + 1, (erow){});
     erow *row = &E.row[E.cy];
-    editorInsertRow(E.cy + 1, row->raw.substr(E.cx, row->raw.length() - E.cx));
-    row = &E.row[E.cy];
+    E.row[E.cy + 1].raw = row->raw.substr(E.cx, row->raw.length() - E.cx);
+    E.row[E.cy + 1].updateRender();
+    
+    row = &E.row[E.cy]; 
     row->raw.erase(row->raw.begin() + E.cx, row->raw.end());
     row->updateRender();
   }
   E.cy++;
   E.cx = 0;
+  E.dirty = true;
 }
 
 void insertChar(char c) {
-    // TODO: prevent the cursor from being on uninitialized rows
-  if (E.cy == E.row.size()) {
-    editorInsertRow(E.row.size(), "");
-  }
   erow *row = &E.row[E.cy];
   row->raw.insert(row->raw.begin() + E.cx, c);
   row->updateRender();

@@ -31,6 +31,7 @@ void editorScroll() {
 }
 
 void editorDrawRows(std::string &buf) {
+  // TODO: remove welcome message
   for (size_t y = 0; y < E.screenrows; y++) {
     size_t filerow = y + E.rowoff;
     if (filerow >= E.row.size()) {
