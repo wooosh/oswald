@@ -1,3 +1,5 @@
+#pragma once
+
 namespace Cursor {
 void moveLeft();
 void moveRight();

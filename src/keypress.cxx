@@ -1,8 +1,8 @@
-#include <stdio.h>
-#include <unistd.h>
-
 #include "cursor.hxx"
 #include "terminal.hxx"
+
+#include <stdio.h>
+#include <unistd.h>
 
 void editorProcessKeypress() {
   int c = Terminal::readKey();
@@ -18,7 +18,6 @@ void editorProcessKeypress() {
     exit(0);
     break;
 
-  // TODO: support delete key
   case BACKSPACE:
   case CTRL_KEY('h'):
     Cursor::deleteBackward();

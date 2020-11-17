@@ -1,11 +1,11 @@
-#include <cstring>
-#include <stdio.h>
-#include <string>
-#include <unistd.h>
-
 #include "main.hxx"
 #include "row.hxx"
 #include "terminal.hxx"
+
+#include <cstring>
+#include <string>
+#include <stdio.h>
+#include <unistd.h>
 
 #define KILO_VERSION "0.0.1"
 
@@ -56,6 +56,7 @@ void editorDrawRows(std::string &buf) {
     } else {
       ssize_t len = E.row[filerow].render.length() - E.coloff;
       if (len > 0) {
+        // TODO: fix signed unsigned comparison
         if (len > E.screencols)
           len = E.screencols;
         buf += E.row[filerow].render.substr(E.coloff, len);

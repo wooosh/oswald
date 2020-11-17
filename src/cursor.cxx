@@ -2,13 +2,7 @@
 
 namespace Cursor {
 static void clampCursorX() {
-  // TODO: cleanup
-  // set cursor x to not be outside the current row's text
-  erow *row = (E.cy >= E.row.size()) ? NULL : &E.row[E.cy];
-  int rowlen = row ? row->raw.length() : 0;
-  if (E.cx > rowlen) {
-    E.cx = rowlen;
-  }
+  E.cx = std::min(E.cx, E.row[E.cy].raw.length());
 }
 
 void moveLeft() {
@@ -18,8 +12,6 @@ void moveLeft() {
     E.cy--;
     E.cx = E.row[E.cy].raw.length();
   }
-  // TODO: do we really need to clamp the cursor here
-  clampCursorX();
 }
 
 void moveRight() {
@@ -30,8 +22,6 @@ void moveRight() {
     E.cy++;
     E.cx = 0;
   }
-  // TODO: do we really need to clamp the cursor here
-  clampCursorX();
 }
 
 void moveUp() {
