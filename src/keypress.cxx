@@ -2,13 +2,14 @@
 #include <stdio.h>
 
 #include "terminal.hxx"
+#include "cursor.hxx"
 
 void editorProcessKeypress() {
   int c = Terminal::readKey();
 
   switch (c) {
   case '\r':
-    editorInsertNewline();
+    Cursor::insertNewline();
     break;
 
   case CTRL_KEY('q'):
@@ -17,6 +18,7 @@ void editorProcessKeypress() {
     exit(0);
     break;
 
+  /*
   case HOME_KEY:
     E.cx = 0;
     break;
@@ -25,24 +27,25 @@ void editorProcessKeypress() {
     if (E.cy < E.row.size())
       E.cx = E.row[E.cy].raw.length();
     break;
+  */
 
   // TODO: support delete key
   case BACKSPACE:
   case CTRL_KEY('h'):
-    editorDelChar();
+    Cursor::deleteBackward();
     break;
 
   case ARROW_UP:
-    cursorUp();
+    Cursor::moveUp();
     break;
   case ARROW_DOWN:
-    cursorDown();
+    Cursor::moveDown();
     break;
   case ARROW_LEFT:
-    cursorLeft();
+    Cursor::moveLeft();
     break;
   case ARROW_RIGHT:
-    cursorRight();
+    Cursor::moveRight();
     break;
 
   case CTRL_KEY('l'):
@@ -50,7 +53,7 @@ void editorProcessKeypress() {
     break;
 
   default:
-    editorInsertChar(c);
+    Cursor::insertChar(c);
     break;
   }
 }

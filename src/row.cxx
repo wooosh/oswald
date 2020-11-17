@@ -52,6 +52,7 @@ void erow::editorUpdateRow() {
   }
 }
 
+// TODO: remove, deprecated
 void editorInsertRow(int at, std::string s) {
   if (at < 0 || at > E.row.size())
     return;
@@ -64,6 +65,7 @@ void editorInsertRow(int at, std::string s) {
   E.dirty = true;
 }
 
+// TODO: remove, deprecated
 void editorDelRow(int at) {
   if (at < 0 || at >= E.row.size())
     return;

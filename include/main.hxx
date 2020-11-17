@@ -19,12 +19,4 @@ extern struct editorConfig {
   struct termios orig_termios;
 } E;
 
-void editorInsertChar(int c);
-void editorInsertNewline();
-void editorDelChar();
 void editorSetStatusMessage(const char *fmt, ...);
-
-void cursorLeft();
-void cursorRight();
-void cursorUp();
-void cursorDown();
