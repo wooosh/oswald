@@ -18,3 +18,13 @@ extern struct editorConfig {
   time_t statusmsg_time;
   struct termios orig_termios;
 } E;
+
+void editorInsertChar(int c);
+void editorInsertNewline();
+void editorDelChar();
+void editorSetStatusMessage(const char *fmt, ...);
+
+void cursorLeft();
+void cursorRight();
+void cursorUp();
+void cursorDown();

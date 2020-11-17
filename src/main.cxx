@@ -6,6 +6,7 @@
 #include "main.hxx"
 #include "row.hxx"
 #include "terminal.hxx"
+#include "keypress.hxx"
 
 /*** defines ***/
 
@@ -19,7 +20,6 @@ struct editorConfig E;
 
 void editorSetStatusMessage(const char *fmt, ...);
 void editorRefreshScreen();
-char *editorPrompt(char *prompt, void (*callback)(char *, int));
 
 /*** editor operations ***/
 
@@ -72,50 +72,6 @@ void editorSetStatusMessage(const char *fmt, ...) {
   E.statusmsg_time = time(NULL);
 }
 
-/*** input ***/
-
-char *editorPrompt(char *prompt, void (*callback)(char *, int)) {
-  size_t bufsize = 128;
-  char *buf = (char *)malloc(bufsize);
-
-  size_t buflen = 0;
-  buf[0] = '\0';
-
-  while (1) {
-    editorSetStatusMessage(prompt, buf);
-    editorRefreshScreen();
-
-    int c = Terminal::readKey();
-    if (c == DEL_KEY || c == CTRL_KEY('h') || c == BACKSPACE) {
-      if (buflen != 0)
-        buf[--buflen] = '\0';
-    } else if (c == '\x1b') {
-      editorSetStatusMessage("");
-      if (callback)
-        callback(buf, c);
-      free(buf);
-      return NULL;
-    } else if (c == '\r') {
-      if (buflen != 0) {
-        editorSetStatusMessage("");
-        if (callback)
-          callback(buf, c);
-        return buf;
-      }
-    } else if (!iscntrl(c) && c < 128) {
-      if (buflen == bufsize - 1) {
-        bufsize *= 2;
-        buf = (char *)realloc(buf, bufsize);
-      }
-      buf[buflen++] = c;
-      buf[buflen] = '\0';
-    }
-
-    if (callback)
-      callback(buf, c);
-  }
-}
-
 void clampCursorX() {
   // TODO: cleanup
   // set cursor x to not be outside the current row's text
@@ -161,72 +117,6 @@ void cursorDown() {
       E.cy++;
     }
     clampCursorX();
-}
-
-
-
-void editorProcessKeypress() {
-  // TODO: quit_times should be in model
-  static int quit_times = KILO_QUIT_TIMES;
-
-  int c = Terminal::readKey();
-
-  switch (c) {
-  case '\r':
-    editorInsertNewline();
-    break;
-
-  case CTRL_KEY('q'):
-    if (E.dirty && quit_times > 0) {
-      editorSetStatusMessage("WARNING!!! File has unsaved changes. "
-                             "Press Ctrl-Q %d more times to quit.",
-                             quit_times);
-      quit_times--;
-      return;
-    }
-    write(STDOUT_FILENO, "\x1b[2J", 4);
-    write(STDOUT_FILENO, "\x1b[H", 3);
-    exit(0);
-    break;
-
-  case HOME_KEY:
-    E.cx = 0;
-    break;
-
-  case END_KEY:
-    if (E.cy < E.row.size())
-      E.cx = E.row[E.cy].raw.length();
-    break;
-
-  // TODO: support delete key
-  case BACKSPACE:
-  case CTRL_KEY('h'):
-    editorDelChar();
-    break;
-
-  case ARROW_UP:
-    cursorUp();
-    break;
-  case ARROW_DOWN:
-    cursorDown();
-    break;
-  case ARROW_LEFT:
-    cursorLeft();
-    break;
-  case ARROW_RIGHT:
-    cursorRight();
-    break;
-
-  case CTRL_KEY('l'):
-  case '\x1b':
-    break;
-
-  default:
-    editorInsertChar(c);
-    break;
-  }
-
-  quit_times = KILO_QUIT_TIMES;
 }
 
 /*** init ***/
