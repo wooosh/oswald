@@ -3,6 +3,8 @@
 
 #define KILO_TAB_STOP 8
 
+// TODO: remove editor prefix
+// TODO: should be moved to render
 int erow::editorRowCxToRx(int cx) {
   int rx = 0;
   int j;
@@ -14,6 +16,7 @@ int erow::editorRowCxToRx(int cx) {
   return rx;
 }
 
+// TODO: should be moved to render
 int erow::editorRowRxToCx(int rx) {
   int cur_rx = 0;
   int cx;
@@ -28,6 +31,7 @@ int erow::editorRowRxToCx(int rx) {
   return cx;
 }
 
+// TODO: should be moved to render
 void erow::editorUpdateRow() {
   int tabs = 0;
   int j;

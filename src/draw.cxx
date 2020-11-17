@@ -9,8 +9,7 @@
 
 #define KILO_VERSION "0.0.1"
 
-/*** output ***/
-
+// scroll to fit cursor in screen and keep file in bounds
 void editorScroll() {
   E.rx = 0;
   if (E.cy < E.row.size()) {
