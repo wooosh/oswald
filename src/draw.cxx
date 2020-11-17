@@ -1,10 +1,7 @@
-/*** includes ***/
-
-#define _DEFAULT_SOURCE
-#define _BSD_SOURCE
-#define _GNU_SOURCE
-
 #include <string>
+#include <cstring>
+#include <stdio.h>
+#include <unistd.h>
 
 #include "main.hxx"
 #include "row.hxx"
@@ -35,13 +32,12 @@ void editorScroll() {
 }
 
 void editorDrawRows(std::string &buf) {
-  int y;
-  for (y = 0; y < E.screenrows; y++) {
-    int filerow = y + E.rowoff;
+  for (size_t y = 0; y < E.screenrows; y++) {
+    size_t filerow = y + E.rowoff;
     if (filerow >= E.row.size()) {
       if (E.row.size() == 0 && y == E.screenrows / 3) {
         char welcome[80];
-        int welcomelen = snprintf(welcome, sizeof(welcome),
+        size_t welcomelen = snprintf(welcome, sizeof(welcome),
                                   "Kilo editor -- version %s", KILO_VERSION);
         if (welcomelen > E.screencols)
           welcomelen = E.screencols;
@@ -57,14 +53,12 @@ void editorDrawRows(std::string &buf) {
         buf += "~";
       }
     } else {
-      int len = E.row[filerow].render.length() - E.coloff;
+      ssize_t len = E.row[filerow].render.length() - E.coloff;
       if (len > 0) {
-        ;
         if (len > E.screencols)
           len = E.screencols;
         buf += E.row[filerow].render.substr(E.coloff, len);
       }
-      // abAppend(ab, &E.row[filerow].render[E.coloff], len);
     }
 
     buf += "\x1b[K";
@@ -75,11 +69,11 @@ void editorDrawRows(std::string &buf) {
 void editorDrawStatusBar(std::string &buf) {
   buf += "\x1b[7m";
   char status[80], rstatus[80];
-  int len = snprintf(status, sizeof(status), "%.20s - %d lines %s",
+  size_t len = snprintf(status, sizeof(status), "%.20s - %zu lines %s",
                      E.filename ? E.filename : "[No Name]", E.row.size(),
                      E.dirty ? "(modified)" : "");
-  int rlen =
-      snprintf(rstatus, sizeof(rstatus), "%d/%d", E.cy + 1, E.row.size());
+  size_t rlen =
+      snprintf(rstatus, sizeof(rstatus), "%zu/%zu", E.cy + 1, E.row.size());
   if (len > E.screencols)
     len = E.screencols;
   buf += status;
@@ -98,7 +92,7 @@ void editorDrawStatusBar(std::string &buf) {
 
 void editorDrawMessageBar(std::string &buf) {
   buf += "\x1b[K";
-  int msglen = strlen(E.statusmsg);
+  size_t msglen = strlen(E.statusmsg);
   if (msglen > E.screencols)
     msglen = E.screencols;
   if (msglen && time(NULL) - E.statusmsg_time < 5)
@@ -118,7 +112,7 @@ void editorRefreshScreen() {
   editorDrawMessageBar(buf);
 
   char buf2[32];
-  snprintf(buf2, sizeof(buf2), "\x1b[%d;%dH", (E.cy - E.rowoff) + 1,
+  snprintf(buf2, sizeof(buf2), "\x1b[%zu;%zuH", (E.cy - E.rowoff) + 1,
            (E.rx - E.coloff) + 1);
   buf += buf2;
   buf += "\x1b[?25h";

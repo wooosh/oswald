@@ -1,22 +1,3 @@
-/*** includes ***/
-
-#define _DEFAULT_SOURCE
-#define _BSD_SOURCE
-#define _GNU_SOURCE
-
-#include <ctype.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <termios.h>
-#include <time.h>
-#include <unistd.h>
-
 #include "main.hxx"
 #include "row.hxx"
 
@@ -76,14 +57,14 @@ void editorInsertRow(int at, std::string s) {
   E.row[at].raw = s;
   E.row[at].editorUpdateRow();
 
-  E.dirty++;
+  E.dirty = true;
 }
 
 void editorDelRow(int at) {
   if (at < 0 || at >= E.row.size())
     return;
   E.row.erase(E.row.begin() + at);
-  E.dirty++;
+  E.dirty = true;
 }
 
 void erow::editorRowInsertChar(size_t at, char c) {
@@ -91,13 +72,13 @@ void erow::editorRowInsertChar(size_t at, char c) {
     at = this->raw.length();
   this->raw.insert(this->raw.begin() + at, c);
   this->editorUpdateRow();
-  E.dirty++;
+  E.dirty = true;
 }
 
 void erow::editorRowAppendString(std::string s) {
   this->raw += s;
   this->editorUpdateRow();
-  E.dirty++;
+  E.dirty = true;
 }
 
 void erow::editorRowDelChar(int at) {
@@ -105,5 +86,5 @@ void erow::editorRowDelChar(int at) {
     return;
   this->raw.erase(at);
   this->editorUpdateRow();
-  E.dirty++;
+  E.dirty = true;
 }

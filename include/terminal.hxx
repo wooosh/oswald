@@ -1,22 +1,4 @@
 #pragma once
-/*** includes ***/
-
-#define _DEFAULT_SOURCE
-#define _BSD_SOURCE
-#define _GNU_SOURCE
-
-#include <ctype.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <termios.h>
-#include <time.h>
-#include <unistd.h>
 
 #include "main.hxx"
 #include "terminal.hxx"
@@ -41,8 +23,8 @@ void die(const char *s);
 void disableRawMode();
 void enableRawMode();
 int readKey();
-int getCursorPosition(int *rows, int *cols);
+int getCursorPosition(size_t *rows, size_t *cols);
 
 // @Todo: rewrite to store window size in editor struct on window resize
-int getWindowSize(int *rows, int *cols);
+int getWindowSize(size_t *rows, size_t *cols);
 } // namespace Terminal

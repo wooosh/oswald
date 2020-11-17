@@ -1,24 +1,10 @@
-/*** includes ***/
-
-#define _DEFAULT_SOURCE
-#define _BSD_SOURCE
-#define _GNU_SOURCE
-
-#include <ctype.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
 #include <termios.h>
-#include <time.h>
-#include <unistd.h>
+#include <sys/ioctl.h>
 
 #include "main.hxx"
 #include "terminal.hxx"
+#include <stdio.h>
+#include <unistd.h>
 
 namespace Terminal {
 void die(const char *s) {
@@ -120,7 +106,7 @@ int readKey() {
   }
 }
 
-int getCursorPosition(int *rows, int *cols) {
+int getCursorPosition(size_t *rows, size_t *cols) {
   char buf[32];
   unsigned int i = 0;
 
@@ -138,14 +124,14 @@ int getCursorPosition(int *rows, int *cols) {
 
   if (buf[0] != '\x1b' || buf[1] != '[')
     return -1;
-  if (sscanf(&buf[2], "%d;%d", rows, cols) != 2)
+  if (sscanf(&buf[2], "%zu;%zu", rows, cols) != 2)
     return -1;
 
   return 0;
 }
 
 // @Todo: rewrite to store window size in editor struct on window resize
-int getWindowSize(int *rows, int *cols) {
+int getWindowSize(size_t *rows, size_t *cols) {
   struct winsize ws;
 
   if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {

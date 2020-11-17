@@ -1,10 +1,5 @@
 #pragma once
-/*** includes ***/
-
-#define _DEFAULT_SOURCE
-#define _BSD_SOURCE
-#define _GNU_SOURCE
-
+/*
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -17,7 +12,7 @@
 #include <termios.h>
 #include <time.h>
 #include <unistd.h>
-
+*/
 #include <string>
 
 typedef struct erow {
