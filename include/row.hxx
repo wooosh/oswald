@@ -21,10 +21,6 @@ typedef struct erow {
 
   int editorRowCxToRx(int cx);
   int editorRowRxToCx(int rx);
-  void editorUpdateRow();
-  void editorRowInsertChar(size_t at, char c);
-  void editorRowAppendString(std::string s);
-  void editorRowDelChar(int at);
+  void updateRender();
 } erow;
-void editorDelRow(int at);
 void editorInsertRow(int at, std::string s);

@@ -32,7 +32,7 @@ int erow::editorRowRxToCx(int rx) {
 }
 
 // TODO: should be moved to render
-void erow::editorUpdateRow() {
+void erow::updateRender() {
   int tabs = 0;
   int j;
   for (j = 0; j < this->raw.length(); j++)
@@ -60,37 +60,7 @@ void editorInsertRow(int at, std::string s) {
   E.row.insert(E.row.begin() + at, (erow){});
 
   E.row[at].raw = s;
-  E.row[at].editorUpdateRow();
+  E.row[at].updateRender();
 
-  E.dirty = true;
-}
-
-// TODO: remove, deprecated
-void editorDelRow(int at) {
-  if (at < 0 || at >= E.row.size())
-    return;
-  E.row.erase(E.row.begin() + at);
-  E.dirty = true;
-}
-
-void erow::editorRowInsertChar(size_t at, char c) {
-  if (at < 0 || at > this->raw.length())
-    at = this->raw.length();
-  this->raw.insert(this->raw.begin() + at, c);
-  this->editorUpdateRow();
-  E.dirty = true;
-}
-
-void erow::editorRowAppendString(std::string s) {
-  this->raw += s;
-  this->editorUpdateRow();
-  E.dirty = true;
-}
-
-void erow::editorRowDelChar(int at) {
-  if (at < 0 || at >= this->raw.length())
-    return;
-  this->raw.erase(at);
-  this->editorUpdateRow();
   E.dirty = true;
 }

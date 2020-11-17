@@ -56,14 +56,21 @@ void deleteBackward() {
     return;
 
   erow *row = &E.row[E.cy];
+  // find out if deleting a character requires merging two lines
   if (E.cx > 0) {
-    row->editorRowDelChar(E.cx - 1);
     E.cx--;
+    row->raw.erase(row->raw.begin()+E.cx);
+    row->updateRender();
+    E.dirty = true;
   } else {
     E.cx = E.row[E.cy - 1].raw.length();
-    E.row[E.cy - 1].editorRowAppendString(row->raw);
-    editorDelRow(E.cy);
+    
+    E.row[E.cy - 1].raw += row->raw;
+    E.row[E.cy -1].updateRender();
+    
+    E.row.erase(E.row.begin() + E.cy);
     E.cy--;
+    E.dirty = true;
   }
 }
 
@@ -76,17 +83,21 @@ void insertNewline() {
     editorInsertRow(E.cy + 1, row->raw.substr(E.cx, row->raw.length() - E.cx));
     row = &E.row[E.cy];
     row->raw.erase(row->raw.begin() + E.cx, row->raw.end());
-    row->editorUpdateRow();
+    row->updateRender();
   }
   E.cy++;
   E.cx = 0;
 }
 
-void insertChar(int c) {
+void insertChar(char c) {
+    // TODO: prevent the cursor from being on uninitialized rows
   if (E.cy == E.row.size()) {
     editorInsertRow(E.row.size(), "");
   }
-  E.row[E.cy].editorRowInsertChar(E.cx, c);
+  erow *row = &E.row[E.cy];
+  row->raw.insert(row->raw.begin() + E.cx, c);
+  row->updateRender();
+  E.dirty = true;
   E.cx++;
 }
 }
