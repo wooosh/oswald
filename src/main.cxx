@@ -8,13 +8,14 @@
 #include <string.h>
 #include <unistd.h>
 
-// FEATURE: config file
-// FEATURE: delete key
 // FEATURE: unicode support
 // FEATURE: portions
+// FEATURE: config file
+// FEATURE: delete key
+// FEATURE: marks
+// FEATURE: selections
 // FEATURE: cursor column memory when moving cursor vertically
 // FEATURE: non-printable characters
-// FEATURE: selections
 // FEATURE: update ui on resize
 // FEATURE: keybind to build/debug using fifo
 // FEATURE: handle resizing
@@ -24,7 +25,9 @@
 // FEATURE: tests
 // FEATURE: save screen buffer
 // FEATURE: grep -r
+// FEATURE: undo and redo
 
+// TODO: change write(stdin_fileno)
 // TODO: https://en.cppreference.com/w/cpp/language/range-for
 // TODO: review comments
 // TODO: clean up defines
