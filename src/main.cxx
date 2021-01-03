@@ -27,6 +27,9 @@
 // FEATURE: grep -r
 // FEATURE: undo and redo
 
+// TODO: VT code constants
+// TODO: fix casing
+// TODO: remove printfs
 // TODO: change write(stdin_fileno)
 // TODO: https://en.cppreference.com/w/cpp/language/range-for
 // TODO: review comments
@@ -34,30 +37,18 @@
 struct Editor E;
 
 // TODO: move status message into own file and namespace
-void editorSetStatusMessage(const char *fmt, ...);
 void editorRefreshScreen();
-
-void editorSetStatusMessage(const char *fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
-  vsnprintf(E.statusmsg, sizeof(E.statusmsg), fmt, ap);
-  va_end(ap);
-  // TODO: fix mixed casing
-  E.statusmsg_time = time(NULL);
-}
 
 void initEditor() {
   E.row.insert(E.row.begin(), (erow){});
   if (Terminal::getWindowSize(&E.screenrows, &E.screencols) == -1)
     Terminal::die("getWindowSize");
-  E.screenrows -= 2;
+ // E.screenrows -= 1;
 }
 
 int main(int argc, char *argv[]) {
   Terminal::enableRawMode();
   initEditor();
-
-  editorSetStatusMessage("HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find");
 
   while (1) {
     editorRefreshScreen();

@@ -11,7 +11,7 @@ CXXFLAGS += -std=c++17 -O3 -Iinclude
 all: $(TARGET)
 
 $(TARGET): $(OBJ)
-	$(CXX) $(CXXFLAGS) -o $@ $?
+	$(CXX) $(CXXFLAGS) -o $@ $^
 
 -include $(DEP)
 

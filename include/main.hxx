@@ -16,8 +16,4 @@ extern struct Editor {
   bool dirty;
   // TODO: change filename and statusmsg to string
   char *filename;
-  char statusmsg[80];
-  time_t statusmsg_time;
 } E;
-
-void editorSetStatusMessage(const char *fmt, ...);

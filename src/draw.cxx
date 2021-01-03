@@ -35,6 +35,7 @@ void editorScroll() {
 // TODO: remove editor prefix
 void editorDrawRows(std::ostringstream &out) {
   for (size_t y = 0; y < E.screenrows; y++) {
+    out << "\x1b[K" << "\r\n";
     size_t filerow = y + E.rowoff;
     if (filerow >= E.row.size()) {
         out << "~";
@@ -47,43 +48,7 @@ void editorDrawRows(std::ostringstream &out) {
         out << E.row[filerow].render.substr(E.coloff, len);
       }
     }
-
-    out << "\x1b[K" << "\r\n";
   }
-}
-
-void editorDrawStatusBar(std::ostringstream &out) {
-  out << "\x1b[7m";
-  // TODO: remove char buffer
-  /*char status[80], rstatus[80];
-  size_t len = snprintf(status, sizeof(status), "%.20s - %zu lines %s",
-                        E.filename ? E.filename : "[No Name]", E.row.size(),
-                        E.dirty ? "(modified)" : "");
-  size_t rlen =
-      snprintf(rstatus, sizeof(rstatus), "%zu/%zu", E.cy + 1, E.row.size());
-  */
-  if (len > E.screencols)
-    len = E.screencols;
-  buf += status;
-  while (len < E.screencols) {
-    if (E.screencols - len == rlen) {
-      buf += rstatus;
-      break;
-    } else {
-      buf += " ";
-      len++;
-    }
-  }
-  out << "\x1b[m" << "\r\n";
-}
-
-void editorDrawMessageBar(std::string &buf) {
-  buf += "\x1b[K";
-  size_t msglen = strlen(E.statusmsg);
-  if (msglen > E.screencols)
-    msglen = E.screencols;
-  if (msglen && time(NULL) - E.statusmsg_time < 5)
-    buf += E.statusmsg;
 }
 
 void editorRefreshScreen() {
@@ -96,8 +61,6 @@ void editorRefreshScreen() {
   out << "\x1b[?25l" << "\x1b[H";
 
   editorDrawRows(out);
-  //editorDrawStatusBar(buf);
-  //editorDrawMessageBar(buf);
 
   // set cursor pos
   out << "\x1b[" << (E.cy-E.rowoff) + 1 << ";" << (E.rx - E.coloff) + 1 << "H";
