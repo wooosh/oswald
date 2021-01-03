@@ -6,6 +6,8 @@
 #include <string>
 #include <stdio.h>
 #include <unistd.h>
+#include <sstream>
+#include <iostream>
 
 #define KILO_VERSION "0.0.1"
 
@@ -31,51 +33,35 @@ void editorScroll() {
 }
 
 // TODO: remove editor prefix
-void editorDrawRows(std::string &buf) {
-  // TODO: remove welcome message
+void editorDrawRows(std::ostringstream &out) {
   for (size_t y = 0; y < E.screenrows; y++) {
     size_t filerow = y + E.rowoff;
     if (filerow >= E.row.size()) {
-      if (E.row.size() == 0 && y == E.screenrows / 3) {
-        char welcome[80];
-        size_t welcomelen = snprintf(welcome, sizeof(welcome),
-                                     "Kilo editor -- version %s", KILO_VERSION);
-        if (welcomelen > E.screencols)
-          welcomelen = E.screencols;
-        int padding = (E.screencols - welcomelen) / 2;
-        if (padding) {
-          buf += "~";
-          padding--;
-        }
-        while (padding--)
-          buf += " ";
-        buf += welcome;
-      } else {
-        buf += "~";
-      }
+        out << "~";
     } else {
       ssize_t len = E.row[filerow].render.length() - E.coloff;
       if (len > 0) {
         // TODO: fix signed unsigned comparison
         if (len > E.screencols)
           len = E.screencols;
-        buf += E.row[filerow].render.substr(E.coloff, len);
+        out << E.row[filerow].render.substr(E.coloff, len);
       }
     }
 
-    buf += "\x1b[K";
-    buf += "\r\n";
+    out << "\x1b[K" << "\r\n";
   }
 }
 
-void editorDrawStatusBar(std::string &buf) {
-  buf += "\x1b[7m";
-  char status[80], rstatus[80];
+void editorDrawStatusBar(std::ostringstream &out) {
+  out << "\x1b[7m";
+  // TODO: remove char buffer
+  /*char status[80], rstatus[80];
   size_t len = snprintf(status, sizeof(status), "%.20s - %zu lines %s",
                         E.filename ? E.filename : "[No Name]", E.row.size(),
                         E.dirty ? "(modified)" : "");
   size_t rlen =
       snprintf(rstatus, sizeof(rstatus), "%zu/%zu", E.cy + 1, E.row.size());
+  */
   if (len > E.screencols)
     len = E.screencols;
   buf += status;
@@ -88,8 +74,7 @@ void editorDrawStatusBar(std::string &buf) {
       len++;
     }
   }
-  buf += "\x1b[m";
-  buf += "\r\n";
+  out << "\x1b[m" << "\r\n";
 }
 
 void editorDrawMessageBar(std::string &buf) {
@@ -102,22 +87,24 @@ void editorDrawMessageBar(std::string &buf) {
 }
 
 void editorRefreshScreen() {
+  // TODO: change to streams
   editorScroll();
 
-  std::string buf;
+  std::ostringstream out;
 
-  buf += "\x1b[?25l";
-  buf += "\x1b[H";
+  // hide cursor and clear screen
+  out << "\x1b[?25l" << "\x1b[H";
 
-  editorDrawRows(buf);
-  editorDrawStatusBar(buf);
-  editorDrawMessageBar(buf);
+  editorDrawRows(out);
+  //editorDrawStatusBar(buf);
+  //editorDrawMessageBar(buf);
 
-  char buf2[32];
-  snprintf(buf2, sizeof(buf2), "\x1b[%zu;%zuH", (E.cy - E.rowoff) + 1,
-           (E.rx - E.coloff) + 1);
-  buf += buf2;
-  buf += "\x1b[?25h";
+  // set cursor pos
+  out << "\x1b[" << (E.cy-E.rowoff) + 1 << ";" << (E.rx - E.coloff) + 1 << "H";
 
-  write(STDOUT_FILENO, buf.c_str(), buf.length());
+  // show cursor
+  out << "\x1b[?25h";
+
+  std::cout << out.str();
+  std::cout.flush();
 }
