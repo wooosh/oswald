@@ -1,11 +1,11 @@
-#include "main.hxx"
 #include "terminal.hxx"
+#include "main.hxx"
 
+#include <ostream>
+#include <stdio.h>
 #include <sys/ioctl.h>
 #include <termios.h>
-#include <stdio.h>
 #include <unistd.h>
-#include <ostream>
 
 static struct termios origTermios;
 
@@ -116,7 +116,7 @@ int readKey() {
 }
 
 void setCursorPosition(std::ostream &out, std::size_t row, size_t col) {
- out << "\x1b["; //<< (E.cy-E.rowoff) + 1 << ";" << (E.rx - E.coloff) + 1 << "H";
+  out << "\x1b[" << row + 1 << ";" << col + 1 << "H";
 }
 
 int getCursorPosition(size_t *rows, size_t *cols) {

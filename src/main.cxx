@@ -1,5 +1,5 @@
-#include "keypress.hxx"
 #include "main.hxx"
+#include "keypress.hxx"
 #include "row.hxx"
 #include "terminal.hxx"
 

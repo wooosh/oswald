@@ -3,11 +3,11 @@
 #include "terminal.hxx"
 
 #include <cstring>
-#include <string>
-#include <stdio.h>
-#include <unistd.h>
-#include <sstream>
 #include <iostream>
+#include <sstream>
+#include <stdio.h>
+#include <string>
+#include <unistd.h>
 
 #define KILO_VERSION "0.0.1"
 
@@ -35,10 +35,10 @@ void editorScroll() {
 // TODO: remove editor prefix
 void editorDrawRows(std::ostringstream &out) {
   for (size_t y = 0; y < E.screenrows; y++) {
-    out << Terminal::clearLine << "\r\n";
+    out << "\r\n" << Terminal::clearLine;
     size_t filerow = y + E.rowoff;
     if (filerow >= E.row.size()) {
-        out << "~";
+      out << "~";
     } else {
       ssize_t len = E.row[filerow].render.length() - E.coloff;
       if (len > 0) {
@@ -64,7 +64,6 @@ void editorRefreshScreen() {
 
   // set cursor pos
   Terminal::setCursorPosition(out, E.cy - E.rowoff, E.rx - E.coloff);
-  //out << "\x1b[" << (E.cy-E.rowoff) + 1 << ";" << (E.rx - E.coloff) + 1 << "H";
 
   // show cursor
   out << Terminal::showCursor;

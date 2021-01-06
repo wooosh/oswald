@@ -1,9 +1,7 @@
 #include "main.hxx"
 
 namespace Cursor {
-static void clampCursorX() {
-  E.cx = std::min(E.cx, E.row[E.cy].raw.length());
-}
+static void clampCursorX() { E.cx = std::min(E.cx, E.row[E.cy].raw.length()); }
 
 void moveLeft() {
   if (E.cx != 0) {
