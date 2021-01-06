@@ -9,27 +9,58 @@
 #include <string>
 #include <unistd.h>
 
+// https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
+// TODO: move vt constants to terminal.cxx
+// TODO: use scrolling region DECSTBM 
+// TODO: switch function arguments to ostream instead of ostringstream
+
 // TODO: drawing optimizations
-// - only redraw lines that have been changed
-//   - check for a dirty flag on each row, then print
-//   - if a row doesn't have dirty flags, the next dirty row will have to set the cursor pos
 // - allow horziontal scrolling to jump by a certain amount of characters because it requires a redraw of the whole buffer
+// - flag that triggers a full rerender, useful for horizontal scrolling and resizing
 // - when scrolling, use the \x1bD and \x1bM to scroll up and down one line, then redraw status bar and the remaining one line
 // - do scrolling first, then draw rows
 
 // scroll to fit cursor in screen and keep file in bounds
-void editorScroll() {
+void editorScroll(std::ostream &out) {
+  // Prevent the cursor from going outside of the end of the line
   E.rx = 0;
   if (E.cy < E.row.size()) {
     E.rx = E.row[E.cy].cxToRx(E.cx);
   }
 
+  // TODO: refactor the next 4 blocks to be one function
+
+  // vertical scrolling
+  // cursor before view
   if (E.cy < E.rowoff) {
+    // move currently drawn rows down
+    out << "\x1b[" << E.rowoff - E.cy << "T";
+    
+    // set the previously hidden rows to be rendered
+    for (int i=E.cy; i<E.rowoff; i++) {
+      E.row[i].dirty = true;
+    }
+
+    // move the view down
     E.rowoff = E.cy;
   }
+
+  // cursor after view
   if (E.cy >= E.rowoff + E.screenrows) {
+    // move currently drawn rows up
+    out << "\x1b[" << E.cy - (E.rowoff + E.screenrows) << "S";
+
+    // set the previously hidden rows to be rendered
+    for (int i=E.rowoff + E.screenrows; i<E.cy - E.screenrows + 1; i++) {
+      E.row[i].dirty = true;
+    }
+
+    // Move the view up
     E.rowoff = E.cy - E.screenrows + 1;
   }
+
+  // TODO: implement horizontal scrolling
+  // horizontal scrolling
   if (E.rx < E.coloff) {
     E.coloff = E.rx;
   }
@@ -63,10 +94,9 @@ void editorDrawRows(std::ostringstream &out) {
 }
 
 void editorRefreshScreen() {
-  // TODO: change to streams
-  editorScroll();
-
   std::ostringstream out;
+  editorScroll(out);
+
 
   // hide cursor and clear screen
   out << Terminal::hideCursor << Terminal::homeCursor;

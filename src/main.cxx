@@ -28,6 +28,7 @@
 // FEATURE: undo and redo
 // FEATURE: unicode chars for special characters like control codes
 
+// TODO: open files
 // TODO: remove E.dirty, appears to be useless
 // TODO: fix casing
 // TODO: remove char*
@@ -49,8 +50,6 @@ void initEditor() {
   if (Terminal::getWindowSize(&E.screenrows, &E.screencols) == -1) {
     Terminal::die("getWindowSize");
   }
-
-  E.screenrows -= 10;
 }
 
 int main(int argc, char *argv[]) {
