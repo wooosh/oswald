@@ -15,6 +15,7 @@ size_t erow::cxToRx(size_t cx) {
 
 void erow::updateRender() {
   this->render.clear();
+  this->dirty = true;
 
   for (size_t j = 0; j < this->raw.length(); j++) {
     if (this->raw[j] == '\t') {

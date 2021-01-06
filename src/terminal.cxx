@@ -14,7 +14,7 @@ static int dieErrno;
 
 namespace Terminal {
 
-const std::string clearLine = "\x1b[2K";
+const std::string clearToRight = "\x1b[K";
 const std::string homeCursor = "\x1b[H";
 const std::string hideCursor = "\x1b[?25l";
 const std::string showCursor = "\x1b[?25h";

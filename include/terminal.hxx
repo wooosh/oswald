@@ -26,7 +26,7 @@ int readKey();
 void setCursorPosition(std::ostream &out, size_t row, size_t col);
 int getCursorPosition(size_t *rows, size_t *cols);
 
-extern const std::string clearLine;
+extern const std::string clearToRight;
 
 extern const std::string homeCursor;
 extern const std::string hideCursor;

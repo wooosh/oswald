@@ -9,7 +9,13 @@
 #include <string>
 #include <unistd.h>
 
-#define KILO_VERSION "0.0.1"
+// TODO: drawing optimizations
+// - only redraw lines that have been changed
+//   - check for a dirty flag on each row, then print
+//   - if a row doesn't have dirty flags, the next dirty row will have to set the cursor pos
+// - allow horziontal scrolling to jump by a certain amount of characters because it requires a redraw of the whole buffer
+// - when scrolling, use the \x1bD and \x1bM to scroll up and down one line, then redraw status bar and the remaining one line
+// - do scrolling first, then draw rows
 
 // scroll to fit cursor in screen and keep file in bounds
 void editorScroll() {
@@ -35,11 +41,14 @@ void editorScroll() {
 // TODO: remove editor prefix
 void editorDrawRows(std::ostringstream &out) {
   for (size_t y = 0; y < E.screenrows; y++) {
-    out << "\r\n" << Terminal::clearLine;
+    if (y != 0) {
+      out << "\r\n";;
+    }
     size_t filerow = y + E.rowoff;
     if (filerow >= E.row.size()) {
       out << "~";
-    } else {
+      out << Terminal::clearToRight;
+    } else if (E.row[filerow].dirty) {
       ssize_t len = E.row[filerow].render.length() - E.coloff;
       if (len > 0) {
         // TODO: fix signed unsigned comparison
@@ -47,6 +56,8 @@ void editorDrawRows(std::ostringstream &out) {
           len = E.screencols;
         out << E.row[filerow].render.substr(E.coloff, len);
       }
+      out << Terminal::clearToRight;
+      E.row[filerow].dirty = false;
     }
   }
 }
