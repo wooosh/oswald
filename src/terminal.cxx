@@ -6,8 +6,11 @@
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
+#include <iostream>
 
 static struct termios origTermios;
+static const char* errorMessage = NULL;
+static int dieErrno;
 
 namespace Terminal {
 
@@ -16,23 +19,29 @@ const std::string homeCursor = "\x1b[H";
 const std::string hideCursor = "\x1b[?25l";
 const std::string showCursor = "\x1b[?25h";
 
-void die(const char *s) {
-  write(STDOUT_FILENO, "\x1b[2J", 4);
-  write(STDOUT_FILENO, "\x1b[H", 3);
-
-  perror(s);
+void die(const char* msg) {
+  dieErrno = errno;
+  errorMessage = msg;
   exit(1);
 }
 
-void disableRawMode() {
+void cleanup() {
   if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &origTermios) == -1)
     die("tcsetattr");
+
+  // restore screen contents
+  std::cout << "\x1b[?1049l";
+
+  if (errorMessage) {
+    errno = dieErrno;
+    perror(errorMessage);
+  }
 }
 
-void enableRawMode() {
+void setup() {
   if (tcgetattr(STDIN_FILENO, &origTermios) == -1)
     die("tcgetattr");
-  atexit(disableRawMode);
+  atexit(cleanup);
 
   struct termios raw = origTermios;
   raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
@@ -44,6 +53,9 @@ void enableRawMode() {
 
   if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1)
     die("tcsetattr");
+
+  // switch to application buffer (preserves the contents of the terminal before the editor was started)
+  std::cout << "\x1b[?1049h";
 }
 
 int readKey() {

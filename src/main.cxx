@@ -28,7 +28,6 @@
 // FEATURE: undo and redo
 // FEATURE: unicode chars for special characters like control codes
 
-// TODO: VT code constants
 // TODO: fix casing
 // TODO: remove char*
 // TODO: remove printfs
@@ -42,13 +41,16 @@ struct Editor E;
 void editorRefreshScreen();
 
 void initEditor() {
+  Terminal::setup();
+  
   E.row.insert(E.row.begin(), (erow){});
-  if (Terminal::getWindowSize(&E.screenrows, &E.screencols) == -1)
+  
+  if (Terminal::getWindowSize(&E.screenrows, &E.screencols) == -1) {
     Terminal::die("getWindowSize");
+  }
 }
 
 int main(int argc, char *argv[]) {
-  Terminal::enableRawMode();
   initEditor();
 
   while (1) {

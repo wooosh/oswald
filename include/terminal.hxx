@@ -18,9 +18,8 @@ enum editorKey {
 };
 
 namespace Terminal {
-void die(const char *s);
-void disableRawMode();
-void enableRawMode();
+void die(const char* msg);
+void setup();
 int readKey();
 
 // TODO: probably should not use ostringstream here, could probably be ostream
