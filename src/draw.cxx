@@ -11,9 +11,10 @@
 
 // https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
 // TODO: move vt constants to terminal.cxx
-// TODO: use scrolling region DECSTBM 
-// TODO: switch function arguments to ostream instead of ostringstream
+// TODO: statusbar
+// - use scrolling region DECSTBM for statusbar 
 
+// TODO: document file
 // TODO: drawing optimizations
 // - allow horziontal scrolling to jump by a certain amount of characters because it requires a redraw of the whole buffer
 // - flag that triggers a full rerender, useful for horizontal scrolling and resizing
@@ -51,7 +52,7 @@ void editorScroll(std::ostream &out) {
     out << "\x1b[" << E.cy - (E.rowoff + E.screenrows) << "S";
 
     // set the previously hidden rows to be rendered
-    for (int i=E.rowoff + E.screenrows; i<E.cy - E.screenrows + 1; i++) {
+    for (int i=E.rowoff + E.screenrows - 1; i<E.cy; i++) {
       E.row[i].dirty = true;
     }
 
@@ -70,7 +71,7 @@ void editorScroll(std::ostream &out) {
 }
 
 // TODO: remove editor prefix
-void editorDrawRows(std::ostringstream &out) {
+void editorDrawRows(std::ostream &out) {
   for (size_t y = 0; y < E.screenrows; y++) {
     if (y != 0) {
       out << "\r\n";;

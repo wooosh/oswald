@@ -48,7 +48,6 @@ void deleteBackward() {
     E.cx--;
     row->raw.erase(row->raw.begin() + E.cx);
     row->updateRender();
-    E.dirty = true;
   } else {
     E.cx = E.row[E.cy - 1].raw.length();
 
@@ -57,7 +56,6 @@ void deleteBackward() {
 
     E.row.erase(E.row.begin() + E.cy);
     E.cy--;
-    E.dirty = true;
   }
 }
 
@@ -78,14 +76,12 @@ void insertNewline() {
   }
   E.cy++;
   E.cx = 0;
-  E.dirty = true;
 }
 
 void insertChar(char c) {
   erow *row = &E.row[E.cy];
   row->raw.insert(row->raw.begin() + E.cx, c);
   row->updateRender();
-  E.dirty = true;
   E.cx++;
 }
 } // namespace Cursor

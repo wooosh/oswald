@@ -2,6 +2,7 @@
 #include "keypress.hxx"
 #include "row.hxx"
 #include "terminal.hxx"
+#include "draw.hxx"
 
 #include <fcntl.h>
 #include <stdarg.h>
@@ -38,9 +39,6 @@
 // TODO: review comments
 // TODO: clean up defines
 struct Editor E;
-
-// TODO: move status message into own file and namespace
-void editorRefreshScreen();
 
 void initEditor() {
   Terminal::setup();
