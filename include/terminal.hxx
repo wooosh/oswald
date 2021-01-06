@@ -1,7 +1,7 @@
 #pragma once
 
 #include "main.hxx"
-#include "terminal.hxx"
+#include <ostream>
 
 #define CTRL_KEY(k) ((k)&0x1f)
 enum editorKey {
@@ -23,7 +23,8 @@ void disableRawMode();
 void enableRawMode();
 int readKey();
 
-//void setCursorPosition(
+// TODO: probably should not use ostringstream here, could probably be ostream
+void setCursorPosition(std::ostream &out, size_t row, size_t col);
 int getCursorPosition(size_t *rows, size_t *cols);
 
 extern const std::string clearLine;

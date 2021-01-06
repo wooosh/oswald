@@ -35,7 +35,7 @@ void editorScroll() {
 // TODO: remove editor prefix
 void editorDrawRows(std::ostringstream &out) {
   for (size_t y = 0; y < E.screenrows; y++) {
-    out << "\x1b[K" << "\r\n";
+    out << Terminal::clearLine << "\r\n";
     size_t filerow = y + E.rowoff;
     if (filerow >= E.row.size()) {
         out << "~";
@@ -58,15 +58,16 @@ void editorRefreshScreen() {
   std::ostringstream out;
 
   // hide cursor and clear screen
-  out << "\x1b[?25l" << "\x1b[H";
+  out << Terminal::hideCursor << Terminal::homeCursor;
 
   editorDrawRows(out);
 
   // set cursor pos
-  out << "\x1b[" << (E.cy-E.rowoff) + 1 << ";" << (E.rx - E.coloff) + 1 << "H";
+  Terminal::setCursorPosition(out, E.cy - E.rowoff, E.rx - E.coloff);
+  //out << "\x1b[" << (E.cy-E.rowoff) + 1 << ";" << (E.rx - E.coloff) + 1 << "H";
 
   // show cursor
-  out << "\x1b[?25h";
+  out << Terminal::showCursor;
 
   std::cout << out.str();
   std::cout.flush();

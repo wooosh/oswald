@@ -5,12 +5,13 @@
 #include <termios.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <ostream>
 
 static struct termios origTermios;
 
 namespace Terminal {
 
-const std::string clearLine = "\x1b[2K;
+const std::string clearLine = "\x1b[2K";
 const std::string homeCursor = "\x1b[H";
 const std::string hideCursor = "\x1b[?25l";
 const std::string showCursor = "\x1b[?25h";
@@ -114,8 +115,8 @@ int readKey() {
   }
 }
 
-std::string setCursorPosition(size_t row, size_t col) {
-
+void setCursorPosition(std::ostream &out, std::size_t row, size_t col) {
+ out << "\x1b["; //<< (E.cy-E.rowoff) + 1 << ";" << (E.rx - E.coloff) + 1 << "H";
 }
 
 int getCursorPosition(size_t *rows, size_t *cols) {
