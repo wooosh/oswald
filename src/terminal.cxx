@@ -9,6 +9,12 @@
 static struct termios origTermios;
 
 namespace Terminal {
+
+const std::string clearLine = "\x1b[2K;
+const std::string homeCursor = "\x1b[H";
+const std::string hideCursor = "\x1b[?25l";
+const std::string showCursor = "\x1b[?25h";
+
 void die(const char *s) {
   write(STDOUT_FILENO, "\x1b[2J", 4);
   write(STDOUT_FILENO, "\x1b[H", 3);
@@ -106,6 +112,10 @@ int readKey() {
   } else {
     return c;
   }
+}
+
+std::string setCursorPosition(size_t row, size_t col) {
+
 }
 
 int getCursorPosition(size_t *rows, size_t *cols) {

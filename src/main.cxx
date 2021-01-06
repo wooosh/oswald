@@ -26,9 +26,11 @@
 // FEATURE: save screen buffer
 // FEATURE: grep -r
 // FEATURE: undo and redo
+// FEATURE: unicode chars for special characters like control codes
 
 // TODO: VT code constants
 // TODO: fix casing
+// TODO: remove char*
 // TODO: remove printfs
 // TODO: change write(stdin_fileno)
 // TODO: https://en.cppreference.com/w/cpp/language/range-for
@@ -43,7 +45,6 @@ void initEditor() {
   E.row.insert(E.row.begin(), (erow){});
   if (Terminal::getWindowSize(&E.screenrows, &E.screencols) == -1)
     Terminal::die("getWindowSize");
- // E.screenrows -= 1;
 }
 
 int main(int argc, char *argv[]) {

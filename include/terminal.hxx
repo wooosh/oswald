@@ -22,7 +22,15 @@ void die(const char *s);
 void disableRawMode();
 void enableRawMode();
 int readKey();
+
+//void setCursorPosition(
 int getCursorPosition(size_t *rows, size_t *cols);
+
+extern const std::string clearLine;
+
+extern const std::string homeCursor;
+extern const std::string hideCursor;
+extern const std::string showCursor;
 
 // @Todo: rewrite to store window size in editor struct on window resize
 int getWindowSize(size_t *rows, size_t *cols);
