@@ -2,90 +2,92 @@
 
 // TODO: rework everything here to work on marks
 // TODO: handle null marks
-/*
-static void clampCursorX() { E.cx = std::min(E.cx, E.row[E.cy].raw.length()); }
 
-void moveLeft() {
-  if (E.cx != 0) {
-    E.cx--;
-  } else if (E.cy > 0) {
-    E.cy--;
-    E.cx = E.row[E.cy].raw.length();
-  }
+erow* mark::row() {
+  return &p->rows[y]; 
 }
-*/
 
-erow mark::row() {
-  return p->rows[y]; 
+void mark::moveLeft() {
+  if (x != 0) {
+    x--;
+  } else if (y > 0) {
+    y--;
+    x = row()->raw.length();
+  }
 }
 
 void mark::moveRight() {
-  if (x < row().raw.length()) {
+  if (x < row()->raw.length()) {
     x++;
   } else if (y + 1 < p->rows.size()) {
     y++;
     x = 0;
   }
 }
-/*
+
 void mark::moveUp() {
-  if (E.cy != 0) {
-    E.cy--;
+  if (y != 0) {
+    y--;
   }
-  clampCursorX();
+  // TODO: should this be in if statement 
+  x = std::min(x, row()->raw.length());
 }
-void moveDown() {
-  if (E.cy + 1 < E.row.size()) {
-    E.cy++;
+void mark::moveDown() {
+  if (y + 1 < p->rows.size()) {
+    y++;
   }
-  clampCursorX();
+  // TODO: should this be in if statement 
+  x = std::min(x, row()->raw.length());
 }
 
-void deleteBackward() {
-  if (E.cy == E.row.size())
+void mark::deleteBackward() {
+  if (y == p->rows.size())
     return;
-  if (E.cx == 0 && E.cy == 0)
+  if (x == 0 && y == 0)
     return;
 
-  erow *row = &E.row[E.cy];
+  // TODO: remove temporary
+  erow *r = row();
   // find out if deleting a character requires merging two lines
-  if (E.cx > 0) {
-    E.cx--;
-    row->raw.erase(row->raw.begin() + E.cx);
-    row->updateRender();
+  if (x > 0) {
+    x--;
+    r->raw.erase(r->raw.begin() + x);
+    r->updateRender();
   } else {
-    E.cx = E.row[E.cy - 1].raw.length();
+    erow *previousRow = &p->rows[y-1];
+    x = previousRow->raw.length();
 
-    E.row[E.cy - 1].raw += row->raw;
-    E.row[E.cy - 1].updateRender();
+    previousRow->raw += r->raw;
+    previousRow->updateRender();
 
-    E.row.erase(E.row.begin() + E.cy);
-    E.cy--;
+    p->rows.erase(p->rows.begin() + y);
+    y--;
   }
 }
-
-void insertNewline() {
-  if (E.cx == 0) {
-    E.row.insert(E.row.begin() + E.cy, (erow){});
-    E.row[E.cy].updateRender();
+void mark::insertChar(char c) {
+  if (c != '\r') {
+    erow *r = row();
+    r->raw.insert(r->raw.begin() + x, c);
+    r->updateRender();
+    x++;
   } else {
-    // we need to split the current row into two
-    E.row.insert(E.row.begin() + E.cy + 1, (erow){});
-    erow *row = &E.row[E.cy];
-    E.row[E.cy + 1].raw = row->raw.substr(E.cx, row->raw.length() - E.cx);
-    E.row[E.cy + 1].updateRender();
+  if (x == 0) {
+    p->rows.insert(p->rows.begin() + y, (erow){});
+    row()->updateRender();
+  } else {
+    // split the current row into two
+    p->rows.insert(p->rows.begin() + y + 1, (erow){});
+    erow *r = row();
+    erow *nextRow = &p->rows[y+1];
+    nextRow->raw = r->raw.substr(x, r->raw.length() - x);
+    nextRow->updateRender();
 
-    row = &E.row[E.cy];
-    row->raw.erase(row->raw.begin() + E.cx, row->raw.end());
-    row->updateRender();
+    // TODO: is resetting the row neccesary
+    r = row();
+    r->raw.erase(r->raw.begin() + x, r->raw.end());
+    r->updateRender();
   }
-  E.cy++;
-  E.cx = 0;
+  y++;
+  x = 0;
+  }
 }
-
-void insertChar(char c) {
-  erow *row = &E.row[E.cy];
-  row->raw.insert(row->raw.begin() + E.cx, c);
-  row->updateRender();
-  E.cx++;
-}*/

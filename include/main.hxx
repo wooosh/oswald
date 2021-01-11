@@ -25,8 +25,13 @@ typedef struct mark {
   size_t x;
   size_t y;
 
-  struct erow row();
+  struct erow *row();
   void moveRight();
+  void moveLeft();
+  void moveUp();
+  void moveDown();
+  void deleteBackward();
+  void insertChar(char c);
 } mark;
 
 // TODO: rename this file

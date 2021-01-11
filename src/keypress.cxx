@@ -17,32 +17,29 @@ void editorProcessKeypress() {
     break;
 
 
+*/
   case BACKSPACE:
   case CTRL_KEY('h'):
-    Cursor::deleteBackward();
+    E.cursor.deleteBackward();
     break;
-
   case ARROW_UP:
-    Cursor::moveUp();
+    E.cursor.moveUp();
     break;
   case ARROW_DOWN:
-    Cursor::moveDown();
+    E.cursor.moveDown();
     break;
   case ARROW_LEFT:
-    Cursor::moveLeft();
+    E.cursor.moveLeft();
     break;
-  */
   case ARROW_RIGHT:
     E.cursor.moveRight();
     break;
-  /*
   case CTRL_KEY('l'):
   case '\x1b':
     break;
   
   default:
-    Cursor::insertChar(c);
+    E.cursor.insertChar(c);
     break;
-  */
   }
 }
