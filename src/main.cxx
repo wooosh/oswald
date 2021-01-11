@@ -1,6 +1,5 @@
 #include "main.hxx"
 #include "keypress.hxx"
-#include "row.hxx"
 #include "terminal.hxx"
 #include "draw.hxx"
 
@@ -30,7 +29,6 @@
 // FEATURE: unicode chars for special characters like control codes
 
 // TODO: open files
-// TODO: remove E.dirty, appears to be useless
 // TODO: fix casing
 // TODO: remove char*
 // TODO: remove printfs
@@ -39,6 +37,23 @@
 // TODO: review comments
 // TODO: clean up defines
 struct Editor E;
+
+// TODO: move to render.cxx and change code that calls this function to mark the row as dirty
+#define TAB_STOP 8
+void erow::updateRender() {
+  this->render.clear();
+  this->dirty = true;
+
+  for (size_t j = 0; j < this->raw.length(); j++) {
+    if (this->raw[j] == '\t') {
+      this->render += ' ';
+      while (this->render.length() % TAB_STOP != 0)
+        this->render += ' ';
+    } else {
+      this->render += this->raw[j];
+    }
+  }
+}
 
 void initEditor() {
   Terminal::setup();

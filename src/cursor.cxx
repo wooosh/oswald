@@ -1,6 +1,8 @@
 #include "main.hxx"
 
 namespace Cursor {
+// TODO: rework everything here to work on marks
+// TODO: handle null marks
 static void clampCursorX() { E.cx = std::min(E.cx, E.row[E.cy].raw.length()); }
 
 void moveLeft() {

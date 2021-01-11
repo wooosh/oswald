@@ -1,5 +1,4 @@
 #include "main.hxx"
-#include "row.hxx"
 #include "terminal.hxx"
 
 #include <cstring>
@@ -11,22 +10,31 @@
 
 // https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
 // TODO: move vt constants to terminal.cxx
+// TODO: document file
 // TODO: statusbar
 // - use scrolling region DECSTBM for statusbar 
 
-// TODO: document file
-// TODO: drawing optimizations
-// - allow horziontal scrolling to jump by a certain amount of characters because it requires a redraw of the whole buffer
-// - flag that triggers a full rerender, useful for horizontal scrolling and resizing
-// - when scrolling, use the \x1bD and \x1bM to scroll up and down one line, then redraw status bar and the remaining one line
-// - do scrolling first, then draw rows
+#define TAB_STOP 8
+size_t cxToRx(erow e, size_t cx) {
+  size_t rx = 0;
+  for (size_t j = 0; j < cx; j++) {
+    if (e.raw[j] == '\t')
+      rx += (TAB_STOP - 1) - (rx % TAB_STOP);
+    rx++;
+  }
+  return rx;
+}
+
 
 // scroll to fit cursor in screen and keep file in bounds
 void editorScroll(std::ostream &out) {
-  // Prevent the cursor from going outside of the end of the line
+  // TODO: prevent the cursor from being on non-existent rows
+  // TODO: move cxToRx stuff to the main rendering function
+  // TODO: rename cxToRx to calculateDrawnCursorPos and make it take into account non existent rows
+  // If the cursor is on a non-existent row, set it to zero, otherwise, calulcate the rx based on the actual cursor pos
   E.rx = 0;
   if (E.cy < E.row.size()) {
-    E.rx = E.row[E.cy].cxToRx(E.cx);
+    E.rx = cxToRx(E.row[E.cy], E.cx);
   }
 
   // TODO: refactor the next 4 blocks to be one function

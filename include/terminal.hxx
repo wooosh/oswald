@@ -22,7 +22,6 @@ void die(const char* msg);
 void setup();
 int readKey();
 
-// TODO: probably should not use ostringstream here, could probably be ostream
 void setCursorPosition(std::ostream &out, size_t row, size_t col);
 int getCursorPosition(size_t *rows, size_t *cols);
 
