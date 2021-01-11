@@ -60,11 +60,11 @@ void initEditor() {
   
   auto p = E.portions.insert(E.portions.begin(), (portion){"default"});
   p->rows.push_back((erow){"hi", "hi", true});
-  //p->rows.push_back((erow){});
+  p->rows.push_back((erow){"hello", "hello", true});
   //E.row.insert(E.row.begin(), (erow){});
   E.cursor.p = p;
-  E.cursor.x = 0;
-  E.cursor.y = 0;
+  E.cursor.x = 3;
+  E.cursor.y = 1;
   
 
   if (Terminal::getWindowSize(&E.screenrows, &E.screencols) == -1) {

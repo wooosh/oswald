@@ -16,16 +16,6 @@
 
 
 /*
-#define TAB_STOP 8
-size_t cxToRx(erow e, size_t cx) {
-  size_t rx = 0;
-  for (size_t j = 0; j < cx; j++) {
-    if (e.raw[j] == '\t')
-      rx += (TAB_STOP - 1) - (rx % TAB_STOP);
-    rx++;
-  }
-  return rx;
-}
 
 
 // scroll to fit cursor in screen and keep file in bounds
@@ -148,6 +138,8 @@ void drawRows(std::ostream &out) {
       out << "~" << Terminal::clearToRight;
       break;
     case renderIterator::Buffer:
+      // TODO: handle lines longer than the screen
+      // TODO: only draw lines when needed
       out << r.p->rows[r.portionIndex].render << Terminal::clearToRight;
       break;
     }
@@ -198,6 +190,27 @@ void editorDrawRows(std::ostream &out) {
   }
 }*/
 
+size_t markToRenderY(mark m) {
+  // +1 is for file labels
+  size_t accumulator = m.y + 1;
+  for (auto it = E.portions.begin(); it != m.p; ++it) {
+    accumulator += it->rows.size() + 1;
+  }
+  return accumulator;
+}
+
+#define TAB_STOP 8
+
+size_t markToRenderX(mark m) {
+  size_t rx = 0;
+  for (size_t j = 0; j < m.x; j++) {
+    if (m.p->rows[m.y].raw[j] == '\t')
+      rx += (TAB_STOP - 1) - (rx % TAB_STOP);
+    rx++;
+  }
+  return rx;
+}
+
 void editorRefreshScreen() {
   std::ostringstream out;
   //editorScroll(out);
@@ -209,7 +222,7 @@ void editorRefreshScreen() {
   drawRows(out);
 
   // set cursor pos
-  //Terminal::setCursorPosition(out, E.cy - E.rowoff, E.rx - E.coloff);
+  Terminal::setCursorPosition(out, markToRenderY(E.cursor) - E.rowoff, markToRenderX(E.cursor) - E.coloff);
 
   // show cursor
   out << Terminal::showCursor;
