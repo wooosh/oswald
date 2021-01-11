@@ -1,4 +1,4 @@
-#include "cursor.hxx"
+#include "main.hxx"
 #include "terminal.hxx"
 
 #include <stdio.h>
@@ -31,14 +31,15 @@ void editorProcessKeypress() {
   case ARROW_LEFT:
     Cursor::moveLeft();
     break;
+  */
   case ARROW_RIGHT:
-    Cursor::moveRight();
+    E.cursor.moveRight();
     break;
-
+  /*
   case CTRL_KEY('l'):
   case '\x1b':
     break;
-
+  
   default:
     Cursor::insertChar(c);
     break;

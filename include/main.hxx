@@ -20,11 +20,13 @@ typedef struct portion {
   // TODO: method to create a mark
 } portion;
 
-// TODO: move to mark.hxx
 typedef struct mark {
-  std::list<portion>::iterator p; 
+  std::list<struct portion>::iterator p;
   size_t x;
   size_t y;
+
+  struct erow row();
+  void moveRight();
 } mark;
 
 // TODO: rename this file
@@ -40,7 +42,7 @@ extern struct Editor {
   size_t screenrows;
   size_t screencols;
 
-  mark cursor;
+  struct mark cursor;
   // TODO: change to doubly linked list
   std::list<portion> portions;
 

@@ -1,6 +1,5 @@
 #include "main.hxx"
 
-namespace Cursor {
 // TODO: rework everything here to work on marks
 // TODO: handle null marks
 /*
@@ -14,24 +13,27 @@ void moveLeft() {
     E.cx = E.row[E.cy].raw.length();
   }
 }
+*/
 
-void moveRight() {
-  erow *row = &E.row[E.cy];
-  if (E.cx < row->raw.length()) {
-    E.cx++;
-  } else if (E.cy + 1 < E.row.size()) {
-    E.cy++;
-    E.cx = 0;
-  }
+erow mark::row() {
+  return p->rows[y]; 
 }
 
-void moveUp() {
+void mark::moveRight() {
+  if (x < row().raw.length()) {
+    x++;
+  } else if (y + 1 < p->rows.size()) {
+    y++;
+    x = 0;
+  }
+}
+/*
+void mark::moveUp() {
   if (E.cy != 0) {
     E.cy--;
   }
   clampCursorX();
 }
-
 void moveDown() {
   if (E.cy + 1 < E.row.size()) {
     E.cy++;
@@ -87,4 +89,3 @@ void insertChar(char c) {
   row->updateRender();
   E.cx++;
 }*/
-} // namespace Cursor
