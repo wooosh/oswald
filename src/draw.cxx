@@ -98,7 +98,7 @@ typedef struct renderIterator {
     if (p == E.portions.end()) return;
 
     portionIndex++;
-    if (portionIndex > p->rows.size()) {
+    if (portionIndex >= p->rows.size()) {
       portionIndex = -1;
       p++;
       if (p == E.portions.end()) {
@@ -115,7 +115,7 @@ typedef struct renderIterator {
 renderIterator renderIteratorFromOffset(size_t y) {
   size_t rowsTraversed = 0;
   for (auto it=E.portions.begin(); it!=E.portions.end(); ++it) {
-    // +1 includes filename row
+    // +1 is for filename row
     if (y <= rowsTraversed + it->rows.size() + 1) {
       renderIterator r;
       r.p = it;
@@ -134,24 +134,21 @@ renderIterator renderIteratorFromOffset(size_t y) {
 
 void drawRows(std::ostream &out) {
   renderIterator r = renderIteratorFromOffset(E.rowoff);
-  //r.p = E.portions.begin();
-  //r.portionIndex = -1;
-  //r.rowType = renderIterator::Filename;
 
-  for (size_t y = 0; y < E.screenrows - 5; y++) {
+  for (size_t y = 0; y < E.screenrows; y++) {
     if (y > 0) {
       out << "\r\n";
     }
 
     switch (r.rowType) {
     case renderIterator::Filename:
-      out << "\x1b[34ma" << r.p->filename << "\x1b[0m"  << Terminal::clearToRight;
+      out << "\x1b[34m" << r.p->filename << "\x1b[0m"  << Terminal::clearToRight;
       break;
     case renderIterator::Empty:
       out << "~" << Terminal::clearToRight;
       break;
     case renderIterator::Buffer:
-      out << "a";
+      out << r.p->rows[r.portionIndex].render << Terminal::clearToRight;
       break;
     }
     r.next();

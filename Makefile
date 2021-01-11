@@ -4,7 +4,7 @@ SRC = $(wildcard src/*.cxx)
 OBJ = $(patsubst src/%.cxx,build/%.o,$(SRC))
 DEP = $(OBJ:.o=.d)
 
-CXXFLAGS += -std=c++17 -O3 -Iinclude
+CXXFLAGS += -std=c++17 -g -Iinclude
 
 .PHONY: all clean
 
