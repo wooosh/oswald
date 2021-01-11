@@ -60,7 +60,7 @@ void editorScroll(std::ostream &out) {
     out << "\x1b[" << E.cy - (E.rowoff + E.screenrows) << "S";
 
     // set the previously hidden rows to be rendered
-    for (int i=E.rowoff + E.screenrows - 1; i<E.cy; i++) {
+    for (int i=E.rowoff + E.screenrows - 1; i<=E.cy; i++) {
       E.row[i].dirty = true;
     }
 
