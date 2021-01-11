@@ -1,4 +1,5 @@
 #pragma once
+#include <list>
 #include <vector>
 #include <string>
 
@@ -21,7 +22,7 @@ typedef struct portion {
 
 // TODO: move to mark.hxx
 typedef struct mark {
-  struct portion* p;
+  std::list<portion>::iterator p; 
   size_t x;
   size_t y;
 } mark;
@@ -29,7 +30,8 @@ typedef struct mark {
 // TODO: rename this file
 // TODO: consider using namespaced globals instead of struct
 extern struct Editor {
-  size_t cx, cy;
+  //size_t cx, cy;
+  
   // TODO: move these to draw.cxx 
   size_t rx;
   size_t rowoff;
@@ -38,6 +40,10 @@ extern struct Editor {
   size_t screenrows;
   size_t screencols;
 
+  mark cursor;
+  // TODO: change to doubly linked list
+  std::list<portion> portions;
+
   // rename to buffer
-  std::vector<erow> row;
+  //std::vector<erow> row;
 } E;

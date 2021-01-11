@@ -3,6 +3,7 @@
 namespace Cursor {
 // TODO: rework everything here to work on marks
 // TODO: handle null marks
+/*
 static void clampCursorX() { E.cx = std::min(E.cx, E.row[E.cy].raw.length()); }
 
 void moveLeft() {
@@ -85,5 +86,5 @@ void insertChar(char c) {
   row->raw.insert(row->raw.begin() + E.cx, c);
   row->updateRender();
   E.cx++;
-}
+}*/
 } // namespace Cursor

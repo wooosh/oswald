@@ -58,8 +58,14 @@ void erow::updateRender() {
 void initEditor() {
   Terminal::setup();
   
-  E.row.insert(E.row.begin(), (erow){});
+  auto p = E.portions.insert(E.portions.begin(), (portion){"default"});
+  p->rows.insert(p->rows.begin(), (erow){"hi", "hi", true});
+  //E.row.insert(E.row.begin(), (erow){});
+  E.cursor.p = p;
+  E.cursor.x = 0;
+  E.cursor.y = 0;
   
+
   if (Terminal::getWindowSize(&E.screenrows, &E.screencols) == -1) {
     Terminal::die("getWindowSize");
   }

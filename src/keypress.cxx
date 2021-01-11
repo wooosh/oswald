@@ -8,13 +8,14 @@ void editorProcessKeypress() {
   int c = Terminal::readKey();
 
   switch (c) {
+  case CTRL_KEY('q'):
+    exit(0);
+    break;
+  /*
   case '\r':
     Cursor::insertNewline();
     break;
 
-  case CTRL_KEY('q'):
-    exit(0);
-    break;
 
   case BACKSPACE:
   case CTRL_KEY('h'):
@@ -41,5 +42,6 @@ void editorProcessKeypress() {
   default:
     Cursor::insertChar(c);
     break;
+  */
   }
 }
