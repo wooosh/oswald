@@ -23,10 +23,13 @@
 // FEATURE: line numbers
 // FEATURE: LSP
 // FEATURE: tests
-// FEATURE: save screen buffer
 // FEATURE: grep -r
 // FEATURE: undo and redo
 // FEATURE: unicode chars for special characters like control codes
+// FEATURE: modal
+// FEATURE: remote terminal control for build commands
+// FEATURE: control down=normal mode, control up = insert mode
+
 
 // TODO: open files
 // TODO: fix casing
@@ -59,12 +62,11 @@ void initEditor() {
   Terminal::setup();
   
   auto p = E.portions.insert(E.portions.begin(), (portion){"default"});
-  p->rows.push_back((erow){"hi", "hi", true});
-  p->rows.push_back((erow){"hello", "hello", true});
+  p->rows.push_back((erow){"", "", true});
   //E.row.insert(E.row.begin(), (erow){});
   E.cursor.p = p;
-  E.cursor.x = 3;
-  E.cursor.y = 1;
+  E.cursor.x = 0;
+  E.cursor.y = 0;
   
 
   if (Terminal::getWindowSize(&E.screenrows, &E.screencols) == -1) {

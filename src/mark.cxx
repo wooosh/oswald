@@ -64,6 +64,7 @@ void mark::deleteBackward() {
     y--;
   }
 }
+
 void mark::insertChar(char c) {
   if (c != '\r') {
     erow *r = row();
