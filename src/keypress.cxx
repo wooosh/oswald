@@ -34,6 +34,20 @@ void editorProcessKeypress() {
   case ARROW_RIGHT:
     E.cursor.moveRight();
     break;
+  case PAGE_UP:
+    if (--E.cursor.p == E.portions.end()) {
+      --E.cursor.p;
+    }
+    E.cursor.x = 0;
+    E.cursor.y = 0;
+    break;
+  case PAGE_DOWN:
+    if (++E.cursor.p == E.portions.end()) {
+      ++E.cursor.p;
+    }
+    E.cursor.x = 0;
+    E.cursor.y = 0;
+    break;
   case CTRL_KEY('l'):
   case '\x1b':
     break;
