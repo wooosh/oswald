@@ -1,0 +1,20 @@
+# test scrolling down
+repeat 50 <down>
+hash
+keystream <enter> hello <space> world
+hash
+repeat 5 <down>
+hash
+# test scroll down limit
+repeat 100 <down>
+# test scrolling up
+repeat 50 <up>
+hash
+keystream <enter> hello <space> world
+hash
+repeat 5 <up>
+hash
+# test scroll up limit
+repeat 100 <up>
+hash
+keystream <ctrl-q>
