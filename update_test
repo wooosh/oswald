@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# args: path to test folder
+tui-puppet -r "$1/keystream" ./oswald > "$1/output"
