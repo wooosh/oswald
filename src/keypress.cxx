@@ -17,6 +17,7 @@ void editorProcessKeypress() {
   case CTRL_KEY('h'):
     E.cursor.deleteBackward();
     break;
+
   case key::UpArrow:
     E.cursor.moveUp();
     break;

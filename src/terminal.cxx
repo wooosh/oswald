@@ -102,6 +102,7 @@ key readKey() {
   size_t used = 0;
 
   key k;
+  k.base = key::None;
   k.control = false;
   k.alt = false;
   k.shift = false;
@@ -160,7 +161,8 @@ key readKey() {
         used = 3;
       }
     } 
-  } else {
+  }
+  if (k.base == key::None) {
     // TODO: handle control normalization
     k.base = (key::keyBase) seq[0];
     used = 1;

@@ -16,6 +16,8 @@ struct key {
     End,
     PageUp,
     PageDown,
+    // Internal use only
+    None
   } base;
   bool control;
   bool alt;
