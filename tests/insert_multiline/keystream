@@ -1,0 +1,7 @@
+keystream line <space> 1 <enter>
+keystream line <space> 2 <enter>
+keystream line <space> 3 <enter>
+keystream line <space> 4 <enter>
+keystream line <space> 5 <enter>
+hash
+keystream <ctrl-q>

@@ -2,11 +2,13 @@
 #include "keypress.hxx"
 #include "terminal.hxx"
 #include "draw.hxx"
+#include "portion.hxx"
 
 #include <fcntl.h>
 #include <stdarg.h>
 #include <string.h>
 #include <unistd.h>
+#include <iostream>
 
 // FEATURE: unicode support
 // FEATURE: portions
@@ -58,24 +60,31 @@ void erow::updateRender() {
   }
 }
 
-void initEditor() {
-  Terminal::setup();
-  
-  auto p = E.portions.insert(E.portions.begin(), (portion){"default"});
-  p->rows.push_back((erow){"", "", true});
-  //E.row.insert(E.row.begin(), (erow){});
-  E.cursor.p = p;
+int main(int argc, char *argv[]) {
+  if (argc == 1) {
+    openScratchPortion();
+  } else {
+    for (int i=1; i<argc; i++) {
+      bool success = openFilePortion(argv[i]);
+
+      if (!success) {
+        std::cout << "Cannot open file: " << argv[i] << std::endl;
+        return 1; 
+      }
+    }
+  }
+
+  E.cursor.p = E.portions.begin();
   E.cursor.x = 0;
   E.cursor.y = 0;
   
+  Terminal::setup();
 
   if (Terminal::getWindowSize(&E.screenrows, &E.screencols) == -1) {
     Terminal::die("getWindowSize");
   }
-}
 
-int main(int argc, char *argv[]) {
-  initEditor();
+
 
   while (1) {
     editorRefreshScreen();
