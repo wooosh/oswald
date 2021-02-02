@@ -3,6 +3,7 @@
 
 #include <ostream>
 #include <stdio.h>
+#include <poll.h>
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
@@ -62,7 +63,7 @@ void setup() {
   std::cout << "\x1b[?1049h";
 
   // switch to line cursor
-  std::cout << "\x1b[\x35 q";
+  std::cout << "\x1b[\x36 q";
 }
 
 
@@ -92,13 +93,32 @@ void vtSingleChar(key* k, char c) {
 static char seq[6];
 static size_t available = 0;
 key readKey() {
-  // TODO: error handling
-  // refill buffer
-  size_t result = read(STDIN_FILENO, seq+available, 6-available);
-  if (result < 1) {
-    Terminal::die("read error");
+  int timeout = -1;
+  if (available) {
+    timeout = 0;
   }
-  available += result;
+
+  struct pollfd pfd = {STDIN_FILENO, POLLIN};
+
+  int ready = poll(&pfd, 1, timeout);
+
+  if (ready == -1) {
+    // TODO: proper error handling
+    Terminal::die("poll");
+  } else if (ready > 0) {
+    if (pfd.revents & POLLIN) {
+      // TODO: error handling
+      // refill buffer
+      size_t result = read(STDIN_FILENO, seq+available, 6-available);
+      if (result < 1) {
+        Terminal::die("read error");
+      }
+      available += result;
+    } else { // POLLERR | POLLHUP
+      Terminal::die("poll");
+    }  
+  }
+
   size_t used = 0;
 
   key k;
