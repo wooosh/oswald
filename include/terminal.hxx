@@ -4,23 +4,28 @@
 #include <ostream>
 
 #define CTRL_KEY(k) ((k)&0x1f)
-enum editorKey {
-  BACKSPACE = 127,
-  ARROW_LEFT = 1000,
-  ARROW_RIGHT,
-  ARROW_UP,
-  ARROW_DOWN,
-  DEL_KEY,
-  HOME_KEY,
-  END_KEY,
-  PAGE_UP,
-  PAGE_DOWN
+struct key {
+  enum keyBase{
+    Backspace = 127,
+    LeftArrow = 1000,
+    RightArrow,
+    UpArrow,
+    DownArrow,
+    Delete,
+    Home,
+    End,
+    PageUp,
+    PageDown,
+  } base;
+  bool control;
+  bool alt;
+  bool shift;
 };
 
 namespace Terminal {
 void die(const char* msg);
 void setup();
-int readKey();
+key readKey();
 
 void setCursorPosition(std::ostream &out, size_t row, size_t col);
 int getCursorPosition(size_t *rows, size_t *cols);

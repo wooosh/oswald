@@ -3,57 +3,76 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <iostream>
 
 void editorProcessKeypress() {
-  int c = Terminal::readKey();
+  key k = Terminal::readKey();
 
-  switch (c) {
+  switch (k.base) {
   case CTRL_KEY('q'):
     exit(0);
     break;
-  /*
-  case '\r':
-    Cursor::insertNewline();
-    break;
-
-
-*/
-  case BACKSPACE:
+  
+  case key::Backspace:
   case CTRL_KEY('h'):
     E.cursor.deleteBackward();
     break;
-  case ARROW_UP:
+  case key::UpArrow:
     E.cursor.moveUp();
     break;
-  case ARROW_DOWN:
+  case key::DownArrow:
     E.cursor.moveDown();
     break;
-  case ARROW_LEFT:
+  case key::LeftArrow:
     E.cursor.moveLeft();
     break;
-  case ARROW_RIGHT:
+  case key::RightArrow:
     E.cursor.moveRight();
     break;
-  case PAGE_UP:
+
+
+  case key::PageUp:
     if (--E.cursor.p == E.portions.end()) {
       --E.cursor.p;
     }
     E.cursor.x = 0;
     E.cursor.y = 0;
     break;
-  case PAGE_DOWN:
+  case key::PageDown:
     if (++E.cursor.p == E.portions.end()) {
       ++E.cursor.p;
     }
     E.cursor.x = 0;
     E.cursor.y = 0;
     break;
+/*
+  case MOD_ARROW_RIGHT: {
+    size_t pos = E.cursor.row()->raw.find_first_of(" ()\"':", E.cursor.x);
+
+    if (pos != std::string::npos) {
+      E.cursor.x = pos + 1;
+    }
+
+    break;
+  }
+  
+  case MOD_ARROW_LEFT: {
+    if (E.cursor.x <= 0) break;
+    size_t pos = E.cursor.row()->raw.find_last_of(" ()\"':", E.cursor.x-1);
+
+    if (pos != std::string::npos) {
+      E.cursor.x = pos;
+    }
+
+    break;
+  }
+*/
   case CTRL_KEY('l'):
   case '\x1b':
     break;
   
   default:
-    E.cursor.insertChar(c);
+    E.cursor.insertChar(k.base);
     break;
   }
 }

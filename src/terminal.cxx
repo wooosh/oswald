@@ -7,6 +7,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include <iostream>
+#include <cstring>
 
 static struct termios origTermios;
 static const char* errorMessage = NULL;
@@ -32,6 +33,9 @@ void cleanup() {
   // restore screen contents
   std::cout << "\x1b[?1049l";
 
+  // switch back to block cursor
+  std::cout << "\x1b[\x32 q";
+
   if (errorMessage) {
     errno = dieErrno;
     perror(errorMessage);
@@ -56,76 +60,117 @@ void setup() {
 
   // switch to application buffer (preserves the contents of the terminal before the editor was started)
   std::cout << "\x1b[?1049h";
+
+  // switch to line cursor
+  std::cout << "\x1b[\x35 q";
 }
 
-int readKey() {
-  int nread;
-  char c;
-  while ((nread = read(STDIN_FILENO, &c, 1)) != 1) {
-    if (nread == -1 && errno != EAGAIN)
-      die("read");
+
+void vtSingleChar(key* k, char c) {
+  switch(c) {
+  case 'A':
+    k->base = key::UpArrow;
+    return;
+  case 'B':
+    k->base = key::DownArrow;
+    return;
+  case 'C':
+    k->base = key::RightArrow;
+    return;
+  case 'D':
+    k->base = key::LeftArrow;
+    return;
+  case 'H':
+    k->base = key::Home;
+    return;
+  case 'F':
+    k->base = key::End;
+    return;
   }
+}
 
-  if (c == '\x1b') {
-    char seq[3];
+static char seq[6];
+static size_t available = 0;
+key readKey() {
+  // TODO: error handling
+  // refill buffer
+  size_t result = read(STDIN_FILENO, seq+available, 6-available);
+  if (result < 1) {
+    Terminal::die("read error");
+  }
+  available += result;
+  size_t used = 0;
 
-    if (read(STDIN_FILENO, &seq[0], 1) != 1)
-      return '\x1b';
-    if (read(STDIN_FILENO, &seq[1], 1) != 1)
-      return '\x1b';
+  key k;
+  k.control = false;
+  k.alt = false;
+  k.shift = false;
 
-    if (seq[0] == '[') {
-      if (seq[1] >= '0' && seq[1] <= '9') {
-        if (read(STDIN_FILENO, &seq[2], 1) != 1)
-          return '\x1b';
-        if (seq[2] == '~') {
-          switch (seq[1]) {
-          case '1':
-            return HOME_KEY;
+  if (seq[0] == '\x1b') {
+    if (available >= 3 && seq[1] == '[') {
+      if (available >= 4 && seq[2] >= '0' && seq[2] <= '9') {
+        if (seq[3] == '~') {
+          switch (seq[2]) {
           case '3':
-            return DEL_KEY;
-          case '4':
-            return END_KEY;
+            k.base = key::Delete;
+            break;
           case '5':
-            return PAGE_UP;
+            k.base = key::PageUp;
+            break;
           case '6':
-            return PAGE_DOWN;
-          case '7':
-            return HOME_KEY;
-          case '8':
-            return END_KEY;
+            k.base = key::PageDown;
+            break;
           }
+          used = 4;
+        } else if (available >= 6 && seq[2] == '1' && seq[2] == ';') {
+          // combines alt and control currently
+          switch(seq[4]) {
+          case '2':
+            k.shift = true;
+            break;
+          case '3':
+            k.alt = true;
+            break;
+          case '4':
+            k.shift = true;
+            k.alt = true;
+            break;
+          case '5':
+            k.control = true;
+            break;
+          case '6':
+            k.control = true;
+            k.shift = true;
+            break;
+          case '7':
+            k.control = true;
+            k.alt = true;
+            break;
+          case '8':
+            k.control = true;
+            k.alt = true;
+            k.shift = true;
+            break;
+          }
+          vtSingleChar(&k, seq[5]);
+          used = 6;
         }
-      } else {
-        switch (seq[1]) {
-        case 'A':
-          return ARROW_UP;
-        case 'B':
-          return ARROW_DOWN;
-        case 'C':
-          return ARROW_RIGHT;
-        case 'D':
-          return ARROW_LEFT;
-        case 'H':
-          return HOME_KEY;
-        case 'F':
-          return END_KEY;
-        }
+      } else if (available >= 2) { 
+        vtSingleChar(&k, seq[2]);
+        used = 3;
       }
-    } else if (seq[0] == 'O') {
-      switch (seq[1]) {
-      case 'H':
-        return HOME_KEY;
-      case 'F':
-        return END_KEY;
-      }
-    }
-
-    return '\x1b';
+    } 
   } else {
-    return c;
+    // TODO: handle control normalization
+    k.base = (key::keyBase) seq[0];
+    used = 1;
   }
+
+  memmove(seq, seq+used, available - used);
+  available -= used;
+  return k;
 }
+
 
 void setCursorPosition(std::ostream &out, std::size_t row, size_t col) {
   out << "\x1b[" << row + 1 << ";" << col + 1 << "H";
