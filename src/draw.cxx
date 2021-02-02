@@ -14,63 +14,6 @@
 // TODO: statusbar
 // - use scrolling region DECSTBM for statusbar 
 
-
-/*
-
-
-// scroll to fit cursor in screen and keep file in bounds
-void editorScroll(std::ostream &out) {
-  // TODO: prevent the cursor from being on non-existent rows
-  // TODO: move cxToRx stuff to the main rendering function
-  // TODO: rename cxToRx to calculateDrawnCursorPos and make it take into account non existent rows
-  // If the cursor is on a non-existent row, set it to zero, otherwise, calulcate the rx based on the actual cursor pos
-  E.rx = 0;
-  if (E.cy < E.row.size()) {
-    E.rx = cxToRx(E.row[E.cy], E.cx);
-  }
-
-  // TODO: refactor the next 4 blocks to be one function
-
-  // vertical scrolling
-  // cursor before view
-  if (E.cy < E.rowoff) {
-    // move currently drawn rows down
-    out << "\x1b[" << E.rowoff - E.cy << "T";
-    
-    // set the previously hidden rows to be rendered
-    for (int i=E.cy; i<E.rowoff; i++) {
-      E.row[i].dirty = true;
-    }
-
-    // move the view down
-    E.rowoff = E.cy;
-  }
-
-  // cursor after view
-  if (E.cy >= E.rowoff + E.screenrows) {
-    // move currently drawn rows up
-    out << "\x1b[" << E.cy - (E.rowoff + E.screenrows) << "S";
-
-    // set the previously hidden rows to be rendered
-    for (int i=E.rowoff + E.screenrows - 1; i<=E.cy; i++) {
-      E.row[i].dirty = true;
-    }
-
-    // Move the view up
-    E.rowoff = E.cy - E.screenrows + 1;
-  }
-
-  // TODO: implement horizontal scrolling
-  // horizontal scrolling
-  if (E.rx < E.coloff) {
-    E.coloff = E.rx;
-  }
-  if (E.rx >= E.coloff + E.screencols) {
-    E.coloff = E.rx - E.screencols + 1;
-  }
-}
-*/
-
 // TODO: rename
 typedef struct renderIterator {
   // TODO: constructor
@@ -121,6 +64,93 @@ renderIterator renderIteratorFromOffset(size_t y) {
   }
   Terminal::die("offset outside of all rows");
 }
+
+size_t markToRenderY(mark m) {
+  // +1 is for file labels
+  size_t accumulator = m.y + 1;
+  for (auto it = E.portions.begin(); it != m.p; ++it) {
+    accumulator += it->rows.size() + 1;
+  }
+  return accumulator;
+}
+
+#define TAB_STOP 8
+
+size_t markToRenderX(mark m) {
+  size_t rx = 0;
+  for (size_t j = 0; j < m.x; j++) {
+    if (m.p->rows[m.y].raw[j] == '\t')
+      rx += (TAB_STOP - 1) - (rx % TAB_STOP);
+    rx++;
+  }
+  return rx;
+}
+
+
+// scroll to fit cursor in screen and keep file in bounds
+void editorScroll(std::ostream &out) {
+  // TODO: prevent the cursor from being on non-existent rows
+  // TODO: move cxToRx stuff to the main rendering function
+  // TODO: rename cxToRx to calculateDrawnCursorPos and make it take into account non existent rows
+  // If the cursor is on a non-existent row, set it to zero, otherwise, calulcate the rx based on the actual cursor pos
+  //E.rx = 0;
+  // this should probably be an assert
+  //if (E.cursor.y < E.row.size()) {
+  //  E.rx = cxToRx(E.row[E.cy], E.cx);
+  //}
+
+  // TODO: refactor the next 4 blocks to be one function
+
+  // vertical scrolling
+  size_t cy = markToRenderY(E.cursor);
+
+  // cursor before view
+  if (cy < E.rowoff) {
+    // move currently drawn rows down
+    out << "\x1b[" << E.rowoff - cy << "T";
+    
+    renderIterator r = renderIteratorFromOffset(cy);
+    // set the previously hidden rows to be rendered
+    for (int i=cy; i<E.rowoff; i++) {
+      if (r.rowType == renderIterator::Buffer) {
+        r.p->rows[r.portionIndex].dirty = true;
+      }
+      r.next();
+    }
+
+    // move the view down
+    E.rowoff = cy;
+  }
+  
+  // cursor after view
+  if (cy >= E.rowoff + E.screenrows) {
+    // move currently drawn rows up
+    out << "\x1b[" << cy - (E.rowoff + E.screenrows) << "S";
+
+    // set the previously hidden rows to be rendered
+    renderIterator r = renderIteratorFromOffset(E.rowoff + E.screenrows - 1);
+    for (int i=E.rowoff + E.screenrows - 1; i<=cy; i++) {
+      if (r.rowType == renderIterator::Buffer) {
+        r.p->rows[r.portionIndex].dirty = true;
+      }
+      r.next();
+    }
+
+    // Move the view up
+    E.rowoff = cy - E.screenrows + 1;
+  }
+/*
+  // TODO: implement horizontal scrolling
+  // horizontal scrolling
+  if (E.rx < E.coloff) {
+    E.coloff = E.rx;
+  }
+  if (E.rx >= E.coloff + E.screencols) {
+    E.coloff = E.rx - E.screencols + 1;
+  }
+*/
+}
+
 
 void drawRows(std::ostream &out) {
   // TODO: change renderIterator to renderIteratorView and have it take a length
@@ -197,30 +227,10 @@ void editorDrawRows(std::ostream &out) {
   }
 }*/
 
-size_t markToRenderY(mark m) {
-  // +1 is for file labels
-  size_t accumulator = m.y + 1;
-  for (auto it = E.portions.begin(); it != m.p; ++it) {
-    accumulator += it->rows.size() + 1;
-  }
-  return accumulator;
-}
-
-#define TAB_STOP 8
-
-size_t markToRenderX(mark m) {
-  size_t rx = 0;
-  for (size_t j = 0; j < m.x; j++) {
-    if (m.p->rows[m.y].raw[j] == '\t')
-      rx += (TAB_STOP - 1) - (rx % TAB_STOP);
-    rx++;
-  }
-  return rx;
-}
 
 void editorRefreshScreen() {
   std::ostringstream out;
-  //editorScroll(out);
+  editorScroll(out);
 
 
   // hide cursor and clear screen
