@@ -1,4 +1,12 @@
 #!/bin/sh
-
 # args: path to test folder
-tui-puppet -r "$1/keystream" ./oswald > "$1/output"
+
+p=${1%/}
+
+args=
+
+if [ -f "$p/file" ]; then
+  args="$p/file"
+fi
+
+tui-puppet -r "$p/keystream" ./oswald $args > "$p/output"

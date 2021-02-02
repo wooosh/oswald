@@ -5,7 +5,13 @@ failed=0
 
 _test() {
   # check if custom command is provided
-  tui-puppet "$1/keystream" ./oswald > "$1/last_output"
+  args=
+  
+  if [ -f "$1/file" ]; then
+    args="$1/file"
+  fi
+
+  tui-puppet "$1/keystream" ./oswald $args > "$1/last_output"
 
   testname="${1##*/}"
   if cmp "$1/last_output" "$1/output" >/dev/null; then
