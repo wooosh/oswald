@@ -123,6 +123,8 @@ renderIterator renderIteratorFromOffset(size_t y) {
 }
 
 void drawRows(std::ostream &out) {
+  // TODO: change renderIterator to renderIteratorView and have it take a length
+  // this way we can do a range for loop over the iterator
   renderIterator r = renderIteratorFromOffset(E.rowoff);
 
   for (size_t y = 0; y < E.screenrows; y++) {
@@ -131,9 +133,14 @@ void drawRows(std::ostream &out) {
     }
 
     switch (r.rowType) {
-    case renderIterator::Filename:
-      out << "\x1b[34m" << r.p->filename << "\x1b[0m"  << Terminal::clearToRight;
+    case renderIterator::Filename: {
+      // TODO: move escape codes to terminal.cxx
+      // TODO: get the length of the filename using the render length instead of the byte length
+      // minus one for left padding
+      size_t line_remaining = E.screencols - r.p->filename.length() - 1;
+      out << "\x1b[7m " << r.p->filename << std::string(line_remaining, ' ') << "\x1b[0m";
       break;
+    }
     case renderIterator::Empty:
       out << "~" << Terminal::clearToRight;
       break;
