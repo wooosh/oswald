@@ -143,7 +143,7 @@ key readKey() {
             break;
           }
           used = 4;
-        } else if (available >= 6 && seq[2] == '1' && seq[2] == ';') {
+        } else if (available >= 6 && seq[2] == '1' && seq[3] == ';') {
           // combines alt and control currently
           switch(seq[4]) {
           case '2':

@@ -48,7 +48,8 @@ extern struct Editor {
   size_t screencols;
 
   struct mark cursor;
-  struct mark selection_end;
+  struct mark anchor;
+
   // TODO: change to doubly linked list
   std::list<portion> portions;
 

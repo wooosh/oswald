@@ -77,6 +77,8 @@ int main(int argc, char *argv[]) {
   E.cursor.p = E.portions.begin();
   E.cursor.x = 0;
   E.cursor.y = 0;
+
+  E.anchor = E.cursor;
   
   Terminal::setup();
 

@@ -76,4 +76,8 @@ void editorProcessKeypress() {
     E.cursor.insertChar(k.base);
     break;
   }
+
+  if (!k.shift) {
+    E.anchor = E.cursor;
+  }
 }

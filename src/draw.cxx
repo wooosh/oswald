@@ -23,6 +23,7 @@ typedef struct renderIterator {
     Buffer,
     Empty
   } rowType;
+  // TODO: rename portionindex
   // -1 indicates we are on the filename label row
   ssize_t portionIndex;
 
@@ -151,7 +152,6 @@ void editorScroll(std::ostream &out) {
 */
 }
 
-
 void drawRows(std::ostream &out) {
   // TODO: change renderIterator to renderIteratorView and have it take a length
   // this way we can do a range for loop over the iterator
@@ -175,8 +175,6 @@ void drawRows(std::ostream &out) {
       out << "~" << Terminal::clearToRight;
       break;
     case renderIterator::Buffer:
-      // TODO: handle lines longer than the screen
-      // TODO: only draw lines when needed
       out << r.p->rows[r.portionIndex].render << Terminal::clearToRight;
       break;
     }
@@ -184,49 +182,6 @@ void drawRows(std::ostream &out) {
   }
 
 }
-
-/*
-renderCursor renderYToIterator(size_t y) {
-  renderIterator r;
-  r.p = E.portions.begin();
-}*/
-
-// TODO: store filename rows somewhere persistent
-// TODO: remove editor prefix
-/*
-void editorDrawRows(std::ostream &out) {
-  renderIterator r;
-  r.p = E.portions.begin();
-
-  for (size_t y = 0; y < E.screenrows; y++) {
-    if (y != 0) {
-      out << "\r\n";;
-    }
-    
-    // linePos.moveDown(true - cross portion)
-    // row drawRow = linePos.row()
-    
-    portionRowIndex++;
-    if (portionRowIndex 
-
-    size_t filerow = y + E.rowoff;
-    if (filerow >= E.row.size()) {
-      out << "~";
-      out << Terminal::clearToRight;
-    } else if (E.row[filerow].dirty) {
-      ssize_t len = E.row[filerow].render.length() - E.coloff;
-      if (len > 0) {
-        // TODO: fix signed unsigned comparison
-        if (len > E.screencols)
-          len = E.screencols;
-        out << E.row[filerow].render.substr(E.coloff, len);
-      }
-      out << Terminal::clearToRight;
-      E.row[filerow].dirty = false;
-    }
-  }
-}*/
-
 
 void editorRefreshScreen() {
   std::ostringstream out;
