@@ -175,7 +175,11 @@ void drawRows(std::ostream &out) {
       out << "~" << Terminal::clearToRight;
       break;
     case renderIterator::Buffer:
-      out << r.p->rows[r.portionIndex].render << Terminal::clearToRight;
+      std::string line = r.p->rows[r.portionIndex].render;
+      if (line.length() > 0 && line.length() > E.screencols) {
+        line = line.substr(0, E.screencols);
+      }
+      out << line << Terminal::clearToRight;
       break;
     }
     r.next();
