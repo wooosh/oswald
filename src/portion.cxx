@@ -31,5 +31,19 @@ bool openFilePortion(std::string filename) {
     p->rows.push_back(row);
   }
 
+  file.close();
+
   return true;
 };
+
+// TODO: store a save function in the buffer itself since some buffer types
+// (like scratch buffers) require special care.
+void saveFilePortion(portion p) {
+  std::ofstream file(p.filename);
+
+  for (int i=0; i<p.rows.size(); i++) {
+    file << p.rows[i].raw << '\n';
+  }
+
+  file.close();
+}

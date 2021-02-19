@@ -1,5 +1,6 @@
 #include "main.hxx"
 #include "terminal.hxx"
+#include "portion.hxx"
 
 #include <iostream>
 #include <stdio.h>
@@ -11,6 +12,10 @@ void editorProcessKeypress() {
   switch (k.base) {
   case CTRL_KEY('q'):
     exit(0);
+    break;
+
+  case CTRL_KEY('s'):
+    saveFilePortion(*E.cursor.p);
     break;
 
   case key::Backspace:

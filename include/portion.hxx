@@ -4,3 +4,4 @@
 
 void openScratchPortion();
 bool openFilePortion(std::string filename);
+void saveFilePortion(portion p);
