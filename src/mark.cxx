@@ -3,9 +3,7 @@
 // TODO: rework everything here to work on marks
 // TODO: handle null marks
 
-erow* mark::row() {
-  return &p->rows[y]; 
-}
+erow *mark::row() { return &p->rows[y]; }
 
 void mark::moveLeft() {
   if (x != 0) {
@@ -29,14 +27,14 @@ void mark::moveUp() {
   if (y != 0) {
     y--;
   }
-  // TODO: should this be in if statement 
+  // TODO: should this be in if statement
   x = std::min(x, row()->raw.length());
 }
 void mark::moveDown() {
   if (y + 1 < p->rows.size()) {
     y++;
   }
-  // TODO: should this be in if statement 
+  // TODO: should this be in if statement
   x = std::min(x, row()->raw.length());
 }
 
@@ -54,7 +52,7 @@ void mark::deleteBackward() {
     r->raw.erase(r->raw.begin() + x);
     r->updateRender();
   } else {
-    erow *previousRow = &p->rows[y-1];
+    erow *previousRow = &p->rows[y - 1];
     x = previousRow->raw.length();
 
     previousRow->raw += r->raw;
@@ -72,23 +70,23 @@ void mark::insertChar(char c) {
     r->updateRender();
     x++;
   } else {
-  if (x == 0) {
-    p->rows.insert(p->rows.begin() + y, (erow){});
-    row()->updateRender();
-  } else {
-    // split the current row into two
-    p->rows.insert(p->rows.begin() + y + 1, (erow){});
-    erow *r = row();
-    erow *nextRow = &p->rows[y+1];
-    nextRow->raw = r->raw.substr(x, r->raw.length() - x);
-    nextRow->updateRender();
+    if (x == 0) {
+      p->rows.insert(p->rows.begin() + y, (erow){});
+      row()->updateRender();
+    } else {
+      // split the current row into two
+      p->rows.insert(p->rows.begin() + y + 1, (erow){});
+      erow *r = row();
+      erow *nextRow = &p->rows[y + 1];
+      nextRow->raw = r->raw.substr(x, r->raw.length() - x);
+      nextRow->updateRender();
 
-    // TODO: is resetting the row neccesary
-    r = row();
-    r->raw.erase(r->raw.begin() + x, r->raw.end());
-    r->updateRender();
-  }
-  y++;
-  x = 0;
+      // TODO: is resetting the row neccesary
+      r = row();
+      r->raw.erase(r->raw.begin() + x, r->raw.end());
+      r->updateRender();
+    }
+    y++;
+    x = 0;
   }
 }

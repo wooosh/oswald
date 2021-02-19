@@ -1,7 +1,7 @@
 #pragma once
 #include <list>
-#include <vector>
 #include <string>
+#include <vector>
 
 // TODO: rename to row
 typedef struct erow {
@@ -9,7 +9,8 @@ typedef struct erow {
   std::string render;
   bool dirty;
 
-  // TODO: don't export this function, just redraw rows when they are set to dirty
+  // TODO: don't export this function, just redraw rows when they are set to
+  // dirty
   void updateRender();
 } erow;
 
@@ -39,7 +40,7 @@ typedef struct mark {
 extern struct Editor {
   // TODO: screen struct
   // TODO: buffer struct
-  // TODO: move these to draw.cxx 
+  // TODO: move these to draw.cxx
   size_t rx;
   size_t rowoff;
   size_t coloff;
@@ -54,5 +55,5 @@ extern struct Editor {
   std::list<portion> portions;
 
   // rename to buffer
-  //std::vector<erow> row;
+  // std::vector<erow> row;
 } E;

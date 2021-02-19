@@ -12,24 +12,21 @@
 // TODO: move vt constants to terminal.cxx
 // TODO: document file
 // TODO: statusbar
-// - use scrolling region DECSTBM for statusbar 
+// - use scrolling region DECSTBM for statusbar
 
 // TODO: rename
 typedef struct renderIterator {
   // TODO: constructor
   std::list<portion>::iterator p;
-  enum {
-    Filename,
-    Buffer,
-    Empty
-  } rowType;
+  enum { Filename, Buffer, Empty } rowType;
   // TODO: rename portionindex
   // -1 indicates we are on the filename label row
   ssize_t portionIndex;
 
   // TODO: add constructor for random y and start of portions
   void next() {
-    if (p == E.portions.end()) return;
+    if (p == E.portions.end())
+      return;
 
     portionIndex++;
     if (portionIndex >= p->rows.size()) {
@@ -48,7 +45,7 @@ typedef struct renderIterator {
 
 renderIterator renderIteratorFromOffset(size_t y) {
   size_t rowsTraversed = 0;
-  for (auto it=E.portions.begin(); it!=E.portions.end(); ++it) {
+  for (auto it = E.portions.begin(); it != E.portions.end(); ++it) {
     // +1 is for filename row
     if (y <= rowsTraversed + it->rows.size() + 1) {
       renderIterator r;
@@ -87,16 +84,16 @@ size_t markToRenderX(mark m) {
   return rx;
 }
 
-
 // scroll to fit cursor in screen and keep file in bounds
 void editorScroll(std::ostream &out) {
   // TODO: prevent the cursor from being on non-existent rows
   // TODO: move cxToRx stuff to the main rendering function
-  // TODO: rename cxToRx to calculateDrawnCursorPos and make it take into account non existent rows
-  // If the cursor is on a non-existent row, set it to zero, otherwise, calulcate the rx based on the actual cursor pos
-  //E.rx = 0;
+  // TODO: rename cxToRx to calculateDrawnCursorPos and make it take into
+  // account non existent rows If the cursor is on a non-existent row, set it to
+  // zero, otherwise, calulcate the rx based on the actual cursor pos
+  // E.rx = 0;
   // this should probably be an assert
-  //if (E.cursor.y < E.row.size()) {
+  // if (E.cursor.y < E.row.size()) {
   //  E.rx = cxToRx(E.row[E.cy], E.cx);
   //}
 
@@ -109,10 +106,10 @@ void editorScroll(std::ostream &out) {
   if (cy < E.rowoff) {
     // move currently drawn rows down
     out << "\x1b[" << E.rowoff - cy << "T";
-    
+
     renderIterator r = renderIteratorFromOffset(cy);
     // set the previously hidden rows to be rendered
-    for (int i=cy; i<E.rowoff; i++) {
+    for (int i = cy; i < E.rowoff; i++) {
       if (r.rowType == renderIterator::Buffer) {
         r.p->rows[r.portionIndex].dirty = true;
       }
@@ -122,7 +119,7 @@ void editorScroll(std::ostream &out) {
     // move the view down
     E.rowoff = cy;
   }
-  
+
   // cursor after view
   if (cy >= E.rowoff + E.screenrows) {
     // move currently drawn rows up
@@ -130,7 +127,7 @@ void editorScroll(std::ostream &out) {
 
     // set the previously hidden rows to be rendered
     renderIterator r = renderIteratorFromOffset(E.rowoff + E.screenrows - 1);
-    for (int i=E.rowoff + E.screenrows - 1; i<=cy; i++) {
+    for (int i = E.rowoff + E.screenrows - 1; i <= cy; i++) {
       if (r.rowType == renderIterator::Buffer) {
         r.p->rows[r.portionIndex].dirty = true;
       }
@@ -140,16 +137,16 @@ void editorScroll(std::ostream &out) {
     // Move the view up
     E.rowoff = cy - E.screenrows + 1;
   }
-/*
-  // TODO: implement horizontal scrolling
-  // horizontal scrolling
-  if (E.rx < E.coloff) {
-    E.coloff = E.rx;
-  }
-  if (E.rx >= E.coloff + E.screencols) {
-    E.coloff = E.rx - E.screencols + 1;
-  }
-*/
+  /*
+    // TODO: implement horizontal scrolling
+    // horizontal scrolling
+    if (E.rx < E.coloff) {
+      E.coloff = E.rx;
+    }
+    if (E.rx >= E.coloff + E.screencols) {
+      E.coloff = E.rx - E.screencols + 1;
+    }
+  */
 }
 
 // takes a line and the line number and returns a highlighted version
@@ -158,7 +155,7 @@ std::string highlightLine(std::string line, size_t lineNum) {
   // TODO: make sure the selection is visible on screen, and account for
   // horizontal scrolling since the line is cropped to fit the screen at this
   // point
-      
+
   // make sure there is actually a selection range
   if (E.cursor.y == E.anchor.y && E.cursor.x == E.anchor.x)
     return line;
@@ -173,7 +170,7 @@ std::string highlightLine(std::string line, size_t lineNum) {
     selStart = E.anchor;
     selEnd = E.cursor;
   }
-  
+
   // check if this line is in the selection bounds
   if (lineNum < selStart.y || lineNum > selEnd.y)
     return line;
@@ -214,10 +211,11 @@ void drawRows(std::ostream &out) {
     switch (r.rowType) {
     case renderIterator::Filename: {
       // TODO: move escape codes to terminal.cxx
-      // TODO: get the length of the filename using the render length instead of the byte length
-      // minus one for left padding
+      // TODO: get the length of the filename using the render length instead of
+      // the byte length minus one for left padding
       size_t line_remaining = E.screencols - r.p->filename.length() - 1;
-      out << "\x1b[7m " << r.p->filename << std::string(line_remaining, ' ') << "\x1b[0m";
+      out << "\x1b[7m " << r.p->filename << std::string(line_remaining, ' ')
+          << "\x1b[0m";
       break;
     }
     case renderIterator::Empty:
@@ -229,7 +227,7 @@ void drawRows(std::ostream &out) {
       if (line.length() > 0 && line.length() > E.screencols) {
         line = line.substr(0, E.screencols);
       }
-      
+
       line = highlightLine(line, r.portionIndex);
 
       out << line << Terminal::clearToRight;
@@ -237,13 +235,11 @@ void drawRows(std::ostream &out) {
     }
     r.next();
   }
-
 }
 
 void editorRefreshScreen() {
   std::ostringstream out;
   editorScroll(out);
-
 
   // hide cursor and clear screen
   out << Terminal::hideCursor << Terminal::homeCursor;
@@ -251,7 +247,8 @@ void editorRefreshScreen() {
   drawRows(out);
 
   // set cursor pos
-  Terminal::setCursorPosition(out, markToRenderY(E.cursor) - E.rowoff, markToRenderX(E.cursor) - E.coloff);
+  Terminal::setCursorPosition(out, markToRenderY(E.cursor) - E.rowoff,
+                              markToRenderX(E.cursor) - E.coloff);
 
   // show cursor
   out << Terminal::showCursor;

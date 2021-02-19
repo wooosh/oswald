@@ -13,7 +13,8 @@ void openScratchPortion() {
 bool openFilePortion(std::string filename) {
   std::ifstream file(filename);
   // TODO: proper error handling
-  if (!file.is_open()) return false;
+  if (!file.is_open())
+    return false;
 
   auto p = E.portions.insert(E.portions.begin(), (portion){filename});
 
@@ -21,7 +22,8 @@ bool openFilePortion(std::string filename) {
     std::string line;
     std::getline(file, line);
 
-    if (file.eof()) break;
+    if (file.eof())
+      break;
 
     erow row = {line, "", true};
     row.updateRender();

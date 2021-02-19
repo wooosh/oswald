@@ -1,14 +1,14 @@
 #include "main.hxx"
-#include "keypress.hxx"
-#include "terminal.hxx"
 #include "draw.hxx"
+#include "keypress.hxx"
 #include "portion.hxx"
+#include "terminal.hxx"
 
 #include <fcntl.h>
+#include <iostream>
 #include <stdarg.h>
 #include <string.h>
 #include <unistd.h>
-#include <iostream>
 
 // FEATURE: unicode support
 // FEATURE: portions
@@ -32,7 +32,6 @@
 // FEATURE: remote terminal control for build commands
 // FEATURE: control down=normal mode, control up = insert mode
 
-
 // TODO: open files
 // TODO: fix casing
 // TODO: remove char*
@@ -43,7 +42,8 @@
 // TODO: clean up defines
 struct Editor E;
 
-// TODO: move to render.cxx and change code that calls this function to mark the row as dirty
+// TODO: move to render.cxx and change code that calls this function to mark the
+// row as dirty
 #define TAB_STOP 8
 void erow::updateRender() {
   this->render.clear();
@@ -64,12 +64,12 @@ int main(int argc, char *argv[]) {
   if (argc == 1) {
     openScratchPortion();
   } else {
-    for (int i=1; i<argc; i++) {
+    for (int i = 1; i < argc; i++) {
       bool success = openFilePortion(argv[i]);
 
       if (!success) {
         std::cout << "Cannot open file: " << argv[i] << std::endl;
-        return 1; 
+        return 1;
       }
     }
   }
@@ -79,14 +79,12 @@ int main(int argc, char *argv[]) {
   E.cursor.y = 0;
 
   E.anchor = E.cursor;
-  
+
   Terminal::setup();
 
   if (Terminal::getWindowSize(&E.screenrows, &E.screencols) == -1) {
     Terminal::die("getWindowSize");
   }
-
-
 
   while (1) {
     editorRefreshScreen();

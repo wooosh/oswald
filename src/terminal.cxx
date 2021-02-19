@@ -1,17 +1,17 @@
 #include "terminal.hxx"
 #include "main.hxx"
 
+#include <cstring>
+#include <iostream>
 #include <ostream>
-#include <stdio.h>
 #include <poll.h>
+#include <stdio.h>
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
-#include <iostream>
-#include <cstring>
 
 static struct termios origTermios;
-static const char* errorMessage = NULL;
+static const char *errorMessage = NULL;
 static int dieErrno;
 
 namespace Terminal {
@@ -21,7 +21,7 @@ const std::string homeCursor = "\x1b[H";
 const std::string hideCursor = "\x1b[?25l";
 const std::string showCursor = "\x1b[?25h";
 
-void die(const char* msg) {
+void die(const char *msg) {
   dieErrno = errno;
   errorMessage = msg;
   exit(1);
@@ -59,16 +59,16 @@ void setup() {
   if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1)
     die("tcsetattr");
 
-  // switch to application buffer (preserves the contents of the terminal before the editor was started)
+  // switch to application buffer (preserves the contents of the terminal before
+  // the editor was started)
   std::cout << "\x1b[?1049h";
 
   // switch to line cursor
   std::cout << "\x1b[\x36 q";
 }
 
-
-void vtSingleChar(key* k, char c) {
-  switch(c) {
+void vtSingleChar(key *k, char c) {
+  switch (c) {
   case 'A':
     k->base = key::UpArrow;
     return;
@@ -109,14 +109,14 @@ key readKey() {
     if (pfd.revents & POLLIN) {
       // TODO: error handling
       // refill buffer
-      size_t result = read(STDIN_FILENO, seq+available, 6-available);
+      size_t result = read(STDIN_FILENO, seq + available, 6 - available);
       if (result < 1) {
         Terminal::die("read error");
       }
       available += result;
     } else { // POLLERR | POLLHUP
       Terminal::die("poll");
-    }  
+    }
   }
 
   size_t used = 0;
@@ -145,7 +145,7 @@ key readKey() {
           used = 4;
         } else if (available >= 6 && seq[2] == '1' && seq[3] == ';') {
           // combines alt and control currently
-          switch(seq[4]) {
+          switch (seq[4]) {
           case '2':
             k.shift = true;
             break;
@@ -176,23 +176,22 @@ key readKey() {
           vtSingleChar(&k, seq[5]);
           used = 6;
         }
-      } else if (available >= 2) { 
+      } else if (available >= 2) {
         vtSingleChar(&k, seq[2]);
         used = 3;
       }
-    } 
+    }
   }
   if (k.base == key::None) {
     // TODO: handle control normalization
-    k.base = (key::keyBase) seq[0];
+    k.base = (key::keyBase)seq[0];
     used = 1;
   }
 
-  memmove(seq, seq+used, available - used);
+  memmove(seq, seq + used, available - used);
   available -= used;
   return k;
 }
-
 
 void setCursorPosition(std::ostream &out, std::size_t row, size_t col) {
   out << "\x1b[" << row + 1 << ";" << col + 1 << "H";

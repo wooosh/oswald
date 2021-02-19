@@ -5,7 +5,7 @@
 
 #define CTRL_KEY(k) ((k)&0x1f)
 struct key {
-  enum keyBase{
+  enum keyBase {
     Backspace = 127,
     LeftArrow = 1000,
     RightArrow,
@@ -25,7 +25,7 @@ struct key {
 };
 
 namespace Terminal {
-void die(const char* msg);
+void die(const char *msg);
 void setup();
 key readKey();
 
