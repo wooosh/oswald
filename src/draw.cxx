@@ -152,6 +152,55 @@ void editorScroll(std::ostream &out) {
 */
 }
 
+// takes a line and the line number and returns a highlighted version
+std::string highlightLine(std::string line, size_t lineNum) {
+  // TODO: refactor and precalculate selstart + selend
+  // TODO: make sure the selection is visible on screen, and account for
+  // horizontal scrolling since the line is cropped to fit the screen at this
+  // point
+      
+  // make sure there is actually a selection range
+  if (E.cursor.y == E.anchor.y && E.cursor.x == E.anchor.x)
+    return line;
+
+  mark selStart = E.cursor;
+  mark selEnd = E.anchor;
+
+  if (selStart.y > selEnd.y) {
+    selStart = E.anchor;
+    selEnd = E.cursor;
+  } else if (selStart.y == selEnd.y && selStart.x > selEnd.x) {
+    selStart = E.anchor;
+    selEnd = E.cursor;
+  }
+  
+  // check if this line is in the selection bounds
+  if (lineNum < selStart.y || lineNum > selEnd.y)
+    return line;
+
+  size_t highlightStart = 0;
+  size_t highlightEnd = line.length();
+
+  if (selStart.y == lineNum) {
+    highlightStart = selStart.x;
+  }
+
+  if (selEnd.y == lineNum) {
+    highlightEnd = selEnd.x;
+  }
+
+  // insert control characters to highlight segment
+  // TODO: move control charcters into constants in terminal.cxx
+
+  // we insert the ending character first so we don't have to worry about
+  // the string positions changing, since the end position will always be
+  // greater than the start position
+  line.insert(highlightEnd, "\x1b[m");
+  line.insert(highlightStart, "\x1b[7m");
+
+  return line;
+}
+
 void drawRows(std::ostream &out) {
   // TODO: change renderIterator to renderIteratorView and have it take a length
   // this way we can do a range for loop over the iterator
@@ -175,10 +224,14 @@ void drawRows(std::ostream &out) {
       out << "~" << Terminal::clearToRight;
       break;
     case renderIterator::Buffer:
+      // cut the line to fit on screen
       std::string line = r.p->rows[r.portionIndex].render;
       if (line.length() > 0 && line.length() > E.screencols) {
         line = line.substr(0, E.screencols);
       }
+      
+      line = highlightLine(line, r.portionIndex);
+
       out << line << Terminal::clearToRight;
       break;
     }
