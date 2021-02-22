@@ -3,37 +3,36 @@
 #include <string>
 #include <vector>
 
-// TODO: rename to row
-typedef struct erow {
+struct Row {
   std::string raw;
   std::string render;
   bool dirty;
 
   // TODO: don't export this function, just redraw rows when they are set to
-  // dirty
+  // dirty and need to be drawn
   void updateRender();
-} erow;
+};
 
-typedef struct portion {
+struct Buffer {
   // TODO: change to std::filesystem::path
   std::string filename;
-  std::vector<erow> rows;
+  std::vector<Row> rows;
   // TODO: method to create a mark
-} portion;
+};
 
-typedef struct mark {
-  std::list<struct portion>::iterator p;
+struct Mark {
+  std::list<struct Buffer>::iterator p;
   size_t x;
   size_t y;
 
-  struct erow *row();
+  struct Row *row();
   void moveRight();
   void moveLeft();
   void moveUp();
   void moveDown();
   void deleteBackward();
   void insertChar(char c);
-} mark;
+};
 
 // TODO: rename this file
 // TODO: consider using namespaced globals instead of struct
@@ -48,11 +47,11 @@ extern struct Editor {
   size_t screenrows;
   size_t screencols;
 
-  struct mark cursor;
-  struct mark anchor;
+  Mark cursor;
+  Mark anchor;
 
   // TODO: change to doubly linked list
-  std::list<portion> portions;
+  std::list<Buffer> portions;
 
   // rename to buffer
   // std::vector<erow> row;

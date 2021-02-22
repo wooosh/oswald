@@ -12,13 +12,14 @@
 // TODO: move vt constants to terminal.cxx
 // TODO: document file
 // TODO: statusbar
+// TODO: move render buffer/iterator into own file
 // - use scrolling region DECSTBM for statusbar
 
 // TODO: rename
-typedef struct renderIterator {
+struct renderIterator {
   // TODO: constructor
-  std::list<portion>::iterator p;
-  enum { Filename, Buffer, Empty } rowType;
+  std::list<Buffer>::iterator p;
+  enum { FilenameRow, BufferRow, EmptyRow } rowType;
   // TODO: rename portionindex
   // -1 indicates we are on the filename label row
   ssize_t portionIndex;
@@ -33,15 +34,15 @@ typedef struct renderIterator {
       portionIndex = -1;
       p++;
       if (p == E.portions.end()) {
-        rowType = Empty;
+        rowType = EmptyRow;
         return;
       }
-      rowType = Filename;
+      rowType = FilenameRow;
       return;
     }
-    rowType = Buffer;
+    rowType = BufferRow;
   }
-} renderIterator;
+};
 
 renderIterator renderIteratorFromOffset(size_t y) {
   size_t rowsTraversed = 0;
@@ -52,9 +53,9 @@ renderIterator renderIteratorFromOffset(size_t y) {
       r.p = it;
       r.portionIndex = y - rowsTraversed - 1;
       if (r.portionIndex == -1) {
-        r.rowType = renderIterator::Filename;
+        r.rowType = renderIterator::FilenameRow;
       } else {
-        r.rowType = renderIterator::Buffer;
+        r.rowType = renderIterator::BufferRow;
       }
       return r;
     }
@@ -63,7 +64,7 @@ renderIterator renderIteratorFromOffset(size_t y) {
   Terminal::die("offset outside of all rows");
 }
 
-size_t markToRenderY(mark m) {
+size_t markToRenderY(Mark m) {
   // +1 is for file labels
   size_t accumulator = m.y + 1;
   for (auto it = E.portions.begin(); it != m.p; ++it) {
@@ -74,7 +75,7 @@ size_t markToRenderY(mark m) {
 
 #define TAB_STOP 8
 
-size_t markToRenderX(mark m) {
+size_t markToRenderX(Mark m) {
   size_t rx = 0;
   for (size_t j = 0; j < m.x; j++) {
     if (m.p->rows[m.y].raw[j] == '\t')
@@ -110,7 +111,7 @@ void editorScroll(std::ostream &out) {
     renderIterator r = renderIteratorFromOffset(cy);
     // set the previously hidden rows to be rendered
     for (int i = cy; i < E.rowoff; i++) {
-      if (r.rowType == renderIterator::Buffer) {
+      if (r.rowType == renderIterator::BufferRow) {
         r.p->rows[r.portionIndex].dirty = true;
       }
       r.next();
@@ -128,7 +129,7 @@ void editorScroll(std::ostream &out) {
     // set the previously hidden rows to be rendered
     renderIterator r = renderIteratorFromOffset(E.rowoff + E.screenrows - 1);
     for (int i = E.rowoff + E.screenrows - 1; i <= cy; i++) {
-      if (r.rowType == renderIterator::Buffer) {
+      if (r.rowType == renderIterator::BufferRow) {
         r.p->rows[r.portionIndex].dirty = true;
       }
       r.next();
@@ -160,8 +161,8 @@ std::string highlightLine(std::string line, size_t lineNum) {
   if (E.cursor.y == E.anchor.y && E.cursor.x == E.anchor.x)
     return line;
 
-  mark selStart = E.cursor;
-  mark selEnd = E.anchor;
+  Mark selStart = E.cursor;
+  Mark selEnd = E.anchor;
 
   if (selStart.y > selEnd.y) {
     selStart = E.anchor;
@@ -201,27 +202,38 @@ std::string highlightLine(std::string line, size_t lineNum) {
 void drawRows(std::ostream &out) {
   // TODO: change renderIterator to renderIteratorView and have it take a length
   // this way we can do a range for loop over the iterator
-  renderIterator r = renderIteratorFromOffset(E.rowoff);
 
-  for (size_t y = 0; y < E.screenrows; y++) {
+  // + 1 because the status bar is technically the first line
+  renderIterator r = renderIteratorFromOffset(E.rowoff + 1);
+
+  // text view starts at first line on the screen because of the status bar
+  for (size_t y = 1; y < E.screenrows; y++) {
     if (y > 0) {
       out << "\r\n";
     }
 
     switch (r.rowType) {
-    case renderIterator::Filename: {
+    case renderIterator::FilenameRow: {
       // TODO: move escape codes to terminal.cxx
       // TODO: get the length of the filename using the render length instead of
       // the byte length minus one for left padding
+      // TODO: consistent casing
       size_t line_remaining = E.screencols - r.p->filename.length() - 1;
-      out << "\x1b[7m " << r.p->filename << std::string(line_remaining, ' ')
-          << "\x1b[0m";
+
+      out << "\x1b[90m─" << r.p->filename;
+
+      // TODO: this is gross
+      for (int i=0; i<line_remaining; i++) {
+        out << "─";
+      }
+
+      out << "\x1b[0m";
       break;
     }
-    case renderIterator::Empty:
+    case renderIterator::EmptyRow:
       out << "~" << Terminal::clearToRight;
       break;
-    case renderIterator::Buffer:
+    case renderIterator::BufferRow:
       // cut the line to fit on screen
       std::string line = r.p->rows[r.portionIndex].render;
       if (line.length() > 0 && line.length() > E.screencols) {
@@ -237,6 +249,14 @@ void drawRows(std::ostream &out) {
   }
 }
 
+void drawStatus(std::ostream &out) {
+  // TODO: trim to screen width
+  std::string status = "file: " + E.cursor.p->filename + " line: " + std::to_string(E.cursor.y);
+
+  size_t remaining = E.screencols - status.length() - 1;
+  out << "\x1b[7m " << status << std::string(remaining, ' ') << "\x1b[m";
+}
+
 void editorRefreshScreen() {
   std::ostringstream out;
   editorScroll(out);
@@ -244,6 +264,7 @@ void editorRefreshScreen() {
   // hide cursor and clear screen
   out << Terminal::hideCursor << Terminal::homeCursor;
 
+  drawStatus(out);
   drawRows(out);
 
   // set cursor pos

@@ -45,7 +45,7 @@ struct Editor E;
 // TODO: move to render.cxx and change code that calls this function to mark the
 // row as dirty
 #define TAB_STOP 8
-void erow::updateRender() {
+void Row::updateRender() {
   this->render.clear();
   this->dirty = true;
 

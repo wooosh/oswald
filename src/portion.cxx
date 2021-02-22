@@ -5,8 +5,8 @@
 #include "main.hxx"
 
 void openScratchPortion() {
-  auto p = E.portions.insert(E.portions.begin(), (portion){"scratch"});
-  p->rows.push_back((erow){"", "", true});
+  auto p = E.portions.insert(E.portions.begin(), (Buffer){"scratch"});
+  p->rows.push_back((Row){"", "", true});
 }
 
 // returns true if successful
@@ -16,7 +16,7 @@ bool openFilePortion(std::string filename) {
   if (!file.is_open())
     return false;
 
-  auto p = E.portions.insert(E.portions.begin(), (portion){filename});
+  auto p = E.portions.insert(E.portions.begin(), (Buffer){filename});
 
   while (file.good()) {
     std::string line;
@@ -25,7 +25,7 @@ bool openFilePortion(std::string filename) {
     if (file.eof())
       break;
 
-    erow row = {line, "", true};
+    Row row = {line, "", true};
     row.updateRender();
 
     p->rows.push_back(row);
@@ -38,7 +38,7 @@ bool openFilePortion(std::string filename) {
 
 // TODO: store a save function in the buffer itself since some buffer types
 // (like scratch buffers) require special care.
-void saveFilePortion(portion p) {
+void saveFilePortion(Buffer p) {
   std::ofstream file(p.filename);
 
   for (int i=0; i<p.rows.size(); i++) {
