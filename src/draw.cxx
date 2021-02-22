@@ -11,9 +11,7 @@
 // https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
 // TODO: move vt constants to terminal.cxx
 // TODO: document file
-// TODO: statusbar
 // TODO: move render buffer/iterator into own file
-// - use scrolling region DECSTBM for statusbar
 
 // TODO: rename
 struct renderIterator {
@@ -117,8 +115,8 @@ void editorScroll(std::ostream &out) {
       r.next();
     }
 
-    // move the view down
-    E.rowoff = cy;
+    // move the view down (-1 to account for status bar)
+    E.rowoff = cy - 1;
   }
 
   // cursor after view
