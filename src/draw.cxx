@@ -85,54 +85,17 @@ size_t markToRenderX(Mark m) {
 
 // scroll to fit cursor in screen and keep file in bounds
 void editorScroll(std::ostream &out) {
-  // TODO: prevent the cursor from being on non-existent rows
-  // TODO: move cxToRx stuff to the main rendering function
-  // TODO: rename cxToRx to calculateDrawnCursorPos and make it take into
-  // account non existent rows If the cursor is on a non-existent row, set it to
-  // zero, otherwise, calulcate the rx based on the actual cursor pos
-  // E.rx = 0;
-  // this should probably be an assert
-  // if (E.cursor.y < E.row.size()) {
-  //  E.rx = cxToRx(E.row[E.cy], E.cx);
-  //}
-
-  // TODO: refactor the next 4 blocks to be one function
-
   // vertical scrolling
   size_t cy = markToRenderY(E.cursor);
 
   // cursor before view
-  if (cy < E.rowoff) {
-    // move currently drawn rows down
-    out << "\x1b[" << E.rowoff - cy << "T";
-
-    renderIterator r = renderIteratorFromOffset(cy);
-    // set the previously hidden rows to be rendered
-    for (int i = cy; i < E.rowoff; i++) {
-      if (r.rowType == renderIterator::BufferRow) {
-        r.p->rows[r.portionIndex].dirty = true;
-      }
-      r.next();
-    }
-
-    // move the view down (-1 to account for status bar)
+  if (cy <= E.rowoff) {
+    // move the start of the view down (-1 to account for status bar)
     E.rowoff = cy - 1;
   }
 
   // cursor after view
   if (cy >= E.rowoff + E.screenrows) {
-    // move currently drawn rows up
-    out << "\x1b[" << cy - (E.rowoff + E.screenrows) << "S";
-
-    // set the previously hidden rows to be rendered
-    renderIterator r = renderIteratorFromOffset(E.rowoff + E.screenrows - 1);
-    for (int i = E.rowoff + E.screenrows - 1; i <= cy; i++) {
-      if (r.rowType == renderIterator::BufferRow) {
-        r.p->rows[r.portionIndex].dirty = true;
-      }
-      r.next();
-    }
-
     // Move the view up
     E.rowoff = cy - E.screenrows + 1;
   }
