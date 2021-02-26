@@ -1,6 +1,6 @@
 #include "main.hxx"
-#include "terminal.hxx"
-#include "portion.hxx"
+#include "terminal/terminal.hxx"
+#include "buffer/buffer.hxx"
 
 #include <iostream>
 #include <stdio.h>

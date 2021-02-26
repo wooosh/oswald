@@ -1,5 +1,5 @@
 #include "main.hxx"
-#include "terminal.hxx"
+#include "terminal/terminal.hxx"
 
 #include <cstring>
 #include <iostream>

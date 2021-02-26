@@ -1,8 +1,8 @@
 #include "main.hxx"
-#include "draw.hxx"
-#include "keypress.hxx"
-#include "portion.hxx"
-#include "terminal.hxx"
+#include "draw/draw.hxx"
+#include "terminal/keypress.hxx"
+#include "buffer/buffer.hxx"
+#include "terminal/terminal.hxx"
 
 #include <fcntl.h>
 #include <iostream>
