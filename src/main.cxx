@@ -10,44 +10,15 @@
 #include <string.h>
 #include <unistd.h>
 
-// FEATURE: unicode support
-// FEATURE: portions
-// FEATURE: config file
-// FEATURE: delete key
-// FEATURE: marks
-// FEATURE: selections
-// FEATURE: cursor column memory when moving cursor vertically
-// FEATURE: non-printable characters
-// FEATURE: update ui on resize
-// FEATURE: keybind to build/debug using fifo
-// FEATURE: handle resizing
-// FEATURE: non LSP code formatting/on save commands
-// FEATURE: line numbers
-// FEATURE: LSP
-// FEATURE: tests
-// FEATURE: grep -r
-// FEATURE: undo and redo
-// FEATURE: unicode chars for special characters like control codes
-// FEATURE: modal
-// FEATURE: remote terminal control for build commands
-// FEATURE: control down=normal mode, control up = insert mode
-
-// TODO: open files
-// TODO: fix casing
-// TODO: remove char*
-// TODO: remove printfs
-// TODO: change write(stdin_fileno)
-// TODO: https://en.cppreference.com/w/cpp/language/range-for
-// TODO: review comments
-// TODO: clean up defines
 struct Editor E;
 
 // TODO: move to render.cxx and change code that calls this function to mark the
 // row as dirty
+// TODO: check if we can avoid precalculating this
 #define TAB_STOP 8
 void Row::updateRender() {
+  this->dirty = false;
   this->render.clear();
-  this->dirty = true;
 
   for (size_t j = 0; j < this->raw.length(); j++) {
     if (this->raw[j] == '\t') {

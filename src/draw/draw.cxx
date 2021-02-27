@@ -1,6 +1,7 @@
 #include "main.hxx"
 #include "terminal/terminal.hxx"
 
+#include <chrono>
 #include <cstring>
 #include <iostream>
 #include <sstream>
@@ -160,6 +161,23 @@ std::string highlightLine(std::string line, size_t lineNum) {
   return line;
 }
 
+/*
+#define TAB_STOP 8
+updateRender() {
+  this->render.clear();
+  this->dirty = true;
+
+  for (size_t j = 0; j < this->raw.length(); j++) {
+    if (this->raw[j] == '\t') {
+      this->render += ' ';
+      while (this->render.length() % TAB_STOP != 0)
+        this->render += ' ';
+    } else {
+      this->render += this->raw[j];
+    }
+  }
+}*/
+
 void drawRows(std::ostream &out) {
   // TODO: change renderIterator to renderIteratorView and have it take a length
   // this way we can do a range for loop over the iterator
@@ -195,6 +213,10 @@ void drawRows(std::ostream &out) {
       out << "~" << Terminal::clearToRight;
       break;
     case renderIterator::BufferRow:
+      if (r.p->rows[r.portionIndex].dirty) {
+        r.p->rows[r.portionIndex].updateRender();
+      }
+      
       // cut the line to fit on screen
       std::string line = r.p->rows[r.portionIndex].render;
       if (line.length() > 0 && line.length() > E.screencols) {
@@ -226,7 +248,11 @@ void editorRefreshScreen() {
   out << Terminal::hideCursor << Terminal::homeCursor;
 
   drawStatus(out);
+  auto t1 = std::chrono::high_resolution_clock::now();
   drawRows(out);
+  auto t2 = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+  std::cerr << duration << std::endl;
 
   // set cursor pos
   Terminal::setCursorPosition(out, markToRenderY(E.cursor) - E.rowoff,

@@ -1,24 +1,7 @@
 #pragma once
 #include <list>
-#include <string>
-#include <vector>
 
-struct Row {
-  std::string raw;
-  std::string render;
-  bool dirty;
-
-  // TODO: don't export this function, just redraw rows when they are set to
-  // dirty and need to be drawn
-  void updateRender();
-};
-
-struct Buffer {
-  // TODO: change to std::filesystem::path
-  std::string filename;
-  std::vector<Row> rows;
-  // TODO: method to create a mark
-};
+#include "buffer/buffer.hxx"
 
 struct Mark {
   std::list<struct Buffer>::iterator p;
@@ -34,7 +17,7 @@ struct Mark {
   void insertChar(char c);
 };
 
-// TODO: rename this file
+// TODO: rename this file to global or something
 // TODO: consider using namespaced globals instead of struct
 extern struct Editor {
   // TODO: screen struct
@@ -52,7 +35,4 @@ extern struct Editor {
 
   // TODO: change to doubly linked list
   std::list<Buffer> portions;
-
-  // rename to buffer
-  // std::vector<erow> row;
 } E;
