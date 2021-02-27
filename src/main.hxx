@@ -34,6 +34,6 @@ extern struct Editor {
   Mark cursor;
   Mark anchor;
 
-  // TODO: change to doubly linked list
+  // TODO: rename to bufferList or buffers
   std::list<Buffer> portions;
 } E;

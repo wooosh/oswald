@@ -4,16 +4,18 @@
 #include <string>
 #include <vector>
 
+enum HighlightType {
+  // TODO: use semantic types
+  Keyword,
+  Selection,
+  Normal
+};
+
 struct Row {
   // TODO: rename to contents
   std::string raw;
-
-  /*
-  struct HighlightRange {
-    size_t start;
-    size_t end;
-    some_enum type;
-  }*/
+  
+  std::vector<HighlightType> hl;
 };
 
 struct Buffer {

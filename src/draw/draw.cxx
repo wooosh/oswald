@@ -1,6 +1,7 @@
 #include "main.hxx"
 #include "terminal/terminal.hxx"
 
+#include <regex>
 #include <cstring>
 #include <iostream>
 #include <sstream>
@@ -111,8 +112,9 @@ void editorScroll(std::ostream &out) {
   */
 }
 
+// TODO: add to buffer using syntax highlighting API
 // takes a line and the line number and returns a highlighted version
-std::string highlightLine(std::string line, size_t lineNum) {
+std::string highlightSelection(std::string line, size_t lineNum) {
   // TODO: refactor and precalculate selstart + selend
   // TODO: make sure the selection is visible on screen, and account for
   // horizontal scrolling since the line is cropped to fit the screen at this
@@ -162,16 +164,16 @@ std::string highlightLine(std::string line, size_t lineNum) {
 
 #define TAB_STOP 8
 // TODO: rename function, assimilate with highlighting and trimmming to screen
-std::string renderLine(Row r) {
+std::string renderLine(std::string line) {
   std::string render;
 
-  for (size_t j = 0; j < r.raw.length(); j++) {
-    if (r.raw[j] == '\t') {
+  for (size_t j = 0; j < line.length(); j++) {
+    if (line[j] == '\t') {
       render += ' ';
       while (render.length() % TAB_STOP != 0)
         render += ' ';
     } else {
-      render += r.raw[j];
+      render += line[j];
     }
   }
 
@@ -216,16 +218,57 @@ void drawRows(std::ostream &out) {
       // TODO: row vs line terminology
       // TODO: refactor renderIterator into loop that calls functions to row
       // types
-      std::string line = renderLine(r.p->rows[r.portionIndex]);
+      std::string line = r.p->rows[r.portionIndex].raw;
+      std::vector<HighlightType> hl = r.p->rows[r.portionIndex].hl;
+
+      // TODO: use references for modifying the line
+      line = renderLine(line);
       
+      // TODO: crop function that handles adjusting syntax highlighting data when horiztonally scrolling
       // cut the line to fit on screen
       if (line.length() > 0 && line.length() > E.screencols) {
         line = line.substr(0, E.screencols);
       }
 
-      line = highlightLine(line, r.portionIndex);
+      // do syntax highlighting
+      // TODO: move into plugins dir
 
-      out << line << Terminal::clearToRight;
+        //hl.push_back(i % 5 ? HighlightType::Normal : HighlightType::Keyword);
+        // TODO: function to highlight based on regexes
+      hl.assign(line.length(), HighlightType::Normal);
+
+      std::regex kw(" ?(if|else|for|while|do|switch|case|default|break|continue|struct|enum|union|return)( |;)");
+      std::sregex_iterator riter(line.begin(), line.end(), kw);
+      std::sregex_iterator end;
+      
+      for (auto i = riter; i != end; ++i) {
+        std::smatch s = *i;
+        for (auto j = s.position(); j < s.position() + s.length(); j++) {
+          hl[j] = HighlightType::Keyword;
+        }
+      }
+
+      // could probably use find_if_not
+      HighlightType hlType = HighlightType::Normal;
+      for (int i=0; i<hl.size(); i++) {
+        if (hl[i] != hlType) {
+          hlType = hl[i];
+          switch (hlType) {
+          case HighlightType::Selection:
+            out << "\x1b[7m";
+            break;
+          case HighlightType::Keyword:
+            out << "\x1b[31m";
+            break;
+          default:
+            out << "\x1b[m";
+          }
+        }
+
+        out << line[i];
+      }
+
+      out << "\x1b[m" << Terminal::clearToRight;
       break;
     }
     r.next();
