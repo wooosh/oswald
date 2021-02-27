@@ -6,7 +6,7 @@
 
 void openScratchPortion() {
   auto p = E.portions.insert(E.portions.begin(), (Buffer){"scratch"});
-  p->rows.push_back((Row){"", "", true});
+  p->rows.push_back((Row){""});
 }
 
 // returns true if successful
@@ -25,9 +25,7 @@ bool openFilePortion(std::string filename) {
     if (file.eof())
       break;
 
-    Row row = {line, "", true};
-    row.updateRender();
-
+    Row row = {line};
     p->rows.push_back(row);
   }
 

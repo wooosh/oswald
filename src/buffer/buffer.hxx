@@ -5,15 +5,15 @@
 #include <vector>
 
 struct Row {
+  // TODO: rename to contents
   std::string raw;
-  // TODO: decouple the buffer from the render and store the render string elsewhere
-  std::string render;
 
-  // marks if the contents of the string have changed
-  bool dirty;
-  // TODO: don't export this function, just redraw rows when they are set to
-  // dirty and need to be drawn
-  void updateRender();
+  /*
+  struct HighlightRange {
+    size_t start;
+    size_t end;
+    some_enum type;
+  }*/
 };
 
 struct Buffer {

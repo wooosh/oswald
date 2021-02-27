@@ -1,7 +1,6 @@
 #include "main.hxx"
 #include "terminal/terminal.hxx"
 
-#include <chrono>
 #include <cstring>
 #include <iostream>
 #include <sstream>
@@ -161,22 +160,23 @@ std::string highlightLine(std::string line, size_t lineNum) {
   return line;
 }
 
-/*
 #define TAB_STOP 8
-updateRender() {
-  this->render.clear();
-  this->dirty = true;
+// TODO: rename function, assimilate with highlighting and trimmming to screen
+std::string renderLine(Row r) {
+  std::string render;
 
-  for (size_t j = 0; j < this->raw.length(); j++) {
-    if (this->raw[j] == '\t') {
-      this->render += ' ';
-      while (this->render.length() % TAB_STOP != 0)
-        this->render += ' ';
+  for (size_t j = 0; j < r.raw.length(); j++) {
+    if (r.raw[j] == '\t') {
+      render += ' ';
+      while (render.length() % TAB_STOP != 0)
+        render += ' ';
     } else {
-      this->render += this->raw[j];
+      render += r.raw[j];
     }
   }
-}*/
+
+  return render;
+}
 
 void drawRows(std::ostream &out) {
   // TODO: change renderIterator to renderIteratorView and have it take a length
@@ -213,12 +213,12 @@ void drawRows(std::ostream &out) {
       out << "~" << Terminal::clearToRight;
       break;
     case renderIterator::BufferRow:
-      if (r.p->rows[r.portionIndex].dirty) {
-        r.p->rows[r.portionIndex].updateRender();
-      }
+      // TODO: row vs line terminology
+      // TODO: refactor renderIterator into loop that calls functions to row
+      // types
+      std::string line = renderLine(r.p->rows[r.portionIndex]);
       
       // cut the line to fit on screen
-      std::string line = r.p->rows[r.portionIndex].render;
       if (line.length() > 0 && line.length() > E.screencols) {
         line = line.substr(0, E.screencols);
       }
@@ -248,11 +248,7 @@ void editorRefreshScreen() {
   out << Terminal::hideCursor << Terminal::homeCursor;
 
   drawStatus(out);
-  auto t1 = std::chrono::high_resolution_clock::now();
   drawRows(out);
-  auto t2 = std::chrono::high_resolution_clock::now();
-  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-  std::cerr << duration << std::endl;
 
   // set cursor pos
   Terminal::setCursorPosition(out, markToRenderY(E.cursor) - E.rowoff,

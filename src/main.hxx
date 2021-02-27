@@ -3,6 +3,7 @@
 
 #include "buffer/buffer.hxx"
 
+// TODO: move into buffer/
 struct Mark {
   std::list<struct Buffer>::iterator p;
   size_t x;

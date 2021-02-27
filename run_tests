@@ -11,7 +11,7 @@ _test() {
     args="$1/file"
   fi
 
-  tui-puppet "$1/keystream" ./oswald $args > "$1/last_output"
+  tui-puppet "$1/keystream" ./build/oswald $args > "$1/last_output"
 
   testname="${1##*/}"
   if cmp "$1/last_output" "$1/output" >/dev/null; then

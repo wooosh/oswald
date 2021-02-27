@@ -12,25 +12,6 @@
 
 struct Editor E;
 
-// TODO: move to render.cxx and change code that calls this function to mark the
-// row as dirty
-// TODO: check if we can avoid precalculating this
-#define TAB_STOP 8
-void Row::updateRender() {
-  this->dirty = false;
-  this->render.clear();
-
-  for (size_t j = 0; j < this->raw.length(); j++) {
-    if (this->raw[j] == '\t') {
-      this->render += ' ';
-      while (this->render.length() % TAB_STOP != 0)
-        this->render += ' ';
-    } else {
-      this->render += this->raw[j];
-    }
-  }
-}
-
 int main(int argc, char *argv[]) {
   if (argc == 1) {
     openScratchPortion();
