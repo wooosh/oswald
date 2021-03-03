@@ -15,26 +15,27 @@ struct Mark {
   void moveLeft();
   void moveUp();
   void moveDown();
+
   void deleteBackward();
   void insertChar(char c);
+  // void insertString(std::string s);
+  // void deleteRange();
 };
 
 // can probably rename this to EditEvent
 struct BufferEditEvent {
-  // TODO: make a BufferEditEvent be an array of edits inside a portion
+  // first line of edit
   size_t line;
+  // number of lines edited
+  size_t length;
+
   std::list<Buffer>::iterator buffer;
+
   enum {
     Removed,
     Inserted,
     Changed
   } type;
-  /*
-  // used for changed event
-  size_t start, end;
-  // used for changed and inserted event
-  std::string content;
-  */
 };
 
 struct Event {

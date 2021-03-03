@@ -236,7 +236,6 @@ void drawRows(std::ostream &out) {
       std::regex kw(" ?(if|else|for|while|do|switch|case|default|break|continue|struct|enum|union|return)( |;)");
       std::sregex_iterator riter(line.begin(), line.end(), kw);
       std::sregex_iterator end;
-      
       for (auto i = riter; i != end; ++i) {
         std::smatch s = *i;
         for (auto j = s.position(); j < s.position() + s.length(); j++) {

@@ -1,6 +1,5 @@
 #include "main.hxx"
 
-// TODO: rework everything here to work on marks
 // TODO: handle null marks
 
 Row *Mark::row() { return &p->rows[y]; }
@@ -65,7 +64,7 @@ void Mark::insertChar(char c) {
     Row *r = row();
     r->raw.insert(r->raw.begin() + x, c);
     x++;
-    E.events.push_back({Event::BufferEdit, (BufferEditEvent){y, p, BufferEditEvent::Changed}});
+    E.events.push_back({Event::BufferEdit, (BufferEditEvent){y, 1, p, BufferEditEvent::Changed}});
   } else {
     if (x == 0) {
       p->rows.insert(p->rows.begin() + y, (Row){});
