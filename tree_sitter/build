@@ -1,0 +1,60 @@
+#!/bin/sh
+languages="json c cpp"
+
+if [ ! -d "tree-sitter" ]; then
+  git clone "https://github.com/tree-sitter/tree-sitter"
+fi
+
+# download langs
+for lang in $languages; do
+  if [ ! -d "tree-sitter-$lang" ]; then
+    git clone "https://github.com/tree-sitter/tree-sitter-$lang"
+  fi
+done
+
+cat << EOF > treesitter.h
+#pragma once
+#include <tree_sitter/api.h>
+
+EOF
+
+# forward declarations
+for lang in $languages; do
+  echo "TSLanguage *tree_sitter_$lang();" >> treesitter.h
+done
+
+cat << EOF >> treesitter.h
+
+struct FileTypeTS {
+  char *filetype;
+  TSLanguage *(*language)();
+};
+
+static struct FileTypeTS FileTypeTable[] = {
+EOF
+
+for lang in $languages; do
+  echo "  {\"$lang\", tree_sitter_$lang}," >> treesitter.h
+done
+
+cat << EOF >> treesitter.h
+  {NULL, NULL}
+};
+EOF
+
+rm -rf obj
+mkdir -p obj
+
+CFLAGS="$CFLAGS -I tree-sitter/lib/include"
+CXXFLAGS="$CXXFLAGS -I tree-sitter/lib/include"
+
+for lang in $languages; do
+  cc $CFLAGS -c "tree-sitter-$lang/src/parser.c" -o "obj/$lang-parser.o"
+
+  if [ -f "tree-sitter-$lang/src/scanner.cc" ]; then
+    c++ $CXXFLAGS -c "tree-sitter-$lang/src/scanner.cc" -o "obj/$lang-scanner.o"
+  fi
+done
+
+cp tree-sitter/libtree-sitter.a ./
+ar rcs libtree-sitter.a obj/*
