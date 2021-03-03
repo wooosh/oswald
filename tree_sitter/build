@@ -1,10 +1,14 @@
 #!/bin/sh
-languages="json c cpp javascript rust html ql ruby java c-sharp css embedded-template python julia go agda php scala bash regex jsdoc"
-# verilog ocaml typescript haskell fluent swift
+languages="json c cpp javascript rust html ql ruby java css python julia go agda php scala bash regex jsdoc"
+# verilog ocaml typescript haskell fluent swift embedded-template c-sharp
+# dashed language names currently don't work, the dash needs to be converted to an underscore
 
 if [ ! -d "tree-sitter" ]; then
   git clone "https://github.com/tree-sitter/tree-sitter"
 fi
+
+mkdir -p include/tree_sitter
+cp tree-sitter/lib/include/tree_sitter/api.h ./include/tree_sitter/
 
 # download langs
 for lang in $languages; do
@@ -52,6 +56,10 @@ CXXFLAGS="$CXXFLAGS -I tree-sitter/lib/include"
 for lang in $languages; do
   cc $CFLAGS -c "tree-sitter-$lang/src/parser.c" -o "obj/$lang-parser.o"
 
+  if [ -f "tree-sitter-$lang/src/scanner.c" ]; then
+    cc $CCFLAGS -c "tree-sitter-$lang/src/scanner.c" -o "obj/$lang-scanner.o"
+  fi
+  
   if [ -f "tree-sitter-$lang/src/scanner.cc" ]; then
     c++ $CXXFLAGS -c "tree-sitter-$lang/src/scanner.cc" -o "obj/$lang-scanner.o"
   fi
@@ -59,3 +67,5 @@ done
 
 cp tree-sitter/libtree-sitter.a ./
 ar rcs libtree-sitter.a obj/*
+
+cp treesitter.h include/tree_sitter/
