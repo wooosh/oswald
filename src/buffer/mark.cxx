@@ -65,6 +65,7 @@ void Mark::insertChar(char c) {
     Row *r = row();
     r->raw.insert(r->raw.begin() + x, c);
     x++;
+    E.events.push_back({Event::BufferEdit, (BufferEditEvent){y, p, BufferEditEvent::Changed}});
   } else {
     if (x == 0) {
       p->rows.insert(p->rows.begin() + y, (Row){});

@@ -5,7 +5,8 @@
 
 // TODO: move into buffer/
 struct Mark {
-  std::list<struct Buffer>::iterator p;
+  // TODO: rename p to buffer
+  std::list<Buffer>::iterator p;
   size_t x;
   size_t y;
 
@@ -16,6 +17,37 @@ struct Mark {
   void moveDown();
   void deleteBackward();
   void insertChar(char c);
+};
+
+// can probably rename this to EditEvent
+struct BufferEditEvent {
+  // TODO: make a BufferEditEvent be an array of edits inside a portion
+  size_t line;
+  std::list<Buffer>::iterator buffer;
+  enum {
+    Removed,
+    Inserted,
+    Changed
+  } type;
+  /*
+  // used for changed event
+  size_t start, end;
+  // used for changed and inserted event
+  std::string content;
+  */
+};
+
+struct Event {
+  enum {
+    BufferEdit,
+    CursorMove,
+    SelectionChange,
+    // BufferOpen
+    // BufferClose
+  } type;
+  union {
+    BufferEditEvent bufferEdit;
+  };
 };
 
 // TODO: rename this file to global or something
@@ -30,6 +62,9 @@ extern struct Editor {
   // TODO: move these to terminal.cxx
   size_t screenrows;
   size_t screencols;
+
+  std::list<Event> events;
+  //std::list<Event>::iterator processed;
 
   Mark cursor;
   Mark anchor;

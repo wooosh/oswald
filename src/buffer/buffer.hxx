@@ -14,14 +14,13 @@ enum HighlightType {
 struct Row {
   // TODO: rename to contents
   std::string raw;
-  
   std::vector<HighlightType> hl;
 };
 
 struct Buffer {
   // TODO: let buffers handle saving, closing, unsaved changes status
   // TODO: change filename to title
-
+  // TODO: filetype 
   std::string filename;
   std::vector<Row> rows;
   // TODO: method to create a mark

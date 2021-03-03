@@ -230,11 +230,7 @@ void drawRows(std::ostream &out) {
         line = line.substr(0, E.screencols);
       }
 
-      // do syntax highlighting
-      // TODO: move into plugins dir
-
-        //hl.push_back(i % 5 ? HighlightType::Normal : HighlightType::Keyword);
-        // TODO: function to highlight based on regexes
+      /*
       hl.assign(line.length(), HighlightType::Normal);
 
       std::regex kw(" ?(if|else|for|while|do|switch|case|default|break|continue|struct|enum|union|return)( |;)");
@@ -246,7 +242,7 @@ void drawRows(std::ostream &out) {
         for (auto j = s.position(); j < s.position() + s.length(); j++) {
           hl[j] = HighlightType::Keyword;
         }
-      }
+      }*/
 
       // could probably use find_if_not
       HighlightType hlType = HighlightType::Normal;
