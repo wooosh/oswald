@@ -4,6 +4,9 @@
 
 #include "main.hxx"
 
+#include "modules/highlight_none.hxx"
+#include "modules/highlight_regex.hxx"
+
 void openScratchPortion() {
   auto p = E.portions.insert(E.portions.begin(), (Buffer){"scratch"});
   p->rows.push_back((Row){""});

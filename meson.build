@@ -10,6 +10,7 @@ src = [
   'src/terminal/keypress.cxx',
 
   'src/modules/highlight_regex.cxx',
+  'src/modules/highlight_none.cxx',
 
   'src/main.cxx'
 ]

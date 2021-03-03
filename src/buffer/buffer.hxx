@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+struct BufferEditEvent;
+
 enum HighlightType {
   // TODO: use semantic types
   Keyword,
@@ -23,6 +25,8 @@ struct Buffer {
   // TODO: filetype 
   std::string filename;
   std::vector<Row> rows;
+
+  void highlightLine(BufferEditEvent ev);
   // TODO: method to create a mark
 };
 
