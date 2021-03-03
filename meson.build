@@ -16,5 +16,6 @@ src = [
 ]
 
 inc = include_directories('src')
+tree_sitter_inc = include_directories('tree_sitter/include')
 
-executable('oswald', src, include_directories : inc)
+executable('oswald', src, include_directories : [inc, tree_sitter_inc], objects: ['tree_sitter/libtree-sitter.a'])

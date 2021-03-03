@@ -7,6 +7,7 @@ void highlightNone(BufferEditEvent ev) {
   }
 
   for (size_t i = ev.line; i < ev.line + ev.length; i++) {
-    ev.buffer->rows[i].hl.assign(line.length(), HighlightType::Normal);
+    Row *r = &ev.buffer->rows[i];
+    r->hl.assign(r->raw.length(), HighlightType::Normal);
   }
 }
