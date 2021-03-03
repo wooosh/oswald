@@ -1,3 +1,6 @@
 tests/*/last_output
 oswald
 build/
+
+tree_sitter/*
+!tree_sitter/build

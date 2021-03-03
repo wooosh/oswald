@@ -1,5 +1,6 @@
 #!/bin/sh
-languages="json c cpp"
+languages="json c cpp javascript rust html ql ruby java c-sharp css embedded-template python julia go agda php scala bash regex jsdoc"
+# verilog ocaml typescript haskell fluent swift
 
 if [ ! -d "tree-sitter" ]; then
   git clone "https://github.com/tree-sitter/tree-sitter"
