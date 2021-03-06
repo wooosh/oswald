@@ -230,19 +230,6 @@ void drawRows(std::ostream &out) {
         line = line.substr(0, E.screencols);
       }
 
-      /*
-      hl.assign(line.length(), HighlightType::Normal);
-
-      std::regex kw(" ?(if|else|for|while|do|switch|case|default|break|continue|struct|enum|union|return)( |;)");
-      std::sregex_iterator riter(line.begin(), line.end(), kw);
-      std::sregex_iterator end;
-      for (auto i = riter; i != end; ++i) {
-        std::smatch s = *i;
-        for (auto j = s.position(); j < s.position() + s.length(); j++) {
-          hl[j] = HighlightType::Keyword;
-        }
-      }*/
-
       // could probably use find_if_not
       HighlightType hlType = HighlightType::Normal;
       for (int i=0; i<hl.size(); i++) {
@@ -253,7 +240,7 @@ void drawRows(std::ostream &out) {
             out << "\x1b[7m";
             break;
           case HighlightType::Keyword:
-            out << "\x1b[31m";
+            out << "\x1b[1;31m";
             break;
           default:
             out << "\x1b[m";

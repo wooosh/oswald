@@ -6,10 +6,13 @@
 
 #include "modules/highlight_none.hxx"
 #include "modules/highlight_regex.hxx"
+//#include "modules/highlight_treesitter.hxx"
 
 void openScratchPortion() {
   auto p = E.portions.insert(E.portions.begin(), (Buffer){"scratch"});
+  p->highlight = highlightNone;
   p->rows.push_back((Row){""});
+  E.events.push_back({Event::BufferEdit, (BufferEditEvent){0, 1, p, BufferEditEvent::Inserted}});
 }
 
 // returns true if successful
@@ -33,6 +36,9 @@ bool openFilePortion(std::string filename) {
   }
 
   file.close();
+ 
+  p->highlight = highlightRegex; 
+  E.events.push_back({Event::BufferEdit, (BufferEditEvent){0, p->rows.size(), p, BufferEditEvent::Inserted}});
 
   return true;
 };

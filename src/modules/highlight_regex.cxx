@@ -15,7 +15,7 @@ void highlightRegex(BufferEditEvent ev) {
     r->hl.assign(line.length(), HighlightType::Normal);
 
     std::regex kw(" ?(if|else|for|while|do|switch|case|default|break|continue|"
-                  "struct|enum|union|return)( |;)");
+                  "struct|enum|union|return|void)( |;)");
     std::sregex_iterator riter(line.begin(), line.end(), kw);
     std::sregex_iterator end;
 

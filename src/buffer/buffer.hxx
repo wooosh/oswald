@@ -26,7 +26,7 @@ struct Buffer {
   std::string filename;
   std::vector<Row> rows;
 
-  void highlightLine(BufferEditEvent ev);
+  void (*highlight)(BufferEditEvent ev);
   // TODO: method to create a mark
 };
 
