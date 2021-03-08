@@ -4,7 +4,7 @@
 #include "buffer/buffer.hxx"
 #include "terminal/terminal.hxx"
 
-#include "modules/highlight_regex.hxx"
+#include "modules/highlight_treesitter.hxx"
 
 #include <fcntl.h>
 #include <iostream>
@@ -52,9 +52,13 @@ int main(int argc, char *argv[]) {
       E.events.pop_front();
       
       switch(ev.type) {
+      case Event::BufferOpen:
+        treeSitterOpenBuffer(ev.bufferOpen);
+        break;
       case Event::BufferEdit:
         BufferEditEvent editEvent = ev.bufferEdit;
-        highlightRegex(editEvent);
+        //editEvent.buffer->highlight(editEvent);
+        highlightTreeSitter(editEvent);
         break;
       }
     }  

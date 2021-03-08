@@ -43,11 +43,12 @@ struct Event {
     BufferEdit,
     CursorMove,
     SelectionChange,
-    // BufferOpen
+    BufferOpen
     // BufferClose
   } type;
   union {
     BufferEditEvent bufferEdit;
+    std::list<Buffer>::iterator bufferOpen;
   };
 };
 
