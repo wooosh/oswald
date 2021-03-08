@@ -60,7 +60,7 @@ for lang in $languages; do
   cc $CFLAGS -c "tree-sitter-$lang/src/parser.c" -o "obj/$lang-parser.o"
 
   if [ -f "tree-sitter-$lang/src/scanner.c" ]; then
-    cc $CCFLAGS -c "tree-sitter-$lang/src/scanner.c" -o "obj/$lang-scanner.o"
+    cc $CFLAGS -c "tree-sitter-$lang/src/scanner.c" -o "obj/$lang-scanner.o"
   fi
   
   if [ -f "tree-sitter-$lang/src/scanner.cc" ]; then
