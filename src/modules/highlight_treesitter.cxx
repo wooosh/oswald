@@ -12,12 +12,12 @@ extern "C" {
 static std::map<std::list<Buffer>::iterator, TSParser*> parsers;
 
 const char* treeSitterInput(void *buffer, uint32_t byte_offset, TSPoint pos, uint32_t *bytes_read) {
-  Buffer buf = **((std::list<Buffer>::iterator*) buffer);
-  if (pos.row < buf.rows.size()) {
-    *bytes_read = buf.rows[pos.row].raw.length() + 1 - pos.column;
+  Buffer *buf = (Buffer*) buffer;
+  if (pos.row < buf->rows.size()) {
+    *bytes_read = buf->rows[pos.row].raw.length() + 1 - pos.column;
     // TODO: free this
     static std::string row;
-    row = buf.rows[pos.row].raw + "\n";
+    row = buf->rows[pos.row].raw + "\n";
     return row.c_str() + pos.column;
   }
   *bytes_read = 0;
@@ -58,7 +58,7 @@ void highlightTreeSitter(BufferEditEvent ev) {
     parser,
     NULL,
     {
-      (void*) &ev.buffer,
+      (void*) &(*ev.buffer),
       treeSitterInput,
       TSInputEncodingUTF8
     }
