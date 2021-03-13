@@ -1,27 +1,20 @@
-project('oswald', 'cpp', default_options : ['b_lto=true'])
+project('oswald', 'c')
 
 src = [
-  'src/buffer/mark.cxx',
-  'src/buffer/portion.cxx',
-  
-  'src/draw/draw.cxx',
+  'src/vec/vec.c',
 
-  'src/terminal/terminal.cxx',
-  'src/terminal/keypress.cxx',
+  'src/term/escapes.c',
+  'src/term/mode.c',
 
-  'src/modules/highlight_treesitter.cxx',
-  'src/modules/highlight_regex.cxx',
-  'src/modules/highlight_none.cxx',
-
-  'src/main.cxx'
+  'src/main.c'
 ]
-
 inc = include_directories('src')
-tree_sitter_inc = include_directories('tree_sitter/include')
+
+# tree_sitter_inc = include_directories('tree_sitter/include')
 
 executable(
   'oswald',
   src,
-  include_directories : [inc, tree_sitter_inc],
-  objects: ['tree_sitter/libtree-sitter.a']
+  include_directories : [inc],
+  # objects: ['tree_sitter/libtree-sitter.a']
 )
