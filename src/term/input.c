@@ -21,6 +21,8 @@ struct InputBuffer {
 
 // TODO: document
 void input_buffer_refill(struct InputBuffer *inbuf) {
+//  inbuf->available = read(STDIN_FILENO, inbuf, 1);
+//  return;
   // if there is data available, do not wait for new data
   int timeout = -1;
   if (inbuf->available) {
@@ -81,6 +83,10 @@ struct EscapeRule escape_rules[] = {
   {KeyNone}
 };
 
+bool starts_with(char* str, char* prefix) {
+  return strncmp(str, prefix, strlen(prefix)) == 0;
+}
+
 struct Key term_read_key() {
   static struct InputBuffer inbuf;
 
@@ -88,10 +94,10 @@ struct Key term_read_key() {
   // TODO: will assert even work properly with custom terminal setup?
   assert(inbuf.available >= 1);
 
-  if (strncmp(inbuf.seq, "\x1b[", 2)) {
+  if (starts_with(inbuf.seq, "\x1b[")) {
     for (int i=0; escape_rules[i].key != KeyNone; i++) {
       struct EscapeRule rule = escape_rules[i];
-      if (strcmp(rule.pattern, inbuf.seq) == 0) {
+      if (starts_with(inbuf.seq, rule.pattern)) {
         input_buffer_consume(&inbuf, strlen(rule.pattern));
         return (struct Key){rule.key};
       } else if (rule.mod && inbuf.available >= 6) {
@@ -100,8 +106,8 @@ struct Key term_read_key() {
          *            ^ ^- key type      (index 5)
          *            |- modifier number (index 4)
          */
-        if (strncmp(inbuf.seq, "\x1b[1;", 4) != 0) break;
-        if (rule.pattern[2] != inbuf.seq[5]) break;
+        if (!starts_with(inbuf.seq, "\x1b[1;")) continue;
+        if (rule.pattern[2] != inbuf.seq[5]) continue;
 
         struct Key k = {rule.key};
         // convert ascii char into int and subtract one
@@ -120,8 +126,15 @@ struct Key term_read_key() {
 
   struct Key k = {
     inbuf.seq[0],
-    .shift = isupper(inbuf.seq[0])
+    .shift = isupper(inbuf.seq[0]),
+    .control = iscntrl(inbuf.seq[0])
   };
+
+  // TODO: explain
+  if (k.control && k.base != '\r') {
+    k.base += 0x60;
+  }
+
   input_buffer_consume(&inbuf, 1);
   return k;
 }
