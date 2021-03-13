@@ -5,6 +5,7 @@ src = [
 
   'src/term/escapes.c',
   'src/term/mode.c',
+  'src/term/input.c',
 
   'src/main.c'
 ]

@@ -5,28 +5,28 @@
 struct Key {
   enum KeyBase {
     // All values before Backspace use their ASCII value
-    Backspace = 127,
+    KeyBackspace = 127,
     // TODO: is 1000 suitable here?
-    Delete = 1000,
+    KeyDelete = 1000,
 
     // Navigation Keys
-    LeftArrow,
-    RightArrow,
-    UpArrow,
-    DownArrow,
+    KeyLeftArrow,
+    KeyRightArrow,
+    KeyUpArrow,
+    KeyDownArrow,
     
-    Home,
-    End,
+    KeyHome,
+    KeyEnd,
 
-    PageUp,
-    PageDown,
+    KeyPageUp,
+    KeyPageDown,
 
     // Only used internally in term.c
-    None
-  }
+    KeyNone
+  } base;
   bool control;
   bool alt;
   bool shift;
 };
 
-void term_read_key();
+struct Key term_read_key();
