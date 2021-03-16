@@ -21,8 +21,6 @@ struct InputBuffer {
 
 // TODO: document
 void input_buffer_refill(struct InputBuffer *inbuf) {
-//  inbuf->available = read(STDIN_FILENO, inbuf, 1);
-//  return;
   // if there is data available, do not wait for new data
   int timeout = -1;
   if (inbuf->available) {

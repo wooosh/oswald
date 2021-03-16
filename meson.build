@@ -3,6 +3,9 @@ project('oswald', 'c')
 src = [
   'src/vec/vec.c',
 
+  'src/buffer/list.c',
+  'src/buffer/open.c',
+
   'src/term/escapes.c',
   'src/term/mode.c',
   'src/term/input.c',

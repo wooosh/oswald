@@ -1,29 +1,31 @@
 #pragma once
 
-#include <vec.h>
-
-struct Mark { 
-  Buffer* b;
-
-  size_t row;
-  size_t col;
-};
+#include <vec/vec.h>
 
 enum HighlightType {
-  Normal,
-  Selection,
-  Type
+  HLNormal = 0,
+  HLSelection,
+  HLType
 };
 
-struct Row {
+struct Line {
   vec_char_t contents;
-  vec_t(HighlightType) highlight;
+  vec_t(enum HighlightType) highlight;
 };
 
 struct Buffer {
-  vec_t(Row) rows;
+  vec_t(struct Line) lines;
   vec_char_t title;
 
+  struct Buffer *prev;
+  struct Buffer *next;
   // TODO: refcount for marks/iterators/handles
   // TODO: filetype
 };
+
+struct BufferList {
+  struct Buffer *start;
+  struct Buffer *end;
+};
+
+void buffer_list_append(struct BufferList *bl, struct Buffer *b);

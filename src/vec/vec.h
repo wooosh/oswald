@@ -11,7 +11,12 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
 
+// TODO: note that these functions should not take functions calls as arguments in docs
+// TODO: bounds checking on all functions
+
+// TODO: remove this
 #define VEC_VERSION "0.2.1"
 
 
@@ -20,7 +25,7 @@
 
 
 #define vec_t(T)\
-  struct { T *data; int length, capacity; }
+  struct { T *data; size_t length, capacity; }
 
 
 #define vec_init(v)\
@@ -90,7 +95,7 @@
 
 #define vec_pusharr(v, arr, count)\
   do {\
-    int i__, n__ = (count);\
+    size_t i__, n__ = (count);\
     if (vec_reserve_po2_(vec_unpack_(v), (v)->length + n__) != 0) break;\
     for (i__ = 0; i__ < n__; i__++) {\
       (v)->data[(v)->length++] = (arr)[i__];\
@@ -115,7 +120,7 @@
 
 #define vec_remove(v, val)\
   do {\
-    int idx__;\
+    size_t idx__;\
     vec_find(v, val, idx__);\
     if (idx__ != -1) vec_splice(v, idx__, 1);\
   } while (0)
@@ -123,7 +128,7 @@
 
 #define vec_reverse(v)\
   do {\
-    int i__ = (v)->length / 2;\
+    size_t i__ = (v)->length / 2;\
     while (i__--) {\
       vec_swap((v), i__, (v)->length - (i__ + 1));\
     }\
@@ -158,20 +163,32 @@
         --(iter))
 
 
+#define vec_set(v, value, start, end)\
+  for (size_t i__ =(start); i__<(end); i__++)\
+    (v)->data[i__] = value;
 
-int vec_expand_(char **data, int *length, int *capacity, int memsz);
-int vec_reserve_(char **data, int *length, int *capacity, int memsz, int n);
-int vec_reserve_po2_(char **data, int *length, int *capacity, int memsz,
-                     int n);
-int vec_compact_(char **data, int *length, int *capacity, int memsz);
-int vec_insert_(char **data, int *length, int *capacity, int memsz,
-                int idx);
-void vec_splice_(char **data, int *length, int *capacity, int memsz,
-                 int start, int count);
-void vec_swapsplice_(char **data, int *length, int *capacity, int memsz,
-                     int start, int count);
-void vec_swap_(char **data, int *length, int *capacity, int memsz,
-               int idx1, int idx2);
+
+#define vec_fill(v, value, len)\
+  do {\
+    vec_reserve((v), (len));\
+    (v)->length = (len);\
+    vec_set((v), 0, (len), (value));\
+  } while (0)
+
+
+size_t vec_expand_(char **data, size_t *length, size_t *capacity, size_t memsz);
+size_t vec_reserve_(char **data, size_t *length, size_t *capacity, size_t memsz, size_t n);
+size_t vec_reserve_po2_(char **data, size_t *length, size_t *capacity, size_t memsz,
+                     size_t n);
+size_t vec_compact_(char **data, size_t *length, size_t *capacity, size_t memsz);
+size_t vec_insert_(char **data, size_t *length, size_t *capacity, size_t memsz,
+                size_t idx);
+void vec_splice_(char **data, size_t *length, size_t *capacity, size_t memsz,
+                 size_t start, size_t count);
+void vec_swapsplice_(char **data, size_t *length, size_t *capacity, size_t memsz,
+                     size_t start, size_t count);
+void vec_swap_(char **data, size_t *length, size_t *capacity, size_t memsz,
+               size_t idx1, size_t idx2);
 
 
 typedef vec_t(void*) vec_void_t;
