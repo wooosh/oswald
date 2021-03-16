@@ -36,12 +36,21 @@ struct Buffer *buffer_open_file(char *path) {
     struct Line line;
     vec_init(&line.contents);
 
+    // TODO: support other line endings
+    //  to support other line endings, we will store a line_ending char[2] in
+    //  the buffer struct and add the line ending during saving
+
     ssize_t len = getline(&line.contents.data, &line.contents.capacity, file);
     // TODO: getline can return -1 on eof AND error, so we need to check for
     // errors as well
     if (len == -1) break;
     
     line.contents.length = len;
+    // newlines should not be included in our internal representation
+    if (line.contents.data[len] == '\n') {
+      line.contents.length--;
+    }
+
     vec_fill(&line.highlight, HLNormal, len);
     
     vec_push(&buf->lines, line);
