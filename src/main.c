@@ -4,7 +4,11 @@
 #include <buffer/buffer.h>
 #include <buffer/open.h>
 
+#include <x.h>
+
 #include <stdio.h>
+
+// TODO: add unit tests with --test <test_case> argument
 
 int main(int argc, char** argv) {
   if (argc != 2) {

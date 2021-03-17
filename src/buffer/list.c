@@ -1,4 +1,4 @@
-#include <xmalloc.h>
+#include <x.h>
 #include <buffer/buffer.h>
 
 void buffer_list_append(struct BufferList *bl, struct Buffer* b) {

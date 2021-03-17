@@ -1,13 +1,13 @@
 #pragma once
 
 #include <stdbool.h>
+#include <limits.h>
 
 struct Key {
   enum KeyBase {
     // All values before Backspace use their ASCII value
     KeyBackspace = 127,
-    // TODO: is 1000 suitable here?
-    KeyDelete = 1000,
+    KeyDelete = UCHAR_MAX,
 
     // Navigation Keys
     KeyLeftArrow,

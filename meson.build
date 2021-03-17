@@ -10,6 +10,7 @@ src = [
   'src/term/mode.c',
   'src/term/input.c',
 
+  'src/x.c',
   'src/main.c'
 ]
 inc = include_directories('src')

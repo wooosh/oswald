@@ -19,8 +19,7 @@ struct Buffer {
 
   struct Buffer *prev;
   struct Buffer *next;
-  // TODO: refcount for marks/iterators/handles
-  // TODO: filetype
+  // TODO|FEATURE: filetype
 };
 
 struct BufferList {

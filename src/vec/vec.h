@@ -16,10 +16,6 @@
 // TODO: note that these functions should not take functions calls as arguments in docs
 // TODO: bounds checking on all functions
 
-// TODO: remove this
-#define VEC_VERSION "0.2.1"
-
-
 #define vec_unpack_(v)\
   (char**)&(v)->data, &(v)->length, &(v)->capacity, sizeof(*(v)->data)
 

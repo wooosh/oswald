@@ -6,10 +6,11 @@
 #include <assert.h>
 #include <ctype.h>
 
+#include <x.h>
 #include <term/mode.h>
 #include <term/input.h>
 
-// TODO: describe how the terminal input system works at the top
+// TODO|CLEANUP: describe how the terminal input system works at the top
 
 #define MAX_ESC_LEN 6
 struct InputBuffer {
@@ -19,7 +20,7 @@ struct InputBuffer {
   size_t available;
 };
 
-// TODO: document
+// TODO|CLEANUP: document
 void input_buffer_refill(struct InputBuffer *inbuf) {
   // if there is data available, do not wait for new data
   int timeout = -1;
@@ -29,33 +30,29 @@ void input_buffer_refill(struct InputBuffer *inbuf) {
 
   struct pollfd pfd = {STDIN_FILENO, POLLIN};
   int ready = poll(&pfd, 1, timeout);
+  xassert_errno(ready != -1, NULL);
 
-  if (ready == -1) {
-    // TODO: proper error handling
-    term_die("poll");
-  } else if (ready > 0) {
+  if (ready > 0) {
     if (pfd.revents & POLLIN) {
       // refill buffer
       size_t result = read(STDIN_FILENO, inbuf->seq + inbuf->available, MAX_ESC_LEN - inbuf->available);
-      if (result < 1) {
-        term_die("read");
-      }
+      xassert_errno(result >= 0, NULL);
+      
       inbuf->available += result;
       // insert null terminator
       inbuf->seq[inbuf->available] = '\0';
     } else { // POLLERR | POLLHUP
-      term_die("poll");
+      xassert_errno(0, NULL);
     }
   }
 }
 
-// TODO: document
+// TODO|CLEANUP: document
 void input_buffer_consume(struct InputBuffer *inbuf, size_t used) {
   memmove(inbuf->seq, inbuf->seq + used, inbuf->available - used);
   inbuf->available -= used;
 }
 
-// TODO: should be moved to term/escapes.h
 struct EscapeRule {
   enum KeyBase key;
   // null terminated
@@ -89,12 +86,12 @@ struct Key term_read_key() {
   static struct InputBuffer inbuf;
 
   input_buffer_refill(&inbuf);
-  // TODO: will assert even work properly with custom terminal setup?
   assert(inbuf.available >= 1);
 
   if (starts_with(inbuf.seq, "\x1b[")) {
     for (int i=0; escape_rules[i].key != KeyNone; i++) {
       struct EscapeRule rule = escape_rules[i];
+
       if (starts_with(inbuf.seq, rule.pattern)) {
         input_buffer_consume(&inbuf, strlen(rule.pattern));
         return (struct Key){rule.key};
@@ -104,6 +101,8 @@ struct Key term_read_key() {
          *            ^ ^- key type      (index 5)
          *            |- modifier number (index 4)
          */
+
+        // Make sure it matches the format
         if (!starts_with(inbuf.seq, "\x1b[1;")) continue;
         if (rule.pattern[2] != inbuf.seq[5]) continue;
 
@@ -128,7 +127,9 @@ struct Key term_read_key() {
     .control = iscntrl(inbuf.seq[0])
   };
 
-  // TODO: explain
+  // the ASCII code for ctrl-letter is letter - 0x60, so we convert control
+  // characters base key to their alphabet version, with the exception of \r
+  // because it represents enter 
   if (k.control && k.base != '\r') {
     k.base += 0x60;
   }
