@@ -21,6 +21,7 @@ void term_setup() {
   atexit(term_restore);
 
   // TODO|CLEANUP: write descriptions for each flag
+  // https://viewsourcecode.org/snaptoken/kilo/02.enteringRawMode.html
   struct termios new_termios = old_termios;
   new_termios.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
   new_termios.c_oflag &= ~(OPOST);

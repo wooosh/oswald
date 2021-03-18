@@ -15,6 +15,10 @@
 
 // TODO: note that these functions should not take functions calls as arguments in docs
 // TODO: bounds checking on all functions
+// TODO: convert everything to functions with vec_unpack, so that we don't have
+// to worry about multiple use of arguments
+// TODO: remove T from typenames
+// TODO: can we make static asserts to make type errors cleaner?
 
 #define vec_unpack_(v)\
   (char**)&(v)->data, &(v)->length, &(v)->capacity, sizeof(*(v)->data)
@@ -22,6 +26,10 @@
 
 #define vec_t(T)\
   struct { T *data; size_t length, capacity; }
+
+
+#define vec_const_t(T)\
+  struct { const T *data; const size_t length, capacity; }
 
 
 #define vec_init(v)\
@@ -56,6 +64,10 @@
   ( vec_insert_(vec_unpack_(v), idx) ? -1 :\
     ((v)->data[idx] = (val), 0), (v)->length++, 0 )
     
+// TODO|CLEANUP: optimize this to use memmove and memcpy in vec.c
+#define vec_insert_vec(v1, idx, v2)\
+  for (size_t i__= 0; i__<(v2)->length; i__++)\
+    vec_insert((v1), (idx) + i__, (v2)->data[i__]);
 
 #define vec_sort(v, fn)\
   qsort((v)->data, (v)->length, sizeof(*(v)->data), fn)
@@ -158,12 +170,12 @@
         (iter) >= 0 && (((var) = &(v)->data[(iter)]), 1);\
         --(iter))
 
-
+// memset for vectors
 #define vec_set(v, value, start, end)\
   for (size_t i__ =(start); i__<(end); i__++)\
     (v)->data[i__] = value;
 
-
+// TODO: should take a starting index, need to memmove instead of reserve
 #define vec_fill(v, value, len)\
   do {\
     vec_reserve((v), (len));\
@@ -191,6 +203,7 @@ typedef vec_t(void*) vec_void_t;
 typedef vec_t(char*) vec_str_t;
 typedef vec_t(int) vec_int_t;
 typedef vec_t(char) vec_char_t;
+typedef vec_const_t(char) vec_const_char_t;
 typedef vec_t(float) vec_float_t;
 typedef vec_t(double) vec_double_t;
 

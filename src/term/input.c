@@ -12,6 +12,7 @@
 
 // TODO|CLEANUP: describe how the terminal input system works at the top
 
+// TODO|CLEANUP: rename to InputQueue
 #define MAX_ESC_LEN 6
 struct InputBuffer {
   // stores the available characters, null terminated
@@ -82,6 +83,7 @@ bool starts_with(char* str, char* prefix) {
   return strncmp(str, prefix, strlen(prefix)) == 0;
 }
 
+// TODO|BUG: does this split up unicode characters????
 struct Key term_read_key() {
   static struct InputBuffer inbuf;
 
@@ -107,7 +109,8 @@ struct Key term_read_key() {
         if (rule.pattern[2] != inbuf.seq[5]) continue;
 
         struct Key k = {rule.key};
-        // convert ascii char into int and subtract one
+        // convert ascii char into int and subtract one for the following
+        // bitwise ops
         int mod = inbuf.seq[4] - 48 - 1;
         
         k.shift    = mod & (1 << 0);

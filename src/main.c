@@ -4,6 +4,8 @@
 #include <buffer/buffer.h>
 #include <buffer/open.h>
 
+#include <draw/display_string.h>
+
 #include <x.h>
 
 #include <stdio.h>
@@ -23,9 +25,11 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  for (int i=0; i<b->lines.length; i++) {
-    printf("line %d: %s\n", i, b->lines.data[i].contents.data);
-  }
+  //for (int i=0; i<b->lines.length; i++) {
+  //  size_t l = ds_len_display_to_raw(b->lines.data[i].contents, 3);
+  //  printf("line %zu, %d: %s\n", l, i, b->lines.data[i].contents.data);
+  //}
+
 
   return 0;
 }

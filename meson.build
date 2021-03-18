@@ -5,10 +5,13 @@ src = [
 
   'src/buffer/list.c',
   'src/buffer/open.c',
+  'src/buffer/mark.c',
 
   'src/term/escapes.c',
   'src/term/mode.c',
   'src/term/input.c',
+
+  # 'src/draw/display_string.c',
 
   'src/x.c',
   'src/main.c'

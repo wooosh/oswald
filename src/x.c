@@ -7,7 +7,21 @@
 #include <stdbool.h>
 #include <errno.h>
 
-// TODO: make sure vec uses xmalloc/assert
+size_t min_size_t(size_t a, size_t b) {
+  return a < b ? a : b;
+} 
+
+size_t max_size_t(size_t a, size_t b) {
+  return a > b ? a : b;
+} 
+
+ssize_t min_ssize_t(ssize_t a, ssize_t b) {
+  return a < b ? a : b;
+} 
+
+ssize_t max_ssize_t(ssize_t a, ssize_t b) {
+  return a > b ? a : b;
+} 
 
 void xassert_(bool condition, char* message, char* file, size_t line) {
   if (!condition) {

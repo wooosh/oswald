@@ -29,4 +29,4 @@ struct Key {
   bool shift;
 };
 
-struct Key term_read_key();
+struct Key term_read_key(void);
