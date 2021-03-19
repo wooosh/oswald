@@ -50,3 +50,8 @@ void* xmalloc(size_t size) {
   return ptr;
 }
 
+void* xrealloc(void *ptr, size_t size) {
+  ptr = realloc(ptr, size);
+  xassert_errno(ptr != NULL, NULL);
+  return ptr;
+}

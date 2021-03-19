@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <vec/vec.h>
 
 const char *term_clear_right = "\x1b[K";
 

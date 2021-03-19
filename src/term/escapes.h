@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vec/vec.h>
+#include <adt/vec.h>
 
 // null terminated escape code constants
 extern const char *term_clear_right;

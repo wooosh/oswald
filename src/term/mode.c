@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include <x.h>
 #include <term/mode.h>

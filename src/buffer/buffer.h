@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vec/vec.h>
+#include <adt/vec.h>
 
 enum HighlightType {
   HLNormal = 0,
@@ -8,17 +8,16 @@ enum HighlightType {
   HLType
 };
 
-// TODO|CLEANUP: make vectors capital or everything else snake case
-typedef vec_t(enum HighlightType) vec_highlight_type;
+typedef vec_of(enum HighlightType) vec_highlight_type;
 struct Line {
-  vec_char_t contents;
+  vec_char contents;
   vec_highlight_type highlight;
 };
 
-typedef vec_t(struct Line) vec_line;
+typedef vec_of(struct Line) vec_line;
 struct Buffer {
   vec_line lines;
-  vec_char_t title;
+  vec_char title;
 
   struct Buffer *prev;
   struct Buffer *next;

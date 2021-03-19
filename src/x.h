@@ -15,6 +15,7 @@
 
 // exits on failed allocation
 void* xmalloc(size_t size);
+void* xrealloc(void *ptr, size_t size);
 
 // TODO: make assert do nothing by defining it to ';' when NDEBUG is on
 // message must be provided
