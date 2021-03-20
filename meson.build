@@ -3,16 +3,19 @@ project('oswald', 'c')
 src = [
   'src/adt/vec.c',
 
-#  'src/buffer/list.c',
-#  'src/buffer/open.c',
-#  'src/buffer/mark.c',
+  'src/buffer/list.c',
+  'src/buffer/open.c',
+  'src/buffer/mark.c',
 
   'src/term/escapes.c',
   'src/term/mode.c',
-#  'src/term/input.c',
+  'src/term/input.c',
 
-  # 'src/draw/display_string.c',
+  'src/draw/draw.c',
 
+  'src/plugins/debug.c',
+
+  'src/event.c',
   'src/x.c',
   'src/main.c'
 ]

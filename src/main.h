@@ -4,9 +4,12 @@
 #include <buffer/mark.h>
 
 extern struct Editor {
-  BufferList bl;
+  struct BufferList bl;
 
-  Mark cursor;
+  size_t screen_width;
+  size_t screen_height;
+
+  struct Mark cursor;
   // the anchor refers to the end of the selection
-  Mark anchor;
+  struct Mark anchor;
 } E;

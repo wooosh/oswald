@@ -3,10 +3,11 @@
 #include <adt/vec.h>
 
 // null terminated escape code constants
+extern const char *term_clear_screen;
 extern const char *term_clear_right;
 
 // returns the cursor to 0,0
-extern const char *term_home_cursor; 
+extern const char *term_home_cursor;
 
 extern const char *term_hide_cursor;
 extern const char *term_show_cursor;
@@ -18,6 +19,11 @@ extern const char *term_block_cursor;
 // used to keep the terminal history after we start and exit the editor
 extern const char *term_save_buffer;
 extern const char *term_restore_buffer;
+
+// attributes
+extern const char *term_underline;
+extern const char *term_bold;
+extern const char *term_no_attr;
 
 /*
  * moves the cursor to a given position on the screen

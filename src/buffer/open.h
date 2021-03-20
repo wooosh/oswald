@@ -2,4 +2,4 @@
 
 #include <buffer/buffer.h>
 
-struct Buffer *buffer_open_file(char* path);
+struct Buffer *buffer_open_file(char *path);

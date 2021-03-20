@@ -1,20 +1,20 @@
 #include <buffer/buffer.h>
 #include <x.h>
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
 // TODO|CLEANUP: move this elsewhere?
-void buffer_destroy(struct Buffer* buf) {
-  vec_deinit(&buf->title);
-  
-  for (size_t i=0; i<buf->lines.length; i++) {
-    vec_deinit(&buf->lines.data[i].contents);
-    vec_deinit(&buf->lines.data[i].highlight);
+void buffer_destroy(struct Buffer *buf) {
+  vec_destroy(&buf->title);
+
+  for (size_t i = 0; i < buf->lines.len; i++) {
+    vec_destroy(&buf->lines.data[i].contents);
+    vec_destroy(&buf->lines.data[i].highlight);
   }
 
-  vec_deinit(&buf->lines);
+  vec_destroy(&buf->lines);
   free(buf);
 }
 
@@ -25,13 +25,13 @@ struct Buffer *buffer_open_file(char *path) {
   vec_init(&buf->lines);
 
   vec_init(&buf->title);
-  vec_pushstr(&buf->title, path);
+  vec_append_str(&buf->title, path);
 
-  FILE* file = fopen(path, "r");
+  FILE *file = fopen(path, "r");
   if (file == NULL) {
     return NULL;
   }
-  
+
   while (true) {
     struct Line line;
     vec_init(&line.contents);
@@ -40,23 +40,26 @@ struct Buffer *buffer_open_file(char *path) {
     //  to support other line endings, we will store a line_ending char[2] in
     //  the buffer struct and add the line ending during saving
 
-    ssize_t len = getline(&line.contents.data, &line.contents.capacity, file);
+    ssize_t len = getline(&line.contents.data, &line.contents.cap, file);
     // TODO|BUG: getline can return -1 on eof AND error, so we need to check for
     // errors as well
-    if (len == -1) break;
-    
-    line.contents.length = len;
+    if (len == -1)
+      break;
+
+    line.contents.len = len;
     // newlines should not be included in our internal representation
-    if (line.contents.data[len] == '\n') {
-      line.contents.length--;
+    if (line.contents.data[len - 1] == '\n') {
+      line.contents.len--;
     }
 
-    vec_fill(&line.highlight, HLNormal, len);
-    
+    vec_init(&line.highlight);
+    vec_fill(&line.highlight, HLNormal, 0, len);
+
     vec_push(&buf->lines, line);
   }
 
   fclose(file);
+
   return buf;
 }
 

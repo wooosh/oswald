@@ -2,11 +2,7 @@
 
 #include <adt/vec.h>
 
-enum HighlightType {
-  HLNormal = 0,
-  HLSelection,
-  HLType
-};
+enum HighlightType { HLNormal = 0, HLSelection, HLType };
 
 typedef vec_of(enum HighlightType) vec_highlight_type;
 struct Line {

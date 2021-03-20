@@ -1,17 +1,17 @@
-#include <termios.h>
-#include <stdio.h>
 #include <errno.h>
-#include <unistd.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <termios.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
 
-#include <x.h>
 #include <term/mode.h>
-#include <term/escapes.h>
 
-enum TermState {
-  TermRaw,
-  TermCooked
-};
+#include <term/escapes.h>
+#include <main.h>
+#include <x.h>
+
+enum TermState { TermRaw, TermCooked };
 
 static enum TermState term_state = TermCooked;
 static struct termios old_termios;
@@ -33,9 +33,17 @@ void term_setup() {
 
   xassert_errno(tcsetattr(STDIN_FILENO, TCSAFLUSH, &new_termios) != -1, NULL);
 
-  printf("%s%s", term_save_buffer, term_line_cursor);
+  printf("%s%s%s%s", term_save_buffer, term_line_cursor, term_set_pos(0, 0),
+         term_clear_screen);
+  fflush(stdout);
 
   term_state = TermRaw;
+  
+  // TODO|FEATURE: handle resizing
+  struct winsize w;
+  ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+  E.screen_width = w.ws_col;
+  E.screen_height = w.ws_row;
 }
 
 void term_restore() {
@@ -44,7 +52,6 @@ void term_restore() {
     // and calling die and exiting would result in undefined behavior becuase
     // we are in an atexit handler
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &old_termios);
-    printf("%s%s", term_restore_buffer, term_block_cursor);
+    printf("%s%s%s", term_restore_buffer, term_block_cursor, term_show_cursor);
   }
 }
-

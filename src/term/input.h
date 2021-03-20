@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdbool.h>
 #include <limits.h>
+#include <stdbool.h>
 
 struct Key {
   enum KeyBase {
@@ -14,7 +14,7 @@ struct Key {
     KeyRightArrow,
     KeyUpArrow,
     KeyDownArrow,
-    
+
     KeyHome,
     KeyEnd,
 
