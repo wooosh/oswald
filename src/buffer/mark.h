@@ -6,12 +6,15 @@
 #include <buffer/buffer.h>
 #include <stdbool.h>
 
+// read only struct
 struct Mark {
   struct Buffer *buffer;
 
   size_t x;
   size_t y;
 };
+
+// void mark_move_to
 
 // negative = left/up
 // positive = right/down

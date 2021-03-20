@@ -1,6 +1,7 @@
 #include <adt/vec.h>
 #include <buffer/buffer.h>
 #include <buffer/mark.h>
+#include <event.h>
 #include <x.h>
 
 struct Line *mark_line(struct Mark *m) {
@@ -8,12 +9,12 @@ struct Line *mark_line(struct Mark *m) {
 }
 
 // TODO: should we use size_t everywhere because it messes up signed comparisons
-// clamps value to [min, max)
+// clamps value to [min, max]
 ssize_t clamp(ssize_t min, ssize_t max, ssize_t val) {
   if (val < min)
     return min;
   if (val > max)
-    return max - 1;
+    return max;
   return val;
 }
 
@@ -23,8 +24,9 @@ ssize_t clamp(ssize_t min, ssize_t max, ssize_t val) {
 // negative = left/up
 // positive = right/down
 void mark_move_rel(struct Mark *m, ssize_t x, ssize_t y) {
-  m->y = clamp(0, m->buffer->lines.len, y);
-  m->x = clamp(0, mark_line(m)->contents.len, x);
+  m->y = clamp(0, m->buffer->lines.len, m->y + y);
+  m->x = clamp(0, mark_line(m)->contents.len, m->x + x);
+  dispatch_event((struct Event){event_mark_move, .mark_move = m});
 }
 
 // TODO: should this be mark_order(mark **start, mark **end) and automatically

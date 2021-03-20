@@ -3,6 +3,7 @@
 
 #include <buffer/buffer.h>
 #include <buffer/open.h>
+#include <buffer/mark.h>
 
 #include <event.h>
 #include <x.h>
@@ -34,11 +35,30 @@ int main(int argc, char **argv) {
     }
 
     buffer_list_append(&E.buffers, b);
+    E.cursor.buffer = b;
     dispatch_event((struct Event){event_open, .open = b});
   } 
- 
-  //e.cursor.buffer = b;
-  term_read_key();
+
+  while (true) {
+    struct Key key = term_read_key();
+    if (key.base == 'q' && key.control) break;
+    switch (key.base) {
+    case KeyLeftArrow:
+      mark_move_rel(&E.cursor, -1, 0);
+      break;
+    case KeyRightArrow:
+      mark_move_rel(&E.cursor, 1, 0);
+      break;
+    case KeyUpArrow:
+      mark_move_rel(&E.cursor, 0, -1);
+      break;
+    case KeyDownArrow:
+      mark_move_rel(&E.cursor, 0, 1);
+      break;
+    }
+    fprintf(stderr, "%d %d\n", E.cursor.x, E.cursor.y);
+  }
+
 
   term_restore();
   return 0;

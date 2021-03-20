@@ -5,7 +5,7 @@
 
 typedef void (*EventHandler)(struct Event);
 static EventHandler event_pipelines[][16] = {
-    [event_open] = {draw_event, NULL}, [event_edit] = {draw_event, NULL}};
+    [event_open] = {draw_event, NULL}, [event_edit] = {draw_event, NULL}, [event_mark_move] = {draw_event, NULL}};
 
 void dispatch_event(struct Event e) {
   EventHandler *pipeline = event_pipelines[e.type];

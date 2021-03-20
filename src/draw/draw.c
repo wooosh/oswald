@@ -103,6 +103,11 @@ static void draw_lines(struct DrawState *ds, struct Buffer *buffer, size_t start
 static void draw_cursor(struct DrawState *ds) {
   // TODO: draw cursor
   if (E.cursor.buffer != NULL) {
+    // assume the cursor is in the viewport
+    size_t render_y = draw_line_to_render_y(ds, E.cursor.buffer, E.cursor.y);
+    fprintf(stderr, "render y: %d\n", render_y);
+    draw_at(&ds->out, E.cursor.x, render_y + 1);
+    vec_append_str(&ds->out, term_show_cursor);
   }
 }
 
@@ -128,7 +133,9 @@ static void draw_buffer_divider(struct DrawState *ds, struct Buffer *buffer) {
 void draw_event(struct Event e) {
   static struct DrawState ds;
 
-  // draw_scroll_show_cursor(&ds);
+  // TODO: add way to tell renderer to queue events during batch operations?
+
+  // draw_scroll_to_show_cursor(&ds);
 
   // prefill buffer with hide cursor command
   if (ds.out.len == 0) {
@@ -142,7 +149,7 @@ void draw_event(struct Event e) {
     draw_lines(&ds, e.open, 0, e.open->lines.len);
   }
 
-  if (ds.out.len > 0) {
+  if (e.type == event_mark_move || ds.out.len > 0) {
     draw_cursor(&ds);
     write(STDOUT_FILENO, ds.out.data, ds.out.len);
     vec_truncate(&ds.out, strlen(term_hide_cursor));
