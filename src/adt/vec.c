@@ -65,7 +65,6 @@ void vec_printf(vec_char *v, const char* format, ...) {
   va_copy(args2, args);
 
   int len = vsnprintf(NULL, 0, format, args);
-  fprintf(stderr, "len: %d %d\n", v->len, len);
   // we need +1 because vsnprintf will include a null
   vec_atleast_(vec_repack_(v), v->len + len + 1);
 

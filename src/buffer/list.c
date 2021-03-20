@@ -3,7 +3,7 @@
 
 void buffer_list_append(struct BufferList *bl, struct Buffer *b) {
   // Check for uninitialized lists
-  if (bl->start != NULL) {
+  if (bl->start == NULL) {
     bl->start = b;
     bl->end = b;
   } else {

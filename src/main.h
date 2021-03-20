@@ -4,7 +4,7 @@
 #include <buffer/mark.h>
 
 extern struct Editor {
-  struct BufferList bl;
+  struct BufferList buffers;
 
   size_t screen_width;
   size_t screen_height;
