@@ -1,28 +1,145 @@
 // TODO: replace stddef with sys/types everywhere?
+#include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <stdio.h>
 
 #include <draw/draw.h>
 
-#include <x.h>
 #include <adt/vec.h>
 #include <buffer/buffer.h>
 #include <event.h>
 #include <main.h>
 #include <term/escapes.h>
+#include <x.h>
 
 struct DrawState {
   vec_char out;
 
   // scrolling offsets
   size_t x_offset;
+  // TODO: make render_y
   size_t y_offset;
 };
 
-static void draw_at(vec_char *out, size_t x, size_t y) {
+// common suffixes/abbrievations:
+// by - buffer y
+// ry - render y
+// sy - screen y
+
+// a buffer coordinate points to a line in a buffer, and the referenced line
+// can be found via buffer.lines.data[y]
+typedef size_t BufferY;
+// a render coordinate represents a position the entire scrolling area
+typedef size_t RenderY;
+// a screen coordinate represents an addressable cell in the drawing area
+// (typically a terminal)
+typedef size_t ScreenY;
+
+static RenderY buffer_y_to_render_y(struct Buffer *buffer, BufferY idx) {
+  RenderY lines = 0;
+  for (struct Buffer *iter = E.buffers.start; iter != buffer;
+       iter = iter->next) {
+    // +1 to account for buffer title
+    lines += iter->lines.len + 1;
+    xassert(iter->next, "Buffer was not in buffer list");
+  }
+
+  lines += idx;
+
+  return lines;
+}
+
+// TODO: coords.h
+
+// TODO: assert render y is on screen
+static ScreenY render_y_to_screen_y(struct DrawState *ds, RenderY ry) {
+  return ry - ds->y_offset + 1;
+}
+
+// TODO: do we have an off by one error here because of status bar
+// clamps a render range to be within the screen edges
+static void render_range_clamp_screen(struct DrawState *ds, RenderY *start,
+                                      size_t *len) {
+  // Check if range is on the screen at all
+  if (*start + *len < ds->y_offset + 1 ||
+      *start > ds->y_offset + E.screen_height - 1) {
+    *len = 0;
+    return;
+  }
+
+  if (*start < ds->y_offset + 1) {
+    *len -= ds->y_offset - *start;
+    *start = ds->y_offset;
+  }
+
+  if (*start + *len > ds->y_offset + (E.screen_height - 1)) {
+    *len = ds->y_offset + (E.screen_height - 1) - *start;
+  }
+}
+static void buffer_range_clamp_screen(struct DrawState *ds,
+                                      struct Buffer *buffer, BufferY *start_by,
+                                      size_t *len) {
+  RenderY orig_start_ry = buffer_y_to_render_y(buffer, *start_by);
+  RenderY clamp_start_ry = orig_start_ry;
+  render_range_clamp_screen(ds, &clamp_start_ry, len);
+  *start_by -= orig_start_ry - clamp_start_ry;
+}
+
+static void draw_at(vec_char *out, size_t x, ScreenY y) {
   vec_append_str(out, term_set_pos(x, y));
+}
+
+static void draw_line(struct DrawState *ds, ScreenY y, struct Line line) {
+  draw_at(&ds->out, 0, y);
+  vec_append_str(&ds->out, term_clear_right);
+  vec_append_vec(&ds->out, &line.contents);
+}
+
+static void draw_buffer_lines(struct DrawState *ds, struct Buffer *buffer,
+                              BufferY start_by, size_t len) {
+  buffer_range_clamp_screen(ds, buffer, &start_by, &len);
+  RenderY start_ry = buffer_y_to_render_y(buffer, start_by);
+  ScreenY start_sy = render_y_to_screen_y(ds, start_ry);
+
+  for (size_t i = 0; i < len; i++) {
+    draw_line(ds, start_sy + i, buffer->lines.data[start_by + i]);
+  }
+}
+
+static void draw_buffer_divider(struct DrawState *ds, struct Buffer *buffer) {
+  // get the render y of the line before the first line
+  RenderY divider_ry = buffer_y_to_render_y(buffer, 0) - 1;
+
+  size_t len = 1;
+  render_range_clamp_screen(ds, &divider_ry, &len);
+
+  if (len == 1) {
+    ScreenY divider_sy = render_y_to_screen_y(ds, divider_ry);
+    draw_at(ds, 0, divider_sy);
+
+    // TODO|CLEANUP: move escape code into escapes.h
+    vec_printf(&ds->out, "\x1b[32m-[%.*s]", buffer->title.len,
+               buffer->title.data);
+    // 3 accounts for first dash and the two brackets
+    for (size_t i = 0; i < E.screen_width - 3 - buffer->title.len; i++) {
+      vec_append_str(&ds->out, "─");
+    }
+    vec_append_str(&ds->out, term_no_attr);
+  }
+}
+
+static void draw_screen_range(struct DrawState *ds, ScreenY start_sy,
+                              size_t len) {
+  // RenderY start_ry = render_y_to_screen_y(ds, start_sy);
+  // RenderY end_ry = render_y_to_screen_y(ds, start_sy + len);
+  // RenderY lines = 0;
+  for (struct Buffer *iter = E.buffers.start; iter != NULL; iter = iter->next) {
+    // TODO: non naive impl that doesn't redraw whole screen
+    // insert buffer divider
+    draw_buffer_divider(ds, iter);
+    draw_buffer_lines(ds, iter, 0, iter->lines.len);
+  }
 }
 
 // TODO: make this look like buffer dividers
@@ -49,93 +166,74 @@ static void draw_status(vec_char *out) {
   vec_append_str(out, term_no_attr);
 }
 
-// TODO: explain buffer vs render vs screen y 
-static size_t draw_line_to_render_y(struct DrawState *ds, struct Buffer *buffer,
-                             size_t idx) {
-  size_t lines = 0;
-  for (struct Buffer *iter = E.buffers.start; iter != buffer;
-       iter = iter->next) {
-    // +1 to account for buffer title
-    lines += iter->lines.len + 1;
-    xassert(iter->next, "Buffer was not in buffer list");
+// TODO: scroll.c
+static void draw_scroll_to_show_cursor(struct DrawState *ds) {
+  if (E.cursor.buffer != NULL) {
+    RenderY cursor_ry = buffer_y_to_render_y(E.cursor.buffer, E.cursor.y);
+
+    fprintf(stderr, "cursor_ry: %zu\n", cursor_ry);
+    fprintf(stderr, "y_offset: %zu\n", ds->y_offset);
+    fprintf(stderr, "height: %zu\n", E.screen_height);
+    // +1 to account for statusbar
+    if (cursor_ry >= ds->y_offset + E.screen_height - 1) {
+      // +2 because >= and statusbar is 1 tall
+      size_t delta = cursor_ry - (ds->y_offset + E.screen_height) + 2;
+      fprintf(stderr, "delta: %zu\n", delta);
+      ds->y_offset += delta;
+      // TODO:
+      draw_screen_range(ds, ds->y_offset + E.screen_height - delta, delta);
+    } else if (cursor_ry < ds->y_offset) {
+      fprintf(stderr, "bruh?\n");
+      size_t delta = (ds->y_offset + 1) - cursor_ry;
+      ds->y_offset = cursor_ry;
+      draw_screen_range(ds, ds->y_offset, delta);
+    }
   }
-  
-  lines += idx;
-  
-  return lines;
-}
+  /*
+    // TODO: move into function
+    vec_append_str(&ds->out, term_set_scroll_region(1, E.screen_height));
+    ds->y_offset += delta;
 
-// TODO: explain viewport vs screen
-// delta is the amount before (negative) or after (positive) the row is from the viewport, zero when in viewport
-static ssize_t draw_viewport_delta(struct DrawState *ds, size_t render_y) {
-  // +1's here are to account for the status bar
-  if (render_y < ds->y_offset) {
-    return render_y - (ds->y_offset);
-  } else if (render_y >= ds->y_offset + E.screen_height) {
-    return render_y - ds->y_offset + E.screen_height;
-  } else {
-    return 0;
-  }
-}
-
-static void draw_line(struct DrawState *ds, struct Line line, size_t screen_y) {
-  draw_at(&ds->out, 0, screen_y);
-  vec_append_vec(&ds->out, &line.contents);
-}
-
-static void draw_lines(struct DrawState *ds, struct Buffer *buffer, size_t start, size_t len) {
-  size_t render_y = draw_line_to_render_y(ds, buffer, start);
-  ssize_t delta = draw_viewport_delta(ds, render_y);
-  
-  if (delta < 0) {
-    if (start - delta > len) return;
-    start -= delta;
-    render_y -= delta;
-    len += delta;
-  } else if (delta > 0) return;
-
-  for (size_t i=0; i<len; i++) {
-    // + 1 to account for status bar
-    draw_line(ds, buffer->lines.data[start+i], render_y + i + 1);
-  }
+    // TODO: move escape code to term/escapes.h
+    // TODO: check if we need to redraw the whole screen anyway
+    if (delta < 0) {
+      // TODO: vec_fill_str that reserves space first
+      for (size_t i=0; i < -delta; i++) {
+        draw_at(&ds->out, 0, 1);
+        vec_append_str(&ds->out, "\x1bM");
+      }
+      draw_screen_lines(ds, ds->y_offset - delta, -delta);
+    } else if (delta > 0) {
+      draw_at(&ds->out, 0, E.screen_height);
+      vec_fill(&ds->out, '\n', ds->out.len, delta);
+      vec_append_str(&ds->out, term_clear_screen);
+      draw_screen_lines(ds, ds->y_offset + E.screen_height - delta, delta);
+  //    for (int i=0; i<delta; i++) {
+  //      draw_at(&ds->out, 0, ds->y_offset + E.screen_height - delta + i);
+  //      vec_append_str(&ds->out, "mmmm");
+  //    }
+    }
+  */
 }
 
 static void draw_cursor(struct DrawState *ds) {
-  // TODO: draw cursor
   if (E.cursor.buffer != NULL) {
     // assume the cursor is in the viewport
-    size_t render_y = draw_line_to_render_y(ds, E.cursor.buffer, E.cursor.y);
-    fprintf(stderr, "render y: %d\n", render_y);
-    draw_at(&ds->out, E.cursor.x, render_y + 1);
+    RenderY ry = buffer_y_to_render_y(E.cursor.buffer, E.cursor.y);
+    ScreenY sy = render_y_to_screen_y(ds, ry);
+    draw_at(&ds->out, E.cursor.x, sy);
     vec_append_str(&ds->out, term_show_cursor);
   }
 }
 
-static void draw_buffer_divider(struct DrawState *ds, struct Buffer *buffer) {
-  // get the screen position of the first line and subtract one
-  size_t render_y = draw_line_to_render_y(ds, buffer, 0) - 1;
-  ssize_t delta = draw_viewport_delta(ds, render_y);
-
-  if (delta < 0) {
-    render_y -= delta;
-  } else if (delta > 0) return;
-    
-  draw_at(ds, 0, render_y+1);
-  // TODO|CLEANUP: move escape code into escapes.h
-  vec_printf(&ds->out, "\x1b[32m-[%.*s]", buffer->title.len, buffer->title.data);
-  // 3 accounts for first dash and the two brackets
-  for (size_t i=0; i<E.screen_width - 3 - buffer->title.len; i++) {
-    vec_append_str(&ds->out, "─");
-  }
-  vec_append_str(&ds->out, term_no_attr);
-}
-
+// TODO: memoize?
 void draw_event(struct Event e) {
   static struct DrawState ds;
 
   // TODO: add way to tell renderer to queue events during batch operations?
+  // then dispatch redraw event?
 
-  // draw_scroll_to_show_cursor(&ds);
+  draw_scroll_to_show_cursor(&ds);
 
   // prefill buffer with hide cursor command
   if (ds.out.len == 0) {
@@ -146,7 +244,7 @@ void draw_event(struct Event e) {
   if (e.type == event_open) {
     draw_status(&ds.out);
     draw_buffer_divider(&ds, e.open);
-    draw_lines(&ds, e.open, 0, e.open->lines.len);
+    draw_buffer_lines(&ds, e.open, 0, e.open->lines.len);
   }
 
   if (e.type == event_mark_move || ds.out.len > 0) {

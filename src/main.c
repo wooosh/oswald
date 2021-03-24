@@ -56,7 +56,6 @@ int main(int argc, char **argv) {
       mark_move_rel(&E.cursor, 0, 1);
       break;
     }
-    fprintf(stderr, "%d %d\n", E.cursor.x, E.cursor.y);
   }
 
 

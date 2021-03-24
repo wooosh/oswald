@@ -31,3 +31,6 @@ extern const char *term_no_attr;
  * the returned string is valid until you call term_set_pos again
  */
 char *term_set_pos(size_t row, size_t col);
+
+char *term_set_scroll_region(size_t top, size_t bottom);
+char *term_scroll(ssize_t amount);

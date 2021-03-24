@@ -1,11 +1,17 @@
 #pragma once
 
 #include <stdbool.h>
-#include <stddef.h>
+#include <sys/types.h>
 
-#define min(X) _Generic((X), size_t : min_size_t, ssize_t : min_ssize_t, )(X)
+size_t min_size_t(size_t a, size_t b);
+ssize_t min_ssize_t(ssize_t a, ssize_t b);
 
-#define max(X) _Generic((X), size_t : max_size_t, ssize_t : max_ssize_t, )(X)
+size_t max_size_t(size_t a, size_t b);
+ssize_t max_ssize_t(ssize_t a, ssize_t b);
+
+#define min(X, Y) _Generic((X), size_t: min_size_t, ssize_t : min_ssize_t )(X, Y)
+
+#define max(X, Y) _Generic((X), size_t: max_size_t, ssize_t : max_ssize_t )(X, Y)
 
 // exits on failed allocation
 void *xmalloc(size_t size);

@@ -18,6 +18,17 @@ const char *term_no_attr = "\x1b[m";
 
 char *term_set_pos(size_t col, size_t row) {
   static char buf[16];
+  // TODO: assert buffer does not overflow
   snprintf(buf, 16, "\x1b[%zu;%zuH", row + 1, col + 1);
   return buf;
+}
+
+char *term_set_scroll_region(size_t top, size_t bottom) {
+  static char buf[16];
+  // TODO: assert buffer does not overflow
+  snprintf(buf, 16, "\x1b[%zu;%zur", top +1, bottom + 1);
+  return buf;
+}
+
+char *term_scroll(ssize_t amount) {
 }
