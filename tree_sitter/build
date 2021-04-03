@@ -4,7 +4,7 @@ languages="json c cpp javascript rust html ql ruby java css python julia go agda
 # dashed language names currently don't work, the dash needs to be converted to an underscore
 
 if [ ! -d "tree-sitter" ]; then
-  git clone "https://github.com/tree-sitter/tree-sitter"
+  git clone --depth 1 "https://github.com/tree-sitter/tree-sitter"
   cd tree-sitter
   make
   cd ..
@@ -16,7 +16,7 @@ cp tree-sitter/lib/include/tree_sitter/api.h ./include/tree_sitter/
 # download langs
 for lang in $languages; do
   if [ ! -d "tree-sitter-$lang" ]; then
-    git clone "https://github.com/tree-sitter/tree-sitter-$lang"
+    git clone --depth 1 "https://github.com/tree-sitter/tree-sitter-$lang"
   fi
 done
 
@@ -57,14 +57,14 @@ CFLAGS="$CFLAGS -I tree-sitter/lib/include"
 CXXFLAGS="$CXXFLAGS -I tree-sitter/lib/include"
 
 for lang in $languages; do
-  cc $CFLAGS -c "tree-sitter-$lang/src/parser.c" -o "obj/$lang-parser.o"
+  cc $CFLAGS -c "tree-sitter-$lang/src/parser.c" -o "obj/$lang-parser.o" -O3
 
   if [ -f "tree-sitter-$lang/src/scanner.c" ]; then
-    cc $CFLAGS -c "tree-sitter-$lang/src/scanner.c" -o "obj/$lang-scanner.o"
+    cc $CFLAGS -c "tree-sitter-$lang/src/scanner.c" -o "obj/$lang-scanner.o" -O3
   fi
   
   if [ -f "tree-sitter-$lang/src/scanner.cc" ]; then
-    c++ $CXXFLAGS -c "tree-sitter-$lang/src/scanner.cc" -o "obj/$lang-scanner.o"
+    c++ $CXXFLAGS -c "tree-sitter-$lang/src/scanner.cc" -o "obj/$lang-scanner.o" -O3
   fi
 done
 

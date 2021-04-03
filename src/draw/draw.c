@@ -1,5 +1,4 @@
 // TODO: replace stddef with sys/types everywhere?
-#include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -171,19 +170,14 @@ static void draw_scroll_to_show_cursor(struct DrawState *ds) {
   if (E.cursor.buffer != NULL) {
     RenderY cursor_ry = buffer_y_to_render_y(E.cursor.buffer, E.cursor.y);
 
-    fprintf(stderr, "cursor_ry: %zu\n", cursor_ry);
-    fprintf(stderr, "y_offset: %zu\n", ds->y_offset);
-    fprintf(stderr, "height: %zu\n", E.screen_height);
     // +1 to account for statusbar
     if (cursor_ry >= ds->y_offset + E.screen_height - 1) {
       // +2 because >= and statusbar is 1 tall
       size_t delta = cursor_ry - (ds->y_offset + E.screen_height) + 2;
-      fprintf(stderr, "delta: %zu\n", delta);
       ds->y_offset += delta;
       // TODO:
       draw_screen_range(ds, ds->y_offset + E.screen_height - delta, delta);
     } else if (cursor_ry < ds->y_offset) {
-      fprintf(stderr, "bruh?\n");
       size_t delta = (ds->y_offset + 1) - cursor_ry;
       ds->y_offset = cursor_ry;
       draw_screen_range(ds, ds->y_offset, delta);
@@ -229,22 +223,29 @@ static void draw_cursor(struct DrawState *ds) {
 // TODO: memoize?
 void draw_event(struct Event e) {
   static struct DrawState ds;
+  // prefill buffer with hide cursor command
+  if (ds.out.len == 0) {
+    vec_append_str(&ds.out, term_hide_cursor);
+  }
 
   // TODO: add way to tell renderer to queue events during batch operations?
   // then dispatch redraw event?
 
   draw_scroll_to_show_cursor(&ds);
 
-  // prefill buffer with hide cursor command
-  if (ds.out.len == 0) {
-    vec_append_str(&ds.out, term_hide_cursor);
-  }
-
-  // TODO: buffer output
-  if (e.type == event_open) {
+  switch (e.type) {
+  case event_open:
     draw_status(&ds.out);
     draw_buffer_divider(&ds, e.open);
     draw_buffer_lines(&ds, e.open, 0, e.open->lines.len);
+    break;
+  case event_edit:
+    if (e.edit->type == EditChanged) {
+      draw_buffer_lines(&ds, e.edit->buffer, e.edit->start, e.edit->len);
+    } else {
+      // TODO: smart redraw using scrolling
+    }
+    break;
   }
 
   if (e.type == event_mark_move || ds.out.len > 0) {

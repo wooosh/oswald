@@ -42,19 +42,44 @@ int main(int argc, char **argv) {
   while (true) {
     struct Key key = term_read_key();
     if (key.base == 'q' && key.control) break;
-    switch (key.base) {
-    case KeyLeftArrow:
-      mark_move_rel(&E.cursor, -1, 0);
-      break;
-    case KeyRightArrow:
-      mark_move_rel(&E.cursor, 1, 0);
-      break;
-    case KeyUpArrow:
-      mark_move_rel(&E.cursor, 0, -1);
-      break;
-    case KeyDownArrow:
-      mark_move_rel(&E.cursor, 0, 1);
-      break;
+        fprintf(stderr, "%d\n", key.base);
+
+    if (!key.control && !key.alt) {
+      switch (key.base) {
+      case KeyBackspace:
+        if (E.cursor.x == E.anchor.x && E.cursor.y == E.anchor.y) {
+          if (E.cursor.x != 0) {
+            E.anchor.x--;
+          } else {
+            // TODO:
+          }
+        }
+        mark_delete(&E.anchor, &E.cursor);
+        // TODO: mark_cmp function
+        break;
+      case KeyLeftArrow:
+        mark_move_rel(&E.cursor, -1, 0);
+        break;
+      case KeyRightArrow:
+        mark_move_rel(&E.cursor, 1, 0);
+        break;
+      case KeyUpArrow:
+        mark_move_rel(&E.cursor, 0, -1);
+        break;
+      case KeyDownArrow:
+        mark_move_rel(&E.cursor, 0, 1);
+        break;
+      default: {
+        vec_const_char v = {&key.base, 1, 1};
+        mark_insert(&E.cursor, v, false);
+        break;
+      }
+      }
+    }
+
+    // don't keep selection if shift isn't held down
+    if (!key.shift) {
+      E.anchor = E.cursor;
     }
   }
 

@@ -32,8 +32,8 @@ struct EditEvent {
   size_t len;
 
   enum {
-    Insert,
-    Delete,
-    Changed,
+    EditInsert,
+    EditDelete,
+    EditChanged,
   } type;
 };

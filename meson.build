@@ -27,5 +27,6 @@ executable(
   'oswald',
   src,
   include_directories : [inc],
+  c_args : ['-static'],
   # objects: ['tree_sitter/libtree-sitter.a']
 )

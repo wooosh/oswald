@@ -31,10 +31,10 @@ void vec_atleast_(struct vec_generic_ v, size_t cap) {
   }
 }
 
-void vec_splice_(struct vec_generic_ v, size_t idx, size_t len) {
-  memmove(*v.data + idx * v.elem_size, *v.data + (idx + len) * v.elem_size,
-          (*v.len - idx - len) * v.elem_size);
-  *v.len -= len;
+void vec_splice_(struct vec_generic_ v, size_t start, size_t end) {
+  memmove(*v.data + start * v.elem_size, *v.data + end * v.elem_size,
+          (*v.len - end) * v.elem_size);
+  *v.len -= end - start;
 }
 
 void vec_insert_gap_(struct vec_generic_ v, size_t idx, size_t len) {

@@ -39,8 +39,8 @@ void vec_init_(struct vec_generic_ v);
 void vec_destroy_(struct vec_generic_ v);
 #define vec_destroy(v) vec_destroy_(vec_repack_(v))
 
-void vec_splice_(struct vec_generic_ v, size_t idx, size_t len);
-#define vec_splice(v, idx, len) vec_splice_(vec_repack_(v), (idx), (len))
+void vec_splice_(struct vec_generic_ v, size_t start, size_t end);
+#define vec_splice(v, start, end) vec_splice_(vec_repack_(v), (start), (end))
 
 // memory management functions
 void vec_atleast_(struct vec_generic_ v, size_t cap);

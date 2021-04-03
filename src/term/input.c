@@ -121,6 +121,7 @@ struct Key term_read_key() {
 
         input_buffer_consume(&inbuf, 6);
 
+
         return k;
       }
     }
@@ -134,6 +135,12 @@ struct Key term_read_key() {
   // because it represents enter
   if (k.control && k.base != '\r') {
     k.base += 0x60;
+  }
+  
+  // convert control-h backspace
+  if (k.control && k.base == 'h') {
+    k.control = false;
+    k.base = KeyBackspace;
   }
 
   input_buffer_consume(&inbuf, 1);

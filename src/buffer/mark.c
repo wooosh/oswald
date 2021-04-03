@@ -65,6 +65,11 @@ void mark_delete(struct Mark *a, struct Mark *b) {
   if (start->y == end->y) {
     vec_splice(&line_start->contents, start->x, end->x);
     vec_splice(&line_start->highlight, start->x, end->x);
+
+    *end = *start;
+
+    struct EditEvent ev = {start->buffer, start->y, 1, EditChanged}; 
+    dispatch_event((struct Event){event_edit, .edit = &ev});
     return;
   }
 
@@ -97,4 +102,6 @@ void mark_insert(struct Mark *m, vec_const_char str, bool keep_pos) {
   if (!keep_pos) {
     m->x += str.len;
   }
+  struct EditEvent ev = {m->buffer, m->y, 1, EditChanged}; 
+  dispatch_event((struct Event){event_edit, .edit = &ev});
 }
