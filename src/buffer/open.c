@@ -53,7 +53,8 @@ struct Buffer *buffer_open_file(char *path) {
     }
 
     vec_init(&line.highlight);
-    vec_fill(&line.highlight, HLNormal, 0, len);
+    struct MerakiStyle s = {{Meraki8Color, -1}, {Meraki8Color, -1}, MerakiNone};
+    vec_fill(&line.highlight, s, 0, len);
 
     vec_push(&buf->lines, line);
   }

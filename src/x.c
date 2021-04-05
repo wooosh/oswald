@@ -1,4 +1,6 @@
-#include <term/mode.h>
+#include <meraki/term.h>
+
+#include <main.h>
 #include <x.h>
 
 #include <errno.h>
@@ -18,7 +20,7 @@ ssize_t max_ssize_t(ssize_t a, ssize_t b) { return a > b ? a : b; }
 
 void xassert_(bool condition, char *message, char *file, size_t line) {
   if (!condition) {
-    term_restore();
+    meraki_term_restore(E.term);
 
     fprintf(stderr, "Assertion failed at %s:%zu '%s'\n", file, line, message);
     exit(1);
@@ -28,7 +30,7 @@ void xassert_(bool condition, char *message, char *file, size_t line) {
 void xassert_errno_(bool condition, char *message, char *file, size_t line) {
   if (!condition) {
     int saved_errno = errno;
-    term_restore();
+    meraki_term_restore(E.term);
     errno = saved_errno;
     fprintf(stderr, "Assertion failed at %s:%zu: ", file, line);
     perror(message);
@@ -40,7 +42,7 @@ void fatal(const char *format, ...) {
   va_list args;
   va_start(args, format);
 
-  term_restore();
+  meraki_term_restore(E.term);
   vfprintf(stderr, format, args);
 
   exit(1);

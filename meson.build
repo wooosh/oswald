@@ -3,13 +3,8 @@ project('oswald', 'c')
 src = [
   'src/adt/vec.c',
 
-  'src/buffer/list.c',
   'src/buffer/open.c',
   'src/buffer/mark.c',
-
-  'src/term/escapes.c',
-  'src/term/mode.c',
-  'src/term/input.c',
 
   'src/draw/draw.c',
 
@@ -19,14 +14,18 @@ src = [
   'src/x.c',
   'src/main.c'
 ]
+# TODO: fix includes to use "" so we dont need this
 inc = include_directories('src')
 
 # tree_sitter_inc = include_directories('tree_sitter/include')
+
+libmeraki = subproject('libmeraki').get_variable('libmeraki_dep')
 
 executable(
   'oswald',
   src,
   include_directories : [inc],
   c_args : ['-static'],
+  dependencies : libmeraki,
   # objects: ['tree_sitter/libtree-sitter.a']
 )

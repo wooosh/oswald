@@ -1,5 +1,5 @@
-#include <term/input.h>
-#include <term/mode.h>
+#include <meraki/input.h>
+#include <meraki/term.h>
 
 #include <buffer/buffer.h>
 #include <buffer/open.h>
@@ -8,6 +8,9 @@
 #include <event.h>
 #include <x.h>
 
+#include "adt/vec.h"
+
+#include <unistd.h>
 #include <stdio.h>
 
 #include <main.h>
@@ -15,6 +18,11 @@
 struct Editor E;
 
 // TODO: add unit tests with --test <test_case> argument
+// TODO: rename vec_push to vec_append
+
+static void restore_term() {
+  meraki_term_restore(E.term);
+}
 
 int main(int argc, char **argv) {
   if (argc < 2) {
@@ -22,7 +30,13 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  term_setup();
+  E.term = meraki_term_create();
+  if (!meraki_term_raw(E.term)) {
+    fprintf(stderr, "Cannot initialize terminal.\n");
+    return 1;
+  }
+
+  atexit(restore_term);
 
   argv++;
   argc--;
@@ -34,11 +48,11 @@ int main(int argc, char **argv) {
       fatal("could not open file %s\n", argv[i]);
     }
 
-    buffer_list_append(&E.buffers, b);
+    vec_push(&E.buffers, b);
     E.cursor.buffer = b;
     dispatch_event((struct Event){event_open, .open = b});
   } 
-
+/*
   while (true) {
     struct Key key = term_read_key();
     if (key.base == 'q' && key.control) break;
@@ -82,8 +96,10 @@ int main(int argc, char **argv) {
       E.anchor = E.cursor;
     }
   }
+*/
 
-
-  term_restore();
+  char c;
+  read(STDIN_FILENO, &c, 1); 
+  meraki_term_restore(E.term);
   return 0;
 }

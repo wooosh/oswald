@@ -1,28 +1,18 @@
 #pragma once
 
-#include <adt/vec.h>
+#include <meraki/output.h>
 
-enum HighlightType { HLNormal = 0, HLSelection, HLType };
+#include "adt/vec.h"
 
-typedef vec_of(enum HighlightType) vec_highlight_type;
+typedef vec_of(struct MerakiStyle) vec_style;
 struct Line {
   vec_char contents;
-  vec_highlight_type highlight;
+  vec_style highlight;
 };
 
 typedef vec_of(struct Line) vec_line;
 struct Buffer {
   vec_line lines;
   vec_char title;
-
-  struct Buffer *prev;
-  struct Buffer *next;
   // TODO|FEATURE: filetype
 };
-
-struct BufferList {
-  struct Buffer *start;
-  struct Buffer *end;
-};
-
-void buffer_list_append(struct BufferList *bl, struct Buffer *b);

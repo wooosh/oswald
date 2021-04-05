@@ -1,10 +1,18 @@
 #pragma once
 
-#include <buffer/buffer.h>
-#include <buffer/mark.h>
+#include <meraki/term.h>
+
+#include "buffer/buffer.h"
+#include "buffer/mark.h"
+#include "adt/vec.h"
+
+typedef vec_of(struct Buffer*) vec_buffer;
 
 extern struct Editor {
-  struct BufferList buffers;
+  
+  vec_buffer buffers;
+
+  struct MerakiTerm *term;
 
   size_t screen_width;
   size_t screen_height;

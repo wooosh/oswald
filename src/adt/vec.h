@@ -60,7 +60,7 @@ void vec_insert_gap_(struct vec_generic_ v, size_t idx, size_t len);
 
 // TODO: cache idx and len everywhere
 #define vec_set(v, value, idx, _len)                                            \
-  for (size_t i__ = 0; i__ <= (_len); i__++)                                \
+  for (size_t i__ = 0; i__ < (_len); i__++)                                \
     (v)->data[i__ + (idx)] = (value);
 
 #define vec_fill(v, value, idx, len)                                           \
