@@ -28,4 +28,4 @@ void mark_delete(struct Mark *a, struct Mark *b);
 void mark_insert(struct Mark *m, vec_const_char str, bool keep_pos);
 
 // returns true if a's position <= b's position
-bool mark_order(struct Mark *a, struct Mark *b);
+bool mark_cmp(struct Mark *a, struct Mark *b);

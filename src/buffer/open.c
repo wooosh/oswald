@@ -11,7 +11,6 @@ void buffer_destroy(struct Buffer *buf) {
 
   for (size_t i = 0; i < buf->lines.len; i++) {
     vec_destroy(&buf->lines.data[i].contents);
-    vec_destroy(&buf->lines.data[i].highlight);
   }
 
   vec_destroy(&buf->lines);
@@ -51,10 +50,6 @@ struct Buffer *buffer_open_file(char *path) {
     if (line.contents.data[len - 1] == '\n') {
       line.contents.len--;
     }
-
-    vec_init(&line.highlight);
-    struct MerakiStyle s = {{Meraki8Color, -1}, {Meraki8Color, -1}, MerakiNone};
-    vec_fill(&line.highlight, s, 0, len);
 
     vec_push(&buf->lines, line);
   }

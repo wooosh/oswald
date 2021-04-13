@@ -8,6 +8,7 @@ enum EventType {
   // event_open is triggered when a new buffer initialized with text is created
   event_open,
   event_edit,
+  // TODO: replace with cursor move
   event_mark_move,
   // CursorMove,
   // SelectionChange,

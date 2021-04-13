@@ -64,7 +64,6 @@ void mark_delete(struct Mark *a, struct Mark *b) {
   // delete within single line
   if (start->y == end->y) {
     vec_splice(&line_start->contents, start->x, end->x);
-    vec_splice(&line_start->highlight, start->x, end->x);
 
     *end = *start;
 
@@ -78,17 +77,14 @@ void mark_delete(struct Mark *a, struct Mark *b) {
   // delete start and end lines first because the positions will not have to be
   // adjusted when we remove the lines between
   vec_truncate(&line_start->contents, start->x);
-  vec_truncate(&line_start->highlight, start->x);
 
   vec_splice(&line_end->contents, 0, end->x);
-  vec_splice(&line_end->highlight, 0, end->x);
 
   vec_line *lines = &start->buffer->lines;
   // remove all of the lines in between
   for (size_t i = start->y + 1; i < end->y; i++) {
     // TODO: line_destroy() function
     vec_destroy(&lines->data[i].contents);
-    vec_destroy(&lines->data[i].highlight);
   }
 
   vec_splice(lines, start->y + 1, end->y);
@@ -97,7 +93,6 @@ void mark_delete(struct Mark *a, struct Mark *b) {
 // TODO: handle multiline inserts
 void mark_insert(struct Mark *m, vec_const_char str, bool keep_pos) {
   vec_insert_vec(&mark_line(m)->contents, &str, m->x);
-  // TODO: vec_fill highlight string
 
   if (!keep_pos) {
     m->x += str.len;

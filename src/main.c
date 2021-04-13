@@ -50,6 +50,9 @@ int main(int argc, char **argv) {
 
     vec_push(&E.buffers, b);
     E.cursor.buffer = b;
+    E.anchor.buffer = b;
+    E.cursor.x++;
+    
     dispatch_event((struct Event){event_open, .open = b});
   } 
 /*

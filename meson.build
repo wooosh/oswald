@@ -10,6 +10,9 @@ src = [
 
   'src/plugins/debug.c',
 
+  'src/highlight.c',
+  'src/draw/highlight_cursor.c',
+
   'src/event.c',
   'src/x.c',
   'src/main.c'

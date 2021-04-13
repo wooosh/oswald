@@ -1,10 +1,12 @@
 #include <meraki/term.h>
 #include <meraki/output.h>
 
+#include "highlight.h"
 #include "buffer/buffer.h"
 #include "event.h"
 #include "main.h"
 #include "adt/vec.h"
+
 
 struct DrawState {
   struct MerakiOutput *out;
@@ -79,8 +81,14 @@ static void draw_screen(struct DrawState *ds) {
       }
 
       for (; buffer_y < buffer->lines.len; buffer_y++) {
-        struct Line l = buffer->lines.data[buffer_y];
-        meraki_output_draw(ds->out, screen_y, l.contents.len, l.contents.data, l.highlight.data);
+        vec_char contents = buffer->lines.data[buffer_y].contents;
+        
+        struct MerakiStyle s = {{Meraki8Color, -1}, {Meraki8Color, -1}, MerakiNone};
+        vec_fill(&ds->style, s, 0, contents.len);
+        highlight_line(buffer, buffer_y, &ds->style);
+
+        meraki_output_draw(ds->out, screen_y, contents.len, contents.data, ds->style.data);
+        vec_truncate(&ds->style, 0);
         screen_y++;
         if (screen_y >= ds->height) break;
       }
@@ -90,17 +98,25 @@ static void draw_screen(struct DrawState *ds) {
   }
 }
 
+static void clamp_cursor(struct DrawState *ds) {
+  
+}
+
 void draw_event(struct Event e) {
   static struct DrawState ds = {NULL};
 
+  // TODO: event switch to add fast paths for expensive operations like
+  // inserting lines
+
   if (ds.out == NULL) {
     ds.out = meraki_term_output(E.term);
-    // TODO: use real height/width
     meraki_term_size(E.term, &ds.width, &ds.height);
     vec_init(&ds.line);
     vec_init(&ds.style);
+    meraki_output_cursor_hide(ds.out);
   }
 
+  clamp_cursor(&ds);
   draw_status(&ds);
   draw_screen(&ds);
 
