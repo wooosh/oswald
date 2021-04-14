@@ -10,6 +10,7 @@ enum EventType {
   event_edit,
   // TODO: replace with cursor move
   event_mark_move,
+  event_render,
   // CursorMove,
   // SelectionChange,
   // BufferClose

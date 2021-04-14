@@ -7,6 +7,7 @@
 
 #include <event.h>
 #include <x.h>
+#include "plugins.h"
 
 #include "adt/vec.h"
 
@@ -25,12 +26,22 @@ static void restore_term() {
 }
 
 int main(int argc, char **argv) {
+  E.term = meraki_term_create();
+
+  map_init(&E.commands);
+
+  // init plugins
+  for (int i=0; plugins[i] != NULL; i++) {
+    plugins[i]();
+  }
+  
+  load_config(&E.config);
+
   if (argc < 2) {
     printf("requires one or more filename arguments\n");
     return 1;
   }
 
-  E.term = meraki_term_create();
   if (!meraki_term_raw(E.term)) {
     fprintf(stderr, "Cannot initialize terminal.\n");
     return 1;
@@ -55,54 +66,35 @@ int main(int argc, char **argv) {
     
     dispatch_event((struct Event){event_open, .open = b});
   } 
-/*
+ 
+  struct MerakiInput *mi = meraki_term_input(E.term); 
   while (true) {
-    struct Key key = term_read_key();
+    fprintf(stderr, "%zu %zu\n", E.cursor.x, E.cursor.y);
+    struct MerakiKey key = meraki_read_key(mi);
     if (key.base == 'q' && key.control) break;
-        fprintf(stderr, "%d\n", key.base);
-
-    if (!key.control && !key.alt) {
-      switch (key.base) {
-      case KeyBackspace:
-        if (E.cursor.x == E.anchor.x && E.cursor.y == E.anchor.y) {
-          if (E.cursor.x != 0) {
-            E.anchor.x--;
-          } else {
-            // TODO:
-          }
+    for (int i=0; i<E.config.keybinds.len; i++) {
+      struct Keybind kb = E.config.keybinds.data[i];
+      fprintf(stderr, "%zu %zu\n", kb.key.base, key.base);
+      if (key.base == kb.key.base) {
+        fprintf(stderr, "%s\n", kb.argv[0]);
+        struct Command *c = map_get(&E.commands, kb.argv[0]);
+        if (c) {
+          fprintf(stderr, "test\n");
+          c->fn(c->payload, kb.argc - 1, kb.argv + 1);
         }
-        mark_delete(&E.anchor, &E.cursor);
-        // TODO: mark_cmp function
         break;
-      case KeyLeftArrow:
-        mark_move_rel(&E.cursor, -1, 0);
-        break;
-      case KeyRightArrow:
-        mark_move_rel(&E.cursor, 1, 0);
-        break;
-      case KeyUpArrow:
-        mark_move_rel(&E.cursor, 0, -1);
-        break;
-      case KeyDownArrow:
-        mark_move_rel(&E.cursor, 0, 1);
-        break;
-      default: {
-        vec_const_char v = {&key.base, 1, 1};
-        mark_insert(&E.cursor, v, false);
-        break;
-      }
       }
     }
 
+    /*
     // don't keep selection if shift isn't held down
     if (!key.shift) {
       E.anchor = E.cursor;
-    }
+      E.anchor.x--;
+    }*/
+    dispatch_event((struct Event){event_render});
   }
-*/
 
-  char c;
-  read(STDIN_FILENO, &c, 1); 
   meraki_term_restore(E.term);
   return 0;
 }

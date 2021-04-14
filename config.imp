@@ -1,0 +1,6 @@
+keybind {
+  up    move-up
+  down  move-down
+  left  move-left
+  right move-right
+}

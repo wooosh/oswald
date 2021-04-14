@@ -1,11 +1,18 @@
 #pragma once
 
+#include <adt/map.h>
+#include <adt/vec.h>
+#include <meraki/input.h>
+#include <highlight.h>
+#include <command.h>
+
 struct Keybind {
   struct MerakiKey key;
-  Action action;
-}
+  int argc;
+  char **argv;
+};
 
-typedef vec_of(struct Keybind) vec_keybind;
+/*
 struct FileType {
   char *name;
   vec_str *suffixes;
@@ -13,10 +20,13 @@ struct FileType {
   vec_keybind keybinds;
   Highlighter highlighter; 
 }
+*/
 
-typedef vec_of(struct FileType) vec_filetype;
+// TODO: replace vec of keybinds with a map
+typedef vec_of(struct Keybind) vec_keybind;
 struct Config {
   vec_keybind keybinds;
-  vec_filetype filetypes;
-  colors;
-}
+  // vec_style style
+};
+
+void load_config(struct Config *c);
