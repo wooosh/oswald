@@ -62,7 +62,6 @@ int main(int argc, char **argv) {
     vec_push(&E.buffers, b);
     E.cursor.buffer = b;
     E.anchor.buffer = b;
-    E.cursor.x++;
     
     dispatch_event((struct Event){event_open, .open = b});
   } 
@@ -86,12 +85,10 @@ int main(int argc, char **argv) {
       }
     }
 
-    /*
     // don't keep selection if shift isn't held down
     if (!key.shift) {
       E.anchor = E.cursor;
-      E.anchor.x--;
-    }*/
+    }
     dispatch_event((struct Event){event_render});
   }
 

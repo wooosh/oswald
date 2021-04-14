@@ -1,12 +1,14 @@
 #include <meraki/term.h>
 #include <meraki/output.h>
 
+#include <stdio.h>
+
 #include "highlight.h"
 #include "buffer/buffer.h"
 #include "event.h"
 #include "main.h"
 #include "adt/vec.h"
-
+#include "x.h"
 
 struct DrawState {
   struct MerakiOutput *out;
@@ -25,6 +27,7 @@ struct DrawState {
 
 // writes the current line to the screen then clears it
 static void draw_line(struct DrawState *ds, size_t y) {
+  xassert(y < ds->height, NULL); 
   meraki_output_draw(ds->out, y, ds->line.len, ds->line.data, ds->style.data);
   vec_truncate(&ds->line, 0);
   vec_truncate(&ds->style, 0);
@@ -67,7 +70,7 @@ static void draw_screen(struct DrawState *ds) {
     // draw buffer title
     lines_read++;
     if (lines_read >= ds->offset_y + ds->height) break;
-    if (lines_read >= ds->offset_y) {
+    if (lines_read > ds->offset_y) {
       draw_buffer_title(ds, buffer, screen_y);
       screen_y++;
     }
@@ -81,25 +84,48 @@ static void draw_screen(struct DrawState *ds) {
       }
 
       for (; buffer_y < buffer->lines.len; buffer_y++) {
-        vec_char contents = buffer->lines.data[buffer_y].contents;
-        
+        vec_append_vec(&ds->line, &buffer->lines.data[buffer_y].contents);
+        // add space for cursor at end of line
+        vec_push(&ds->line, ' ');
         struct MerakiStyle s = {{Meraki8Color, -1}, {Meraki8Color, -1}, MerakiNone};
-        vec_fill(&ds->style, s, 0, contents.len);
+        vec_fill(&ds->style, s, 0, ds->line.len);
         highlight_line(buffer, buffer_y, &ds->style);
 
-        meraki_output_draw(ds->out, screen_y, contents.len, contents.data, ds->style.data);
-        vec_truncate(&ds->style, 0);
+        draw_line(ds, screen_y);
+        
         screen_y++;
+        lines_read++;
         if (screen_y >= ds->height) break;
       }
       
       if (screen_y >= ds->height) break;
     }
   }
+
+  for (;screen_y < ds->height; screen_y++) {
+    struct MerakiStyle s = {{Meraki8Color, -1}, {Meraki8Color, -1}, MerakiDim};
+    vec_push(&ds->style, s);
+    vec_push(&ds->line, '~');
+    draw_line(ds, screen_y);
+  }
 }
 
 static void clamp_cursor(struct DrawState *ds) {
-  
+  if (E.cursor.buffer == NULL) return;
+  // get viewport y of cursor
+  size_t vy = 0;
+  for (int i=0; E.buffers.data[i] != E.cursor.buffer; i++) {
+    // + 1 for buffer title
+    vy += E.buffers.data[i]->lines.len + 1;
+  }
+  vy += E.cursor.y + 1;
+
+  // TODO: use clamp function
+  if (vy < ds->offset_y) {
+    ds->offset_y = vy;
+  } else if (vy >= (ds->height - 1) + ds->offset_y) {
+    ds->offset_y = vy - (ds->height - 1) + 1;
+  }
 }
 
 void draw_event(struct Event e) {

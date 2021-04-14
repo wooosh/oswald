@@ -24,7 +24,7 @@ ssize_t clamp(ssize_t min, ssize_t max, ssize_t val) {
 // negative = left/up
 // positive = right/down
 void mark_move_rel(struct Mark *m, ssize_t x, ssize_t y) {
-  m->y = clamp(0, m->buffer->lines.len, m->y + y);
+  m->y = clamp(0, m->buffer->lines.len - 1, m->y + y);
   m->x = clamp(0, mark_line(m)->contents.len, m->x + x);
   dispatch_event((struct Event){event_mark_move, .mark_move = m});
 }
