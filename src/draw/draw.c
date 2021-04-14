@@ -41,10 +41,17 @@ static void style_previous(struct DrawState *ds, struct MerakiStyle style) {
 }
 
 static void draw_status(struct DrawState *ds) {
+  // TODO: truncate status to screen
   vec_append_str(&ds->line, " Oswald Test Build ");
 
   // TODO: pull styles from config
-  struct MerakiStyle s = { {0, {-1}}, {0, {-1}}, MerakiBright};
+  struct MerakiStyle s = { {0, {-1}}, {0, {-1}}, MerakiBright | MerakiUnderscore};
+  style_previous(ds, s);
+
+  vec_append_vec(&ds->line, &E.mode);
+  vec_fill(&ds->line, ' ', ds->line.len, ds->width - ds->line.len);
+  
+  s.attr = MerakiUnderscore;
   style_previous(ds, s);
 
   draw_line(ds, 0);

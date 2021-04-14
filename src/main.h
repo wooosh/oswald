@@ -32,5 +32,7 @@ extern struct Editor {
   map_highlight highlighters;
   map_command commands;
 
+  vec_char mode;
+
   struct Config config;
 } E;

@@ -11,6 +11,7 @@ src = [
 
   'src/plugins/debug.c',
   'src/plugins/navigation.c',
+  'src/plugins/misc.c',
 
   'src/highlight.c',
   'src/draw/highlight_cursor.c',

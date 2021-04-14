@@ -35,6 +35,7 @@ struct Buffer *buffer_open_file(char *path) {
     struct Line line;
     vec_init(&line.contents);
 
+    // TODO: support empty files
     // TODO|FEATURE: support other line endings
     //  to support other line endings, we will store a line_ending char[2] in
     //  the buffer struct and add the line ending during saving

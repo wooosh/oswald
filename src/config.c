@@ -9,6 +9,8 @@ struct KeyName {
 };
 
 struct KeyName keynames[] = {
+  // TODO: add escape to meraki
+  {"escape", MerakiEscape},
   {"backspace", MerakiBackspace},
   {"delete", MerakiDelete},
   {"left", MerakiLeftArrow},
@@ -51,10 +53,21 @@ void directive_handler(void *payload, size_t line, size_t argc, char **argv) {
     fatal("Expected atleast one directive and one argument on line %zu\n", line);
 
   if (strcmp(argv[0], "keybind") == 0) {
+    char *mode = NULL;
+    if (argv[1][0] == ':') {
+      mode = strdup(argv[1]+1);
+      argv++;
+      argc--;
+      if (argc < 2)
+        fatal("Expected keybind following mode on line %zu\n", line);
+    }
+
     struct MerakiKey k = parse_key(argv[1]);
     if (k.base == MerakiKeyNone)
       fatal("Could not parse key '%s' on line %zu\n", argv[1], line);
 
+    // TODO: cleanup
+    // copy argv
     argc -= 2;
     argv += 2;
     char **nargv = malloc((argc+1)*sizeof(char*));
@@ -66,6 +79,7 @@ void directive_handler(void *payload, size_t line, size_t argc, char **argv) {
       k,
       argc,
       nargv,
+      mode
     };
 
     vec_push(&c->keybinds, kb);

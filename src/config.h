@@ -10,6 +10,7 @@ struct Keybind {
   struct MerakiKey key;
   int argc;
   char **argv;
+  char *mode;
 };
 
 /*
