@@ -36,9 +36,12 @@ vec_const_char vec_from_str(char *str);
 void vec_init_(struct vec_generic_ v);
 #define vec_init(v) vec_init_(vec_repack_(v))
 
+void vec_copy_(struct vec_generic_ dst, struct vec_generic_ src);
+#define vec_copy(dst, src) vec_copy_(vec_repack_(dst), vec_repack(src))
+
 void vec_destroy_(struct vec_generic_ v);
 #define vec_destroy(v) vec_destroy_(vec_repack_(v))
-
+// removes a portion of a vector
 void vec_splice_(struct vec_generic_ v, size_t start, size_t end);
 #define vec_splice(v, start, end) vec_splice_(vec_repack_(v), (start), (end))
 
@@ -69,6 +72,13 @@ void vec_insert_gap_(struct vec_generic_ v, size_t idx, size_t len);
     size_t len__ = (len);\
     vec_insert_gap_(vec_repack_(v), idx__, len__);                             \
     vec_set(v, value, idx__, len__);                                               \
+  } while (0)
+
+#define vec_insert(v, idx, val)\
+  do {\
+    size_t idx__ = (idx);\
+    vec_insert_gap_(vec_repack_(v), idx__, 1);\
+    (v)->data[idx__] = val;\
   } while (0)
 
 void vec_insert_vec_(struct vec_generic_ dest, struct vec_generic_ src,

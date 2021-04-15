@@ -1,6 +1,9 @@
 keybind {
   escape enter-mode normal
 
+  a snippets-insert test
+  c snippets-insert cmain
+
   :normal {
     i enter-mode insert
   }

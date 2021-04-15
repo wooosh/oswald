@@ -10,7 +10,7 @@ void buffer_destroy(struct Buffer *buf) {
   vec_destroy(&buf->title);
 
   for (size_t i = 0; i < buf->lines.len; i++) {
-    vec_destroy(&buf->lines.data[i].contents);
+    vec_destroy(&buf->lines.data[i]);
   }
 
   vec_destroy(&buf->lines);
@@ -32,24 +32,24 @@ struct Buffer *buffer_open_file(char *path) {
   }
 
   while (true) {
-    struct Line line;
-    vec_init(&line.contents);
+    vec_char line;
+    vec_init(&line);
 
     // TODO: support empty files
     // TODO|FEATURE: support other line endings
     //  to support other line endings, we will store a line_ending char[2] in
     //  the buffer struct and add the line ending during saving
 
-    ssize_t len = getline(&line.contents.data, &line.contents.cap, file);
+    ssize_t len = getline(&line.data, &line.cap, file);
     // TODO|BUG: getline can return -1 on eof AND error, so we need to check for
     // errors as well
     if (len == -1)
       break;
 
-    line.contents.len = len;
+    line.len = len;
     // newlines should not be included in our internal representation
-    if (line.contents.data[len - 1] == '\n') {
-      line.contents.len--;
+    if (line.data[len - 1] == '\n') {
+      line.len--;
     }
 
     vec_push(&buf->lines, line);

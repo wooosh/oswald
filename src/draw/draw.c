@@ -91,9 +91,10 @@ static void draw_screen(struct DrawState *ds) {
       }
 
       for (; buffer_y < buffer->lines.len; buffer_y++) {
-        vec_append_vec(&ds->line, &buffer->lines.data[buffer_y].contents);
+        vec_append_vec(&ds->line, &buffer->lines.data[buffer_y]);
         // add space for cursor at end of line
         vec_push(&ds->line, ' ');
+
         struct MerakiStyle s = {{Meraki8Color, -1}, {Meraki8Color, -1}, MerakiNone};
         vec_fill(&ds->style, s, 0, ds->line.len);
         highlight_line(buffer, buffer_y, &ds->style);
