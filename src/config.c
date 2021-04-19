@@ -9,7 +9,6 @@ struct KeyName {
 };
 
 struct KeyName keynames[] = {
-  // TODO: add escape to meraki
   {"escape", MerakiEscape},
   {"backspace", MerakiBackspace},
   {"delete", MerakiDelete},

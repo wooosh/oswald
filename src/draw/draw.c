@@ -99,6 +99,10 @@ static void draw_screen(struct DrawState *ds) {
         vec_fill(&ds->style, s, 0, ds->line.len);
         highlight_line(buffer, buffer_y, &ds->style);
 
+        // TODO: horizontal scrolling
+        // TODO: unicode support for trimming
+        vec_truncate(&ds->line, ds->width);
+        vec_truncate(&ds->style, ds->width);
         draw_line(ds, screen_y);
         
         screen_y++;

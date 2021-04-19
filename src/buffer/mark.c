@@ -85,7 +85,6 @@ void mark_delete(struct Mark *a, struct Mark *b) {
   vec_line *lines = &start->buffer->lines;
   // remove all of the lines in between
   for (size_t i = start->y + 1; i < end->y; i++) {
-    // TODO: line_destroy() function
     vec_destroy(&lines->data[i]);
   }
 

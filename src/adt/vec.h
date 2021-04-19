@@ -58,7 +58,7 @@ void vec_insert_gap_(struct vec_generic_ v, size_t idx, size_t len);
 
 #define vec_truncate(v, len_)                                                  \
   do {                                                                         \
-    (v)->len = (len_);                                                         \
+    if ((v)->len > len_) (v)->len = (len_);                                                         \
   } while (0)
 
 // TODO: cache idx and len everywhere

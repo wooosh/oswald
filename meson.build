@@ -4,7 +4,6 @@ src = [
   'src/adt/vec.c',
   'src/adt/map.c',
 
-  'src/buffer/open.c',
   'src/buffer/mark.c',
 
   'src/draw/draw.c',
@@ -13,6 +12,7 @@ src = [
   'src/plugins/navigation.c',
   'src/plugins/snippets.c',
   'src/plugins/misc.c',
+  'src/plugins/open.c',
 
   'src/highlight.c',
   'src/draw/highlight_cursor.c',

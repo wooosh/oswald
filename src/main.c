@@ -3,7 +3,6 @@
 
 #include <buffer/buffer.h>
 #include <buffer/mark.h>
-#include <buffer/open.h>
 
 #include "plugins.h"
 #include <event.h>
@@ -49,21 +48,16 @@ int main(int argc, char **argv) {
 
   atexit(restore_term);
 
+  // TODO: execute_command
+  // TODO: execute_command_str
+  struct Command *openc = map_get(&E.commands, "buffer-open-file");
+  char *cmdargs[3] = {"buffer-open-file", NULL, NULL};
+
   argv++;
   argc--;
   for (int i = 0; i < argc; i++) {
-    struct Buffer *b = buffer_open_file(argv[i]);
-
-    if (b == NULL) {
-      // TODO: use editor error message system
-      fatal("could not open file %s\n", argv[i]);
-    }
-
-    vec_push(&E.buffers, b);
-    E.cursor.buffer = b;
-    E.anchor.buffer = b;
-
-    dispatch_event((struct Event){event_open, .open = b});
+    cmdargs[1] = argv[i];
+    openc->fn(openc->payload, 2, cmdargs);
   }
 
   struct MerakiInput *mi = meraki_term_input(E.term);
