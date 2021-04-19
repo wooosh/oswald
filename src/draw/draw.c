@@ -99,8 +99,9 @@ static void draw_screen(struct DrawState *ds) {
         vec_fill(&ds->style, s, 0, ds->line.len);
         highlight_line(buffer, buffer_y, &ds->style);
 
-        // TODO: horizontal scrolling
         // TODO: unicode support for trimming
+        vec_splice(&ds->line, 0, ds->offset_x);
+        vec_splice(&ds->style, 0, ds->offset_x);
         vec_truncate(&ds->line, ds->width);
         vec_truncate(&ds->style, ds->width);
         draw_line(ds, screen_y);
@@ -136,7 +137,15 @@ static void clamp_cursor(struct DrawState *ds) {
   if (vy < ds->offset_y) {
     ds->offset_y = vy;
   } else if (vy >= (ds->height - 1) + ds->offset_y) {
+    // TODO: explain how this math works because ???
     ds->offset_y = vy - (ds->height - 1) + 1;
+  }
+
+  // x scrolling
+  if (E.cursor.x < ds->offset_x) {
+    ds->offset_x = E.cursor.x;
+  } else if (E.cursor.x >= ds->offset_x + ds->width - 1) {
+    ds->offset_x = E.cursor.x - (ds->width-1);
   }
 }
 
