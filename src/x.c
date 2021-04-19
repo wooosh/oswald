@@ -37,8 +37,17 @@ void xassert_errno_(bool condition, char *message, char *file, size_t line) {
   }
 }
 
-// TODO|FEATURE: printf specifiers
 void fatal(const char *format, ...) {
+  va_list args;
+  va_start(args, format);
+
+  meraki_term_restore(E.term);
+  vfprintf(stderr, format, args);
+
+  exit(1);
+}
+// TODO: make gui error messages work
+void errmsg(const char *format, ...) {
   va_list args;
   va_start(args, format);
 

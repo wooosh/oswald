@@ -6,6 +6,7 @@ keybind {
 
   :normal {
     i enter-mode insert
+    s save-file
   }
 
   up    move-up

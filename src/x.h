@@ -27,6 +27,8 @@ void *xrealloc(void *ptr, size_t size);
   xassert_errno_((condition), (message), __FILE__, __LINE__);
 
 void fatal(const char *format, ...);
+// displays an error message on the status line, used for nonfatal
+void errmsg(const char *format, ...);
 
 // TODO: save work on failed assertion
 void xassert_(bool condition, char *message, char *file, size_t line);

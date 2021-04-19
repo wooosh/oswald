@@ -8,8 +8,15 @@ static void enter_mode(void *payload, int argc, char **argv) {
   vec_append_str(&E.mode, argv[1]);
 }
 
+// saves the current file
+static void save_file(void *payload, int argc, char **argv) {
+  if (E.cursor.buffer == NULL) return;
+  E.cursor.buffer->save(E.cursor.buffer);
+}
+
 static struct Command commands[] = {
   {"enter-mode",  enter_mode, NULL,  false},
+  {"save-file", save_file, NULL, false},
 //  {"quit",    move, (void*) MoveUp,    false},
 //  {"backspace",  move, (void*) MoveLeft,  false},
   {NULL}

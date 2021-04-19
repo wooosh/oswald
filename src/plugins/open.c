@@ -1,7 +1,7 @@
 #include "buffer/buffer.h"
-#include "x.h"
-#include "main.h"
 #include "event.h"
+#include "main.h"
+#include "x.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -9,8 +9,19 @@
 
 // TODO: detect changes between saves
 void buffer_save_file(struct Buffer *buf) {
-  //FILE *file = fopen(buf->title, "w");
-  // TODO: handle fail to open
+  FILE *file = fopen(buf->title.data, "w");
+  if (file == NULL) {
+    errmsg("Cannot save '%s'", buf->title);
+    return;
+  }
+
+  for (int i=0; i<buf->lines.len; i++) {
+    // TODO: error checking
+    fwrite(buf->lines.data[i].data, 1, buf->lines.data[i].len, file);
+    fwrite("\n", 1, 1, file);
+  }
+
+  fclose(file);
 }
 
 // TODO|CLEANUP: move this elsewhere?
@@ -39,33 +50,40 @@ void buffer_open_file(void *payload, int argc, char **argv) {
   vec_append_str(&buf->title, path);
 
   FILE *file = fopen(path, "r");
-  // TODO: handle fail to open by creating file
 
-  while (true) {
-    vec_char line;
-    vec_init(&line);
+  if (file != NULL) {
+    while (true) {
+      vec_char line;
+      vec_init(&line);
 
-    // TODO: support empty files
-    // TODO|FEATURE: support other line endings
-    //  to support other line endings, we will store a line_ending char[2] in
-    //  the buffer struct and add the line ending during saving
+      // TODO: support empty files
+      // TODO|FEATURE: support other line endings
+      //  to support other line endings, we will store a line_ending char[2] in
+      //  the buffer struct and add the line ending during saving
 
-    ssize_t len = getline(&line.data, &line.cap, file);
-    // TODO|BUG: getline can return -1 on eof AND error, so we need to check for
-    // errors as well
-    if (len == -1)
-      break;
+      ssize_t len = getline(&line.data, &line.cap, file);
+      // TODO|BUG: getline can return -1 on eof AND error, so we need to check
+      // for errors as well
+      if (len == -1)
+        break;
 
-    line.len = len;
-    // newlines should not be included in our internal representation
-    if (line.data[len - 1] == '\n') {
-      line.len--;
+      line.len = len;
+      // newlines should not be included in our internal representation
+      if (line.data[len - 1] == '\n') {
+        line.len--;
+      }
+
+      vec_push(&buf->lines, line);
     }
 
-    vec_push(&buf->lines, line);
+    fclose(file);
   }
 
-  fclose(file);
+  if (buf->lines.len == 0) {
+    vec_char line;
+    vec_init(&line);
+    vec_push(&buf->lines, line);
+  }
 
   vec_push(&E.buffers, buf);
   E.cursor.buffer = buf;
@@ -75,10 +93,6 @@ void buffer_open_file(void *payload, int argc, char **argv) {
 }
 
 static struct Command commands[] = {
-  {"buffer-open-file", buffer_open_file, NULL, false},
-  {NULL}
-}; 
+    {"buffer-open-file", buffer_open_file, NULL, false}, {NULL}};
 
-void p_open() {
-  register_commands(commands);
-}
+void p_open() { register_commands(commands); }
