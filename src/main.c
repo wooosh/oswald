@@ -62,7 +62,8 @@ int main(int argc, char **argv) {
 
   struct MerakiInput *mi = meraki_term_input(E.term);
   while (true) {
-    struct MerakiKey key = meraki_read_key(mi);
+    struct MerakiKey key = meraki_read_key(mi); 
+    fprintf(stderr, "%zu\n", key.base);
     if (key.base == '\r') key.base = '\n';
     if (key.base == 'q' && key.control)
       break;

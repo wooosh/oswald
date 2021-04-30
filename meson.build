@@ -13,6 +13,7 @@ src = [
   'src/plugins/snippets.c',
   'src/plugins/misc.c',
   'src/plugins/open.c',
+  'src/plugins/treesitter.c',
 
   'src/highlight.c',
   'src/draw/highlight_cursor.c',
@@ -36,6 +37,7 @@ executable(
   src,
   include_directories : [inc],
   c_args : ['-static'],
+  link_args : '-lstdc++',
   dependencies : [libmeraki, libimp],
-  # objects: ['tree_sitter/libtree-sitter.a']
+  objects: ['tree_sitter/libtree-sitter.a']
 )

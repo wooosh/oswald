@@ -4,6 +4,8 @@ keybind {
   a snippets-insert test
   c snippets-insert cmain
 
+  backspace backspace
+
   :normal {
     i enter-mode insert
     s save-file

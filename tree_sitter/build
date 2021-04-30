@@ -8,6 +8,7 @@ if [ ! -d "tree-sitter" ]; then
   cd tree-sitter
   make
   cd ..
+  cp tree-sitter/lib/include/tree_sitter/api.h ./
 fi
 
 mkdir -p include/tree_sitter
