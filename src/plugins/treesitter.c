@@ -50,15 +50,15 @@ bool treesitter_in_range(TSTreeCursor* cur, size_t line) {
 }
 
 bool treesitter_cursor_next(TSTreeCursor* cur, size_t line) {
-  if (ts_tree_cursor_goto_first_child(cur)) {
+  if (treesitter_in_range(cur, line) && ts_tree_cursor_goto_first_child(cur)) {
     return true;
-  } else if (ts_tree_cursor_goto_next_sibling(cur) && treesitter_in_range(cur, line)) {
+  } else if (ts_tree_cursor_goto_next_sibling(cur)) {
     return true;
   }
 
   while (ts_tree_cursor_goto_parent(cur)) {
     if (ts_tree_cursor_goto_next_sibling(cur)) {
-      return treesitter_in_range(cur, line);
+      return true;
     }
   }
   
@@ -73,7 +73,6 @@ void treesitter_highlight(struct Buffer *buffer, size_t line, vec_style *highlig
     TSTreeCursor cur = ts_tree_cursor_new(top_node);
     do {
       TSNode node = ts_tree_cursor_current_node(&cur);
-      fprintf(stderr, "%zu %s\n", line, ts_node_type(node));
       TSPoint start = ts_node_start_point(node);
       TSPoint end = ts_node_end_point(node);
       if (start.row == line && end.row == line && (
@@ -82,7 +81,7 @@ void treesitter_highlight(struct Buffer *buffer, size_t line, vec_style *highlig
           strcmp(ts_node_type(node), "enumerator") == 0 ||
           strcmp(ts_node_type(node), "type_identifier") == 0)) {
         if (start.row == end.row) {
-          struct MerakiStyle s = {MERAKI16FG(1), {Meraki8Color, -1}, MerakiBright};
+          struct MerakiStyle s = {{Meraki8Color, 35}, {Meraki8Color, -1}, MerakiBright};
           for (int i=start.column; i<end.column; i++) {
             highlight->data[i] = s;
           }

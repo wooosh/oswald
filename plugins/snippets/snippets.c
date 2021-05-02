@@ -27,7 +27,7 @@ static struct Command commands[] = {
   {NULL}
 };
 
-void p_snippets() {
+void plugin_init() {
   map_init(&snippets);
 
   map_set(&snippets, "test",

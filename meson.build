@@ -10,7 +10,6 @@ src = [
 
   'src/plugins/debug.c',
   'src/plugins/navigation.c',
-  'src/plugins/snippets.c',
   'src/plugins/misc.c',
   'src/plugins/open.c',
   'src/plugins/treesitter.c',
@@ -36,8 +35,7 @@ executable(
   'oswald',
   src,
   include_directories : [inc],
-  c_args : ['-static'],
-  link_args : '-lstdc++',
+  link_args : ['-lstdc++', '-ldl', '-export-dynamic'],
   dependencies : [libmeraki, libimp],
   objects: ['tree_sitter/libtree-sitter.a']
 )
