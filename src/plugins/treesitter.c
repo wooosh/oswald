@@ -42,17 +42,14 @@ void treesitter_update(struct Event e) {
   }
 }
 
-bool treesitter_in_range(TSTreeCursor* cur, size_t line) {
+bool treesitter_cursor_next(TSTreeCursor* cur, size_t line) {
   TSNode node = ts_tree_cursor_current_node(cur);
   TSPoint start = ts_node_start_point(node);
   TSPoint end = ts_node_end_point(node);
-  return start.row <= line && end.row >= line;
-}
 
-bool treesitter_cursor_next(TSTreeCursor* cur, size_t line) {
-  if (treesitter_in_range(cur, line) && ts_tree_cursor_goto_first_child(cur)) {
+  if (start.row <= line && end.row >= line && ts_tree_cursor_goto_first_child(cur)) {
     return true;
-  } else if (ts_tree_cursor_goto_next_sibling(cur)) {
+  } else if (end.row <= line && ts_tree_cursor_goto_next_sibling(cur)) {
     return true;
   }
 
